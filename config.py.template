@@ -9,3 +9,10 @@ PASSWORD = 'PASSWORD'
 
 # The channel ID you want to log into.
 CHANNEL = 1 # <- Change that to the chat channel ID you want
+
+# Pre-Configured Channel IDs
+CHANNEL_DUKE = 3016
+
+CHANNEL_PARA = 20902
+
+CHANNEL_DECI = 1894
