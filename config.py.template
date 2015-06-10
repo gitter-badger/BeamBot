@@ -1,0 +1,11 @@
+# Address of the beam website. No trailing slash.
+BEAM_ADDR = 'https://beam.pro'
+
+# Your username on Beam
+USERNAME = 'USERNAME'
+
+# Your password on Beam
+PASSWORD = 'PASSWORD'
+
+# The channel ID you want to log into.
+CHANNEL = 1 # <- Change that to the chat channel ID you want
