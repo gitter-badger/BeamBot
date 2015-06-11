@@ -12,21 +12,32 @@ get_msg = session.get(
 )
 
 for msg in get_msg.json():
-	#print (msg,"\n")
+	
+	user_id = msg['user_id']
+	user_name = msg['user_name']
+
 	for item in msg['message']:
-		for i in iter(item.keys()):
-			print (i)
-			print (item[i])
-		#print ('Item:',item)
-		# curIter = 0
-		# for i in iter(item.keys()):
-		# 	print ('item:\t\t',item[i])
-		# 	print ('i:\t\t',i)
-		# 	print ('curIter:\t',curIter,"\n")
-		# 	# if i == 'url':
-		# 	# 	print (type(curIter),curIter)
-		# 	if i == 'url' and curIter == 2:	# We're parsing a URL
-		# 		print (item[i])
-		# 	curIter += 1
-# input()
-# time.sleep(3)
+		
+		iterable = iter(item.keys())
+		text = False
+
+		for i in iterable:
+			
+			if i == "data":
+				curItem = str(item[i])
+				if item[i] == '':	# Empty data, indicating a link
+					next
+				if curItem[0] == '!':	# It's a command! Pay attention!
+					if curItem[1:] == "hey":		# Hello command
+						print ("Saluton Mondo", user_name + "!")
+					elif curItem[1:] == "ping":	# Ping Pong Command
+						print ("Pong!")
+					elif curItem[1:] == "urmom":	# No U!
+						print ("No U!")
+					elif curItem[1:] == "gears":	# User balance, need to get user ID for
+						print ("Not implemented yet")
+			elif i == "type":				# The type of message, either link or text
+				if item[i] == 'text':	# It's text, check for commands
+					text = True
+				if item[i] == 'link':	# It's a link
+					pass

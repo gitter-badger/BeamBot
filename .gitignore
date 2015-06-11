@@ -1,2 +1,5 @@
 # Confidential informations!
 /config.py
+/*.py[cCoO]
+/testbot.py
+__pycache__/
