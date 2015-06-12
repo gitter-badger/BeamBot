@@ -1,16 +1,16 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.1.0 RC 1
+#	Version: 	0.1.1 RC 1
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 11, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	!give, !ban, !quote, !gears, !tackle, !slap, !uptime, !live,
-#								!command, !whoami
-# -+=============================================================+-
-
+#				Need to add: 	Command timeout, mod controls, !command
+#				Need to update:	!give, !ban, !quote, !gears, !live
+#				Changed initilization message
+# -+=============================================================+
 
 import requests
 import config
@@ -18,11 +18,15 @@ import json
 import asyncio
 import websockets
 import time
-import signal
 import pickle
+from datetime import datetime
+import random
+import responses
 
 @asyncio.coroutine
 def connect():
+
+	global initTime
 
 	websocket = yield from websockets.connect(endpoint)
 	
@@ -40,15 +44,24 @@ def connect():
 	
 	if ret["error"] != None:
 		print (ret["error"])
-		print ("EEEK!")
+		print ("Error - Non-None error returned!")
 		quit()
+
+	if int(datetime.now().strftime('%H')) < 12:		# It's before 12 PM - morning
+		timeStr = "mornin'"
+	elif int(datetime.now().strftime('%H')) >= 12 and int(datetime.now().strftime('%H')) < 17:		# It's afternoon
+		timeStr = "afternoon"
+	elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
+		timeStr = "evenin'"
+
+	initTime = datetime.now().strftime('%H.%M.%S')
 
 	# If the message doesn't send initially, send it again. The bot just needs to wake up chat
 	packet = {
 		"type":"method",
 		"method":"msg",
-		"arguments":['pybot online!'],
-		"id":2
+		"arguments":['Top o\' the {} to you!'.format(timeStr)],
+		"id":1
 	}
 
 	yield from websocket.send(json.dumps(packet))
@@ -93,160 +106,101 @@ def readChat():
 
 						if curItem[0] == '!' and msgID not in msgs_acted:	# It's a command! Pay attention!
 							
-							if curItem[1:] == "hey":		# Hello command
+							# Commands
+							# ----------------------------------------------------------
+							if curItem[1:] == "hey":				# Say hey
+								response = responses.hey(userName)
 
-								# Set up websocket
-								# ----------------------------------------------------------
-								websocket = yield from websockets.connect(endpoint)
-								
-								packet = {
-									"type":"method",
-									"method":"auth",
-									"arguments":[channel, user_id, authkey],
-									"id":0
-								}
-								
-								yield from websocket.send(json.dumps(packet))
+							elif curItem[1:] == "ping":				# Ping Pong Command
+								response = responses.ping()
 
-								ret = yield from websocket.recv()
-								ret = json.loads(ret)
-								
-								if ret["error"] != None:
-									print (ret["error"])
-									print ("EEEK!")
-									yield from websocket.close()
-									quit()
+							elif curItem[1:] == "gears":			# Get user balance
+								response = responses.gears(userName, curItem)
 
-								#----------------------------------------------------------
+							elif curItem[1:].split()[0] == "give":	# Give gears to a user
+								response = responses.give(curItem)
 
-								response = "Saluton Mondo {} !".format(userName)
-								print (response)
+							elif curItem[1:].split()[0] == "ban":	# Ban a user from chatting
+								response = responses.ban(curItem)
 
-								packet = {
-									"type":"method",
-									"method":"msg",
-									"arguments":[response],
-									"id":msgLocalID
-								}
+							elif curItem[1:].split()[0] == "quote":	# Get random quote from DB
+								response = responses.quote(curItem)
 
+							elif curItem[1:].split()[0] == "tackle":# Tackle a user!
+								response = responses.tackle(curItem)
 
-								msgLocalID += 1
+							elif curItem[1:].split()[0] == "slap":	# Slap someone
+								response = responses.slap()
 
-								yield from websocket.send(json.dumps(packet))
-								ret_msg = yield from websocket.recv()
-								ret_msg = json.loads(ret_msg)
+							elif curItem[1:].split()[0] == "uptime":# Bot uptime
+								response = responses.uptime(initTime)
 
-								print ('ret:\t\t',ret_msg)
+							elif curItem[1:].split()[0] == "hug":	# Give hugs!
+								response = responses.hug(userName, curItem)
 
+							elif curItem[1:].split()[0] == "live":	# Let the bot know you're live
+								response = responses.live()
+
+							elif curItem[1:].split()[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
+								response = responses.whoami(userName)
+
+							# ----------------------------------------------------------
+							# Set up websocket
+							# ----------------------------------------------------------
+							websocket = yield from websockets.connect(endpoint)
+							
+							packet = {
+								"type":"method",
+								"method":"auth",
+								"arguments":[channel, user_id, authkey],
+								"id":0
+							}
+							
+							yield from websocket.send(json.dumps(packet))	# Send the message
+
+							ret = yield from websocket.recv()				# Recieve the response
+							ret = json.loads(ret)			# Convert the response to JSON
+							
+							if ret["error"] != None:		# Check to make sure we didn't get a Non-None response
+								print (ret["error"])
+								print ("EEEK!")
 								yield from websocket.close()
+								quit()
 
-								packet['arguments'][0] = ''
+							#----------------------------------------------------------
+							# Send the message
+							#----------------------------------------------------------
+							# Create the packet
+							packet = {
+								"type":"method",
+								"method":"msg",
+								"arguments":[response],
+								"id":msgLocalID
+							}
 
-							elif curItem[1:] == "ping":	# Ping Pong Command
+							print (response)	# Console logging
 
-								# Set up websocket
-								# ----------------------------------------------------------
-								websocket = yield from websockets.connect(endpoint)
-								
-								packet = {
-									"type":"method",
-									"method":"auth",
-									"arguments":[channel, user_id, authkey],
-									"id":0
-								}
-								
-								yield from websocket.send(json.dumps(packet))
+							msgLocalID += 1		# Increment the msg number variable
 
-								ret = yield from websocket.recv()
-								ret = json.loads(ret)
-								
-								if ret["error"] != None:
-									print (ret["error"])
-									print ("EEEK!")
-									yield from websocket.close()
-									quit()
+							yield from websocket.send(json.dumps(packet))	# Send the message
+							ret_msg = yield from websocket.recv()			# Get the response
+							ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
-								#----------------------------------------------------------
+							#print ('ret:\t\t',ret_msg)
 
-								response = "Pong!"
-								print (response)
+							yield from websocket.close()			# Close the connection
 
-								packet = {
-									"type":"method",
-									"method":"msg",
-									"arguments":[response],
-									"id":msgLocalID
-								}
-
-								msgLocalID += 1
-
-								yield from websocket.send('')
-								ret = yield from websocket.recv()
-
-								yield from websocket.send(json.dumps(packet))
-								ret_msg = yield from websocket.recv()
-								ret_msg = json.loads(ret_msg)
-
-								print ('ret:\t\t',ret_msg)
-
-								yield from websocket.close()
-
-								packet['arguments'][0] = ''
-
-							elif curItem[1:] == "gears":	# User balance, need to get user ID for
-
-								# Set up websocket
-								# ----------------------------------------------------------
-								websocket = yield from websockets.connect(endpoint)
-								
-								packet = {
-									"type":"method",
-									"method":"auth",
-									"arguments":[channel, user_id, authkey],
-									"id":0
-								}
-								
-								yield from websocket.send(json.dumps(packet))
-
-								ret = yield from websocket.recv()
-								ret = json.loads(ret)
-								
-								if ret["error"] != None:
-									print (ret["error"])
-									print ("EEEK!")
-									yield from websocket.close()
-									quit()
-
-								#----------------------------------------------------------
-
-								response = "Not implemented yet ;("
-								print (response)
-
-								packet = {
-									"type":"method",
-									"method":"msg",
-									"arguments":[response],
-									"id":msgLocalID
-								}
-
-								msgLocalID += 1
-
-								yield from websocket.send(json.dumps(packet))
-								ret_msg = yield from websocket.recv()
-								ret_msg = json.loads(ret_msg)
-
-								print ('ret:\t\t',ret_msg)
-
-								yield from websocket.close()
-
-								packet['arguments'][0] = ''
+							packet['arguments'][0] = ''				# Clear the message arguments
 
 				if msgID not in msgs_acted:		# Don't add duplicates
 					msgs_acted.append(msgID)		# Make sure we don't act on messages again
+					
+					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
+					# messages again.
 					pickle.dump(msgs_acted, open('blacklist.p', 'wb'))
 		
-		print ('Waiting 3 seconds...')
-		time.sleep(3)
+		print ('Waiting 1 seconds...')
+		time.sleep(1)		# Don't spam the server >.<
 		
 # ----------------------------------------------------------------------
 # Main Code
@@ -261,7 +215,7 @@ def _get_auth_body():
 
 def main():
 
-	global authkey, endpoint, channel, user_id, addr
+	global authkey, endpoint, channel, user_id, addr, loop
 
 	addr = config.BEAM_ADDR
 
@@ -305,7 +259,7 @@ def main():
 	print ('endpoint:\t',endpoint)
 
 	loop = asyncio.get_event_loop()
-	#loop.run_until_complete(connect())
+	loop.run_until_complete(connect())
 	loop.run_until_complete(readChat())
 	loop.close()
 

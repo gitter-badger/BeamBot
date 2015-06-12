@@ -25,9 +25,13 @@ Once the proper libaries are installed, you need to edit the `config.py.template
 
 Simply run `python3 beambot.py`!
 
-## Features in 0.1.0 (RC 1)
+## Features in 0.1.1 (RC 1)
 
 It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
+
+The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
+
+The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated),  and `!whoami` commands.
 
 ###Current issues:
 
