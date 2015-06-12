@@ -31,11 +31,20 @@ It's a Release Candidate because it works in its basic form. However, it still c
 
 The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
 
-The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated),  and `!whoami` commands.
+The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated - Thank you Kirby for the ping pong response >:D),  and `!whoami` commands.
+
+Command responses are now handled by external module, `responses.py`.
+
+Added better message filtering support for old messages
+
 
 ###Current issues:
 
-* Need to add the !give, !ban, !quote, !gears, !tackle, !slap, !uptime, !live, !command, and !whoami commmands still.
+* Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
+
+* Need to stop bot from acting on any messages older than when it comes online.
+
+* Need to add command timeout so commands can't be spammed.
 
 * Need a better name than pybot/beambot
 
