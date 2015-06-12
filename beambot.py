@@ -1,27 +1,26 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.1.1 RC 1
+#	Version: 	0.1.2 RC 1
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 11, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	Command timeout, mod controls, !command
-#				Need to update:	!give, !ban, !quote, !gears, !live
+#				Need to add: 	Command timeout, mod controls
+#				Need to update:	!give, !ban, !quote, !gears, !live, !command
 #				Changed initilization message
 # -+=============================================================+
 
+import os
 import requests
-import config
 import json
-import asyncio
-import websockets
+import asyncio, websockets
 import time
 import pickle
-from datetime import datetime
 import random
-import responses
+import config, responses
+from datetime import datetime
 
 @asyncio.coroutine
 def connect():
@@ -108,41 +107,55 @@ def readChat():
 							
 							# Commands
 							# ----------------------------------------------------------
-							if curItem[1:] == "hey":				# Say hey
+							cmd = curItem[1:]
+
+							if cmd == "hey":				# Say hey
 								response = responses.hey(userName)
 
-							elif curItem[1:] == "ping":				# Ping Pong Command
+							elif cmd == "ping":				# Ping Pong Command
 								response = responses.ping()
 
-							elif curItem[1:] == "gears":			# Get user balance
+							elif cmd == "gears":			# Get user balance
 								response = responses.gears(userName, curItem)
 
-							elif curItem[1:].split()[0] == "give":	# Give gears to a user
+							elif cmd == "give":	# Give gears to a user
 								response = responses.give(curItem)
 
-							elif curItem[1:].split()[0] == "ban":	# Ban a user from chatting
+							elif cmd == "ban":	# Ban a user from chatting
 								response = responses.ban(curItem)
 
-							elif curItem[1:].split()[0] == "quote":	# Get random quote from DB
+							elif cmd == "quote":	# Get random quote from DB
 								response = responses.quote(curItem)
 
-							elif curItem[1:].split()[0] == "tackle":# Tackle a user!
+							elif cmd == "tackle":# Tackle a user!
 								response = responses.tackle(curItem)
 
-							elif curItem[1:].split()[0] == "slap":	# Slap someone
+							elif cmd == "slap":	# Slap someone
 								response = responses.slap()
 
-							elif curItem[1:].split()[0] == "uptime":# Bot uptime
+							elif cmd == "uptime":# Bot uptime
 								response = responses.uptime(initTime)
 
-							elif curItem[1:].split()[0] == "hug":	# Give hugs!
+							elif cmd == "hug":	# Give hugs!
 								response = responses.hug(userName, curItem)
 
-							elif curItem[1:].split()[0] == "live":	# Let the bot know you're live
+							elif cmd == "live":	# Let the bot know you're live
 								response = responses.live()
 
-							elif curItem[1:].split()[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
+							elif cmd == "whoami":	# Who am I? I'M A GOAT. DUH.
 								response = responses.whoami(userName)
+
+							elif cmd == "command":	# Add command for any users
+								response = responses.command(userName, curItem)
+
+							elif cmd == "command+":	# Add mod-only command
+								response = responses.commandMod(userName, curItem)
+
+							elif cmd == "command-":	# Remove a command
+								response = responses.commandRM(userName, curItem)
+
+							else:					# Unknown or custom command
+								response = responses.custom(userName, curItem)
 
 							# ----------------------------------------------------------
 							# Set up websocket
@@ -197,7 +210,15 @@ def readChat():
 					
 					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
 					# messages again.
-					pickle.dump(msgs_acted, open('blacklist.p', 'wb'))
+					f = open('.blist_temp.p', 'wb')
+					pickle.dump(msgs_acted, f)
+
+					f.flush()
+					os.fsync(f.fileno())
+					f.close()
+
+					os.rename('.blist_temp.p', 'blacklist.p')
+
 		
 		print ('Waiting 1 seconds...')
 		time.sleep(1)		# Don't spam the server >.<

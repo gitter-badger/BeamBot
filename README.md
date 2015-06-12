@@ -37,7 +37,6 @@ Command responses are now handled by external module, `responses.py`.
 
 Added better message filtering support for old messages
 
-
 ###Current issues:
 
 * Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
