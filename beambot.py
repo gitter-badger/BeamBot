@@ -113,28 +113,28 @@ def readChat():
 								response = responses.hey(userName)
 
 							elif cmd == "ping":				# Ping Pong Command
-								response = responses.ping()
+								response = responses.ping(userName)
 
 							elif cmd == "gears":			# Get user balance
 								response = responses.gears(userName, curItem)
 
 							elif cmd == "give":	# Give gears to a user
-								response = responses.give(curItem)
+								response = responses.give(userName, curItem)
 
 							elif cmd == "ban":	# Ban a user from chatting
 								response = responses.ban(curItem)
 
 							elif cmd == "quote":	# Get random quote from DB
-								response = responses.quote(curItem)
+								response = responses.quote(userName, curItem)
 
 							elif cmd == "tackle":# Tackle a user!
-								response = responses.tackle(curItem)
+								response = responses.tackle(userName, curItem)
 
 							elif cmd == "slap":	# Slap someone
-								response = responses.slap()
+								response = responses.slap(userName)
 
 							elif cmd == "uptime":# Bot uptime
-								response = responses.uptime(initTime)
+								response = responses.uptime(userName, initTime)
 
 							elif cmd == "hug":	# Give hugs!
 								response = responses.hug(userName, curItem)
@@ -251,7 +251,9 @@ def main():
 		print (login_r.text)
 		print ("Not Authenticated!")
 		quit()
-		
+	
+
+
 	user_id = login_r.json()['id']
 
 	channel = input("Channel? ")

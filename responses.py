@@ -3,61 +3,121 @@ import time
 from datetime import datetime
 import sqlite3
 
-def _checkTime(cmd, user=None):
-	time = (datetime.now().strftime("%M") * 60) + (datetime.now().strftime("%S"))
+global prevTime
+prevTime = {}
 
-	if cmd == "cmd":			# Add command command
-		
+# End of do responses-specific modules
+# ------------------------------------------------------------------------
 
-	if cmd == "cmdMod":			# Add mod command command
-		
-
-	if cmd == "cmdRM":			# Remove command command
-		
+def _checkTime(cmd, user):
+	curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
 	if cmd == "tackle":			# Tackle command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "slap":			# Slap command
-		
+	elif cmd == "slap":			# Slap command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "quote":			# Quote command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "ban":			# Ban command
+	elif cmd == "quote":		# Quote command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "ping":			# Ping pong command
-		
+	elif cmd == "ping":			# Ping pong command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "hug":			# Hug command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "give":			# Give gears command
-		
+	elif cmd == "hug":			# Hug command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "gears":			# Check # of gears command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "hey":			# Hey command
-		
+	elif cmd == "give":			# Give gears command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "uptime":			# Bot uptime command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
 
-	if cmd == "whoami":			# Whoami command
-		
+	elif cmd == "gears":		# Check # of gears command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "live":			# Tell bot stream is live command
-		
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
+
+	elif cmd == "hey":			# Hey command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
+
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
+
+	elif cmd == "uptime":		# Bot uptime command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
+
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
+
+	elif cmd == "whoami":		# Whoami command
+		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
+
+		if user in prevTime: 
+			if curTime - prevTime[user] >= 31:	# Only every 30 seconds per user
+				return True			# Too soon
+			else:					# Under 30 seonds
+				prevTime[user] = time
+				return False		# Allow it to be run
+
+# ------------------------------------------------------------------------
+# End of do responses-specific modules
+# ------------------------------------------------------------------------
 
 def custom(userName, curItem):	# Check unknown command, might be custom one
 	return "Not implemented yet ;("
 
 def commandMod(userName, curItem):		# Command available to mods only
-	cmd = 'cmdMod'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
-		return
 	if len(curItem[1:].split()) >= 3:
 		cmd = curItem[1]
 		response = curItem[2]
@@ -67,9 +127,6 @@ def commandMod(userName, curItem):		# Command available to mods only
 	return "Not implemented yet ;("	# Incorrect # Args - won't return anything
 
 def command(userName, curItem):			# Command available to anyone
-	cmd = 'cmd'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
-		return
 	if len(curItem[1:].split()) >= 3:
 		cmd = curItem[1]
 		response = curItem[2]
@@ -79,18 +136,15 @@ def command(userName, curItem):			# Command available to anyone
 	return "Not implemented yet ;("	# Incorrect # Args - won't return anything
 
 def commandRM(userName, curItem):			# Remove a command
-	cmd = 'cmdRM'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
-		return
 	if len(curItem[1:].split()) >= 2:
 		cmdRemove = curItem[1]
 		return "Not implemented yet ;("
 
 	return "Not implemented yet ;("	# Incorrect # Args - won't return anything
 
-def tackle(curItem):
+def tackle(userName, curItem):
 	cmd = 'tackle'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	if len(curItem[1:].split()) >= 2:
 		rand = random.randrange(0, 51)
@@ -113,15 +167,15 @@ def tackle(curItem):
 			else:
 				return "pybot {} {}.".format("tackles", curItem[1:].split()[1])
 
-def slap():
+def slap(userName):
 	cmd = 'slap'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	return ":o Why on earth would I want to do that?"
 
-def quote(curItem):
+def quote(userName, curItem):
 	cmd = 'quote'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	if len(curItem[1:].split()) >= 2:
 		userName = curItem[1:].split()[1]
@@ -131,9 +185,9 @@ def quote(curItem):
 
 	return "Not implemented yet ;("
 
-def ban(curItem):
+def ban(userName, curItem):
 	cmd = 'ban'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 
 	if len(curItem[1:].split()) >= 2:
@@ -145,15 +199,15 @@ def ban(curItem):
 
 	return "Not implemented yet ;("
 
-def ping():
+def ping(userName):
 	cmd = 'ping'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	return "(>^.^)>-O ____|____ ° Q(^.^<) pong!"
 
 def hug(hugee, curItem):
 	cmd = 'hug'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	if len(curItem[1:].split()) >= 2:
 		hugUser = curItem[1:].split()[1]
@@ -163,9 +217,9 @@ def hug(hugee, curItem):
 
 	return "{} gives a great big hug to {}! <3".format(hugee, hugUser)
 
-def give(curItem):
+def give(userName, curItem):
 	cmd = 'give'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	if len(curItem[0].split()) >= 3:
 		reciever = curItem[1:].split()[1]	# User recieving gears
@@ -177,7 +231,7 @@ def give(curItem):
 	
 def gears(userName, curItem):
 	cmd = 'gears'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	if len(curItem[0].split()) >= 2:
 		pass
@@ -186,13 +240,13 @@ def gears(userName, curItem):
 
 def hey(userName):
 	cmd = ''
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	return "Saluton Mondo {} !".format(userName)
 
-def uptime(initTime):
+def uptime(userName, initTime):
 	cmd = 'uptime'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	initTime = initTime.split('.')
 	timeHr = int(datetime.now().strftime("%H")) - int(initTime[0])
@@ -204,12 +258,9 @@ def uptime(initTime):
 
 def whoami(userName):
 	cmd = 'whoami'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, userName):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return
 	return "Uh...you're {}. Are you all right? :)".format(userName)
 
-def live():
-	cmd = 'live'
-	if _checkTime(cmd):		# if _checkTime() returns True then the command is on timeout, return nothing
-		return
+def live(userName):
 	return "Not implemented yet ;("
