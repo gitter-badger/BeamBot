@@ -3,4 +3,5 @@
 /*.py[cCoO]
 /testbot.py
 __pycache__/
-.blist_temp.p
+/.blist_temp.p
+/blacklist.p

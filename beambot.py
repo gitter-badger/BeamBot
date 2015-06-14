@@ -3,13 +3,13 @@
 # -+=============================================================+-
 #	Version: 	0.1.2 RC 1
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 11, 2015
+#	Date:		June 13, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	Command timeout, mod controls
+#				Need to add: 	Mod controls
 #				Need to update:	!give, !ban, !quote, !gears, !live, !command
-#				Changed initilization message
+#				Added command timeouts, currently all @ 30 seconds
 # -+=============================================================+
 
 import os
@@ -107,51 +107,53 @@ def readChat():
 							
 							# Commands
 							# ----------------------------------------------------------
-							cmd = curItem[1:]
+							cmd = curItem[1:].split()
 
-							if cmd == "hey":				# Say hey
+							print(cmd)
+
+							if cmd[0] == "hey":				# Say hey
 								response = responses.hey(userName)
 
-							elif cmd == "ping":				# Ping Pong Command
+							elif cmd[0] == "ping":				# Ping Pong Command
 								response = responses.ping(userName)
 
-							elif cmd == "gears":			# Get user balance
+							elif cmd[0] == "gears":			# Get user balance
 								response = responses.gears(userName, curItem)
 
-							elif cmd == "give":	# Give gears to a user
+							elif cmd[0] == "give":	# Give gears to a user
 								response = responses.give(userName, curItem)
 
-							elif cmd == "ban":	# Ban a user from chatting
-								response = responses.ban(curItem)
+							elif cmd[0] == "ban":	# Ban a user from chatting
+								response = responses.ban(userName, curItem)
 
-							elif cmd == "quote":	# Get random quote from DB
+							elif cmd[0] == "quote":	# Get random quote from DB
 								response = responses.quote(userName, curItem)
 
-							elif cmd == "tackle":# Tackle a user!
+							elif cmd[0] == "tackle":# Tackle a user!
 								response = responses.tackle(userName, curItem)
 
-							elif cmd == "slap":	# Slap someone
+							elif cmd[0] == "slap":	# Slap someone
 								response = responses.slap(userName)
 
-							elif cmd == "uptime":# Bot uptime
+							elif cmd[0] == "uptime":# Bot uptime
 								response = responses.uptime(userName, initTime)
 
-							elif cmd == "hug":	# Give hugs!
+							elif cmd[0] == "hug":	# Give hugs!
 								response = responses.hug(userName, curItem)
 
-							elif cmd == "live":	# Let the bot know you're live
-								response = responses.live()
+							elif cmd[0] == "live":	# Let the bot know you're live
+								response = responses.live(userName)
 
-							elif cmd == "whoami":	# Who am I? I'M A GOAT. DUH.
+							elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
 								response = responses.whoami(userName)
 
-							elif cmd == "command":	# Add command for any users
+							elif cmd[0] == "command":	# Add command for any users
 								response = responses.command(userName, curItem)
 
-							elif cmd == "command+":	# Add mod-only command
+							elif cmd[0] == "command+":	# Add mod-only command
 								response = responses.commandMod(userName, curItem)
 
-							elif cmd == "command-":	# Remove a command
+							elif cmd[0] == "command-":	# Remove a command
 								response = responses.commandRM(userName, curItem)
 
 							else:					# Unknown or custom command
@@ -191,7 +193,8 @@ def readChat():
 								"id":msgLocalID
 							}
 
-							print (response)	# Console logging
+							print ('command:\t\t',cmd,'\n',
+									'response:\t\t',response)	# Console logging
 
 							msgLocalID += 1		# Increment the msg number variable
 
@@ -284,6 +287,7 @@ def main():
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(connect())
 	loop.run_until_complete(readChat())
+	loop.run_until_complete(botCommands())
 	loop.close()
 
 if __name__ == "__main__":
