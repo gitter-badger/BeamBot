@@ -1,15 +1,15 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.1.2 RC 1
+#	Version: 	0.2.0 RC 2
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 13, 2015
+#	Date:		June 16, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	Mod controls
-#				Need to update:	!give, !ban, !quote, !gears, !live, !command
-#				Added command timeouts, currently all @ 30 seconds
+#				Need to add: 	Mod controls, automatic giving of gears
+#				Need to update:	!ban, !command
+#				Added !quote, !give, and !gears
 # -+=============================================================+
 
 import os
@@ -76,7 +76,7 @@ def connect():
 def readChat():
 
 	session = requests.Session()
-	msgs_acted = pickle.load(open ('blacklist.p', "rb"))
+	msgs_acted = pickle.load(open('blacklist.p', "rb"))
 
 	while True:
 		
@@ -109,7 +109,7 @@ def readChat():
 							# ----------------------------------------------------------
 							cmd = curItem[1:].split()
 
-							print(cmd)
+							print (cmd[0])
 
 							if cmd[0] == "hey":				# Say hey
 								response = responses.hey(userName)
@@ -141,9 +141,6 @@ def readChat():
 							elif cmd[0] == "hug":	# Give hugs!
 								response = responses.hug(userName, curItem)
 
-							elif cmd[0] == "live":	# Let the bot know you're live
-								response = responses.live(userName)
-
 							elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
 								response = responses.whoami(userName)
 
@@ -156,6 +153,17 @@ def readChat():
 							elif cmd[0] == "command-":	# Remove a command
 								response = responses.commandRM(userName, curItem)
 
+							elif cmd[0] == "whitelist":	# Whitelist a user
+								print (len(cmd))
+								if len(cmd) >= 3:	# True means it has something like `add` or `remove`
+									if cmd[1] == 'add':
+										response = responses.whitelist(userName, curItem)
+									elif cmd[1] == 'remove':
+										response = responses.whitelistRM(userName, curItem)
+									else: 	# Not add or remove
+										response = None
+								else:		# Just get the whitelist
+									response = responses.whitelistLS(userName, curItem)
 							else:					# Unknown or custom command
 								response = responses.custom(userName, curItem)
 
@@ -255,8 +263,6 @@ def main():
 		print ("Not Authenticated!")
 		quit()
 	
-
-
 	user_id = login_r.json()['id']
 
 	channel = input("Channel? ")
@@ -287,7 +293,6 @@ def main():
 	loop = asyncio.get_event_loop()
 	loop.run_until_complete(connect())
 	loop.run_until_complete(readChat())
-	loop.run_until_complete(botCommands())
 	loop.close()
 
 if __name__ == "__main__":

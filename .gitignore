@@ -1,7 +1,13 @@
 # Confidential informations!
 /config.py
+# Don't want to upload compiled Python code
 /*.py[cCoO]
+# Don't need my testing file uploaded
 /testbot.py
+# Don't need any cached versions
 __pycache__/
+# Don't need the blacklist temp file
 /.blist_temp.p
+# Don't need the the message blacklist file, nor the message whitelist file
 /blacklist.p
+/whitelist.p
