@@ -7,4 +7,6 @@
 # Don't need any cached versions
 __pycache__/
 # Don't include the local config files
-/data/*
+data/beambot.sqlite
+data/blacklist.p
+data/whitelist.p

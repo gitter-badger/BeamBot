@@ -14,7 +14,7 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 ###Setting up the config.py file:
 
-Once the proper libaries are installed, you need to edit the `config.py.template` file with your Beam.pro information.
+Once the proper libaries are installed, you need to edit the `data/config.py.template` file with your Beam.pro information.
 
 * The `BEAM_ADDR` variable should not be touched. It will break everything if that is changed.
 * The `USERNAME` and `PASSWORD` variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to edit the `config.py.template
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
 ##Setting up the database
-Simply rename the `beambot.sqlite-template` to `beambot.sqlite`
+Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
 ###Running:
 
@@ -70,7 +70,7 @@ It's a Release Candidate because it works in its basic form. However, it still c
 * Make `responses.py` use pickle/XML file to provide commands and responses
 
 * Add give 3 gears if chatted in last minute automatically
-| - Combined (Similar need for threading)
+
 * Add auto giving out of gears (1 every second) 
 
 * Anything else I can't think of at this time but is still applicable
