@@ -5,6 +5,7 @@ import sqlite3
 import config
 import pickle
 import requests
+import os
 
 # Full list of commands
 """
@@ -23,12 +24,16 @@ import requests
 !command-  - Remove command
 !ban    - Ban a user from chatting
 !whitelist - Whitelist a user to remove command restrictions
+!goodbye - Turn off the bot
 """
 
 global prevTime
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'gears':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
 
-WHITELIST = pickle.load(open('whitelist.p', 'rb'))
+if os.path.exists('whitelist.p'):
+	WHITELIST = pickle.load(open('whitelist.p', 'rb'))
+else:
+	WHITELIST = []
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -353,7 +358,6 @@ def give(userName, curItem):
 		except:	# Oops! User didn't provide an integer
 			return None
 
-
 		with sqlite3.connect('beambot.sqlite') as con:
 			cur = con.cursor()
 
@@ -363,8 +367,6 @@ def give(userName, curItem):
 
 			cur.execute(command)
 			results = cur.fetchall()
-
-			print (results)
 
 			if len(results) >= 1:
 				userGearsOrig = results[0][0]

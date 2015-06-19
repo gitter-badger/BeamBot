@@ -15,14 +15,14 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 Once the proper libaries are installed, you need to edit the `config.py.template` file with your Beam.pro information.
 
-* The BEAM_ADDR variable should not be touched. It will break everything if that is changed.
-* The USERNAME and PASSWORD variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
+* The `BEAM_ADDR` variable should not be touched. It will break everything if that is changed.
+* The `USERNAME` and `PASSWORD` variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
 * The CHANNEL variable should be updated via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking the id number. You then swap that number for the 1 in config file.
 
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
-###Setting up command blacklist storage
-This is fairly simple, just rename `blacklist-template.p` to `blacklist.p` prior to running the first time.
+##Setting up the database
+Simply rename the `beambot.sqlite-template` to `beambot.sqlite`
 
 ###Running:
 
@@ -48,20 +48,26 @@ It's a Release Candidate because it works in its basic form. However, it still c
 
 **(0.2.0)** - Added the `!quote`, `!gears`, and `!give` commands.
 
+**(0.2.1)** - Stopped bot from acting on any messages older than when it comes online.
+
+**(0.2.1)** - pybot no longer not constantly pings the REST API + it's more responsive
+
+**(0.2.1)** - Bot will check for existence of config files and creates them if they don't exist
+
 ###Current issues:
 
 * Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
-
-* Need to stop bot from acting on any messages older than when it comes online. (Will be solved in 2.0)
 
 * Need a better name than pybot/beambot
 
 * Need to give pybot/beambot a command line interface to issue commands from
 
-* Need to make pybot not constantly ping REST API (2.0 release, very important though, # 1 feature for 2.0)
-
 * Make bot check for config files and if they don't exist, then create them (SQLite database, blacklist, whitelist)
 
-* Make `responses.py` use pickle file to provide commands and responses
+* Make `responses.py` use pickle/XML file to provide commands and responses
+
+* Add give 3 gears if chatted in last minute automatically
+| - Combined (Similar need for threading)
+* Add auto giving out of gears (1 every second) 
 
 * Anything else I can't think of at this time but is still applicable

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.2.0 RC 2
+#	Version: 	0.2.1 (RC 2)
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 16, 2015
+#	Date:		June 19, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	Mod controls, automatic giving of gears
-#				Need to update:	!ban, !command
-#				Added !quote, !give, and !gears
+#				Need to add: 	Mod controls (2.0)
+#				Need to update:	!ban, !command, users getting gears automatically
+#				Updated bot to make proper use of websockets + not spam server REST API
 # -+=============================================================+
 
 import os
@@ -75,165 +75,210 @@ def connect():
 @asyncio.coroutine
 def readChat():
 
+	global initTime
+
 	session = requests.Session()
-	msgs_acted = pickle.load(open('blacklist.p', "rb"))
+
+	if os.path.exists('blacklist.p'):
+		msgs_acted = pickle.load(open('blacklist.p', "rb"))
+	else:
+		msgs_acted = []
+
+	timeIncr = 0
+	activeChat = []
+
+	websocket = yield from websockets.connect(endpoint)
+
+	packet = {
+		"type":"method",
+		"method":"auth",
+		"arguments":[channel, user_id, authkey],
+		"id":0
+	}
+
+	response = yield from websocket.send(json.dumps(packet))
+
+	timeInit = datetime.now().strftime("%S")
+	if timeInit == 0:
+		timeInit += 1
 
 	while True:
-		
-		get_msg = session.get(	# Should be changed so that it automatically selects correct chat
-			addr + '/api/v1/chats/' + str(config.CHANNEL_PARA) + '/message'
-		)	
 
-		for msg in get_msg.json():		# Get the individual messages from chat
+		timeCur = datetime.now().strftime("%S")
 
-			userID = msg['user_id']
-			userName = msg['user_name']
-			msgID = msg['id']
+		result = yield from websocket.recv()
 
-			for item in msg['message']:	# Iterate through the message
+		if result != None:
+			result = json.loads(result)
+			next
 
-				msgLocalID = 0
+		if 'event' in result:
+			if result['event'] == "ChatMessage":
 
-				for i in iter(item.keys()):
+				msg = result['data']
 
-					curItem = str(item[i])
+				userID = msg['user_id']
+				userName = msg['user_name']
+				msgID = msg['id']
 
-					if item[i] == '':	# Empty data, indicating a link
-						next
+				if timeIncr == 60:		# It's been 1 minute
+					activeChat.append(userName)
 
-					if len(curItem) >= 1:	# Just make sure it's an actual message
+				for item in msg['message']:	# Iterate through the message
 
-						if curItem[0] == '!' and msgID not in msgs_acted:	# It's a command! Pay attention!
-							
-							# Commands
-							# ----------------------------------------------------------
-							cmd = curItem[1:].split()
+					msgLocalID = 0
 
-							print (cmd[0])
+					for i in iter(item.keys()):
 
-							if cmd[0] == "hey":				# Say hey
-								response = responses.hey(userName)
+						curItem = str(item[i])
 
-							elif cmd[0] == "ping":				# Ping Pong Command
-								response = responses.ping(userName)
+						if item[i] == '':	# Empty data, indicating a link
+							next
 
-							elif cmd[0] == "gears":			# Get user balance
-								response = responses.gears(userName, curItem)
+						if len(curItem) >= 1:	# Just make sure it's an actual message
 
-							elif cmd[0] == "give":	# Give gears to a user
-								response = responses.give(userName, curItem)
+							if curItem[0] == '!' and msgID not in msgs_acted:	# It's a command! Pay attention!
+								
+								# Commands
+								# ----------------------------------------------------------
+								cmd = curItem[1:].split()
 
-							elif cmd[0] == "ban":	# Ban a user from chatting
-								response = responses.ban(userName, curItem)
+								print (cmd[0])
 
-							elif cmd[0] == "quote":	# Get random quote from DB
-								response = responses.quote(userName, curItem)
+								if cmd[0] == "hey":				# Say hey
+									response = responses.hey(userName)
 
-							elif cmd[0] == "tackle":# Tackle a user!
-								response = responses.tackle(userName, curItem)
+								elif cmd[0] == "ping":				# Ping Pong Command
+									response = responses.ping(userName)
 
-							elif cmd[0] == "slap":	# Slap someone
-								response = responses.slap(userName)
+								elif cmd[0] == "gears":			# Get user balance
+									response = responses.gears(userName, curItem)
 
-							elif cmd[0] == "uptime":# Bot uptime
-								response = responses.uptime(userName, initTime)
+								elif cmd[0] == "give":	# Give gears to a user
+									response = responses.give(userName, curItem)
 
-							elif cmd[0] == "hug":	# Give hugs!
-								response = responses.hug(userName, curItem)
+								elif cmd[0] == "ban":	# Ban a user from chatting
+									response = responses.ban(userName, curItem)
 
-							elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
-								response = responses.whoami(userName)
+								elif cmd[0] == "quote":	# Get random quote from DB
+									response = responses.quote(userName, curItem)
 
-							elif cmd[0] == "command":	# Add command for any users
-								response = responses.command(userName, curItem)
+								elif cmd[0] == "tackle":# Tackle a user!
+									response = responses.tackle(userName, curItem)
 
-							elif cmd[0] == "command+":	# Add mod-only command
-								response = responses.commandMod(userName, curItem)
+								elif cmd[0] == "slap":	# Slap someone
+									response = responses.slap(userName)
 
-							elif cmd[0] == "command-":	# Remove a command
-								response = responses.commandRM(userName, curItem)
+								elif cmd[0] == "uptime":# Bot uptime
+									response = responses.uptime(userName, initTime)
 
-							elif cmd[0] == "whitelist":	# Whitelist a user
-								print (len(cmd))
-								if len(cmd) >= 3:	# True means it has something like `add` or `remove`
-									if cmd[1] == 'add':
-										response = responses.whitelist(userName, curItem)
-									elif cmd[1] == 'remove':
-										response = responses.whitelistRM(userName, curItem)
-									else: 	# Not add or remove
-										response = None
-								else:		# Just get the whitelist
-									response = responses.whitelistLS(userName, curItem)
-							else:					# Unknown or custom command
-								response = responses.custom(userName, curItem)
+								elif cmd[0] == "hug":	# Give hugs!
+									response = responses.hug(userName, curItem)
 
-							# ----------------------------------------------------------
-							# Set up websocket
-							# ----------------------------------------------------------
-							websocket = yield from websockets.connect(endpoint)
-							
-							packet = {
-								"type":"method",
-								"method":"auth",
-								"arguments":[channel, user_id, authkey],
-								"id":0
-							}
-							
-							yield from websocket.send(json.dumps(packet))	# Send the message
+								elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
+									response = responses.whoami(userName)
 
-							ret = yield from websocket.recv()				# Recieve the response
-							ret = json.loads(ret)			# Convert the response to JSON
-							
-							if ret["error"] != None:		# Check to make sure we didn't get a Non-None response
-								print (ret["error"])
-								print ("EEEK!")
-								yield from websocket.close()
-								quit()
+								elif cmd[0] == "command":	# Add command for any users
+									response = responses.command(userName, curItem)
 
-							#----------------------------------------------------------
-							# Send the message
-							#----------------------------------------------------------
-							# Create the packet
-							packet = {
-								"type":"method",
-								"method":"msg",
-								"arguments":[response],
-								"id":msgLocalID
-							}
+								elif cmd[0] == "command+":	# Add mod-only command
+									response = responses.commandMod(userName, curItem)
 
-							print ('command:\t\t',cmd,'\n',
-									'response:\t\t',response)	# Console logging
+								elif cmd[0] == "command-":	# Remove a command
+									response = responses.commandRM(userName, curItem)
 
-							msgLocalID += 1		# Increment the msg number variable
+								elif cmd[0] == "whitelist":	# Whitelist a user
+									print (len(cmd))
+									if len(cmd) >= 3:	# True means it has something like `add` or `remove`
+										if cmd[1] == 'add':
+											response = responses.whitelist(userName, curItem)
+										elif cmd[1] == 'remove':
+											response = responses.whitelistRM(userName, curItem)
+										else: 	# Not add or remove
+											response = None
+									else:		# Just get the whitelist
+										response = responses.whitelistLS(userName, curItem)
 
-							yield from websocket.send(json.dumps(packet))	# Send the message
-							ret_msg = yield from websocket.recv()			# Get the response
-							ret_msg = json.loads(ret_msg)			# Convert response to JSON
+								elif cmd[0] == "goodbye":	# Turn off the bot correctly
+									websocket.close()		# Close the websocket/connection
+									quit()					# Quit the bot
 
-							#print ('ret:\t\t',ret_msg)
+								else:					# Unknown or custom command
+									response = responses.custom(userName, curItem)
 
-							yield from websocket.close()			# Close the connection
+								#----------------------------------------------------------
+								# Send the message
+								#----------------------------------------------------------
+								# Create the packet
+								packet = {
+									"type":"method",
+									"method":"msg",
+									"arguments":[response],
+									"id":msgLocalID
+								}
 
-							packet['arguments'][0] = ''				# Clear the message arguments
+								print ('command:\t\t',cmd,'\n',
+										'response:\t\t',response)	# Console logging
 
-				if msgID not in msgs_acted:		# Don't add duplicates
-					msgs_acted.append(msgID)		# Make sure we don't act on messages again
+								msgLocalID += 1		# Increment the msg number variable
+
+								yield from websocket.send(json.dumps(packet))	# Send the message
+								ret_msg = yield from websocket.recv()			# Get the response
+								ret_msg = json.loads(ret_msg)			# Convert response to JSON
+
+								packet['arguments'][0] = ''				# Clear the message arguments
+
+					if msgID not in msgs_acted:		# Don't add duplicates
+						msgs_acted.append(msgID)		# Make sure we don't act on messages again
+						
+						# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
+						# messages again.
+						f = open('.blist_temp.p', 'wb')
+						pickle.dump(msgs_acted, f)
+
+						f.flush()
+						os.fsync(f.fileno())
+						f.close()
+
+						os.rename('.blist_temp.p', 'blacklist.p')
+
+		# Needs to be separate thread because while True loop won't loop until next chat event
+		# --------------------------------------------------------------------------------------
+		# session = requests.Session()
+
+		# users_r = session.get(
+		# 	addr + '/api/v1/chats/' + str(channel) + '/users')
+
+		# session.close()
+
+		# users_r = users_r.json()
+		# for user in users_r:
+		# 	userName = user['userName']
+		# 	curItem = "!give " + userName + " 1"
+
+		# 	responses.give('ParadigmShift3d', curItem)
+
+		# 	timeCur = datetime.now().strftime("%S")
+
+		# 	print ('timeInit:\t\t', timeInit)
+		# 	print ('timeCur:\t\t', timeCur)
+		# 	print ('int:\t\t',int(timeInit) / int(timeCur))
+
+		# 	if int(timeCur)	== 0:
+		# 		timeCur += 1
+		# 		if int(timeInit) / int(timeCur) >= 0:		# It's divisible by 3, thus 3 seconds
+		# 			if userName in activeChat:	# Has the user chatted in the last 60 seconds?
+		# 				curItem = "!give " + userName + " 2"
+		# 				responses.give('ParadigmShift3d', curItem)
+		# 				timeIncr += 1
+
+		# 		elif int(timeCur) == 60:		# It's been 60 seconds
+		# 			curItem = '!give ' + userName + " 1"
+		# 			responses.give('ParadigmShift3d', curItem)	# Give the users however many they've accumulated
+
+		# 			timeIncr = 0	# Reset the time incrementer
+		# 			activeChat = []	# Reset the active chat watcher thingy
 					
-					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
-					# messages again.
-					f = open('.blist_temp.p', 'wb')
-					pickle.dump(msgs_acted, f)
-
-					f.flush()
-					os.fsync(f.fileno())
-					f.close()
-
-					os.rename('.blist_temp.p', 'blacklist.p')
-
-		
-		print ('Waiting 1 seconds...')
-		time.sleep(1)		# Don't spam the server >.<
-		
 # ----------------------------------------------------------------------
 # Main Code
 # ----------------------------------------------------------------------
@@ -275,7 +320,7 @@ def main():
 		channel = config.CHANNEL_DECI
 
 	chat_r = session.get(
-		addr + '/api/v1/chats/%s' % channel
+		addr + '/api/v1/chats/{}'.format(channel)
 	)
 	if chat_r.status_code != requests.codes.ok:
 		print ('Unknown error!')
