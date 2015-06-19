@@ -6,6 +6,7 @@ import config
 import pickle
 import requests
 import os
+from bs4 import BeautifulSoup
 
 # Full list of commands
 """
@@ -30,8 +31,8 @@ import os
 global prevTime
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'gears':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
 
-if os.path.exists('whitelist.p'):
-	WHITELIST = pickle.load(open('whitelist.p', 'rb'))
+if os.path.exists('data/whitelist.p'):
+	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 else:
 	WHITELIST = []
 
@@ -246,14 +247,17 @@ def quote(userName, curItem):
 		command = '''SELECT name
 					FROM quotes'''
 
-		with sqlite3.connect('beambot.sqlite') as con:
+		with sqlite3.connect('data/beambot.sqlite') as con:
 			cur = con.cursor()
 
 			cur.execute(command)
 
 			results = cur.fetchall()
 
-			rand = random.randrange(len(results))
+			if len(results) < 1:
+				return None
+			else:
+				rand = random.randrange(len(results))
 
 			user = results[rand][0]
 
@@ -284,14 +288,14 @@ def quote(userName, curItem):
 						(name, game, quote)
 						VALUES ("{}", "{}", "{}")'''.format(user, game, quote)
 
-			with sqlite3.connect('beambot.sqlite') as con:
+			with sqlite3.connect('data/beambot.sqlite') as con:
 				cur = con.cursor()
 
 				cur.execute(command)
 
 			con = None
 
-	with sqlite3.connect('beambot.sqlite') as con:
+	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
 		command = '''SELECT quote, game
@@ -358,7 +362,7 @@ def give(userName, curItem):
 		except:	# Oops! User didn't provide an integer
 			return None
 
-		with sqlite3.connect('beambot.sqlite') as con:
+		with sqlite3.connect('data/beambot.sqlite') as con:
 			cur = con.cursor()
 
 			command = '''SELECT gears
@@ -420,7 +424,7 @@ def gears(userName, curItem):
 	else:
 		user = userName
 		
-	with sqlite3.connect('beambot.sqlite') as con:
+	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
 		command = '''SELECT gears
@@ -468,7 +472,7 @@ def whitelist(userName, curItem):		# Add user to command timeout whitelist
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 			WHITELIST.append(curItem[1:].split()[2])	# Append the new user to the whitelist!
-			pickle.dump(WHITELIST, open('whitelist.p', 'wb'))
+			pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
 			response = str("User " + curItem[1:].split()[2] + " added to whitelist!")
 			return response
 		else:
@@ -483,10 +487,10 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 
 			print (curItem)
-			WHITELIST = pickle.load(open('whitelist.p', 'rb'))
+			WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 			if curItem[1:].split()[2] in WHITELIST:		# Make sure user being removed really is removable!
 				WHITELIST.remove(curItem[1:].split()[2])	# Append the new user to the whitelist!
-				pickle.dump(WHITELIST, open('whitelist.p', 'wb'))
+				pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
 				response = str("User " + curItem[1:].split()[2] + " removed from whitelist!")
 				return response
 
@@ -500,7 +504,7 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 def whitelistLS(userName, curItem):
 
 	if userName == "ParadigmShift3d":
-		WHITELIST = pickle.load(open('whitelist.p', 'rb'))
+		WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 		response = 'Whitelisted users: '
 		for item in WHITELIST:
 			response += item + ", "

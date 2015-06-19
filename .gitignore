@@ -6,10 +6,5 @@
 /testbot.py
 # Don't need any cached versions
 __pycache__/
-# Don't need the blacklist temp file
-/.blist_temp.p
-# Don't need the the message blacklist file, nor the message whitelist file
-/blacklist.p
-/whitelist.p
-# Do not push local copy of the sqlite database
-/beambot.sqlite
+# Don't include the local config files
+/data/*

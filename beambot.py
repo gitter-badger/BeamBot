@@ -1,7 +1,7 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.2.1 (RC 2)
+#	Version: 	0.2.2 (RC 2)
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 19, 2015
 #
@@ -9,7 +9,7 @@
 #				Not full release level yet because not all commands are fully programmed yet
 #				Need to add: 	Mod controls (2.0)
 #				Need to update:	!ban, !command, users getting gears automatically
-#				Updated bot to make proper use of websockets + not spam server REST API
+#				Moved configuration files to data directory
 # -+=============================================================+
 
 import os
@@ -79,8 +79,8 @@ def readChat():
 
 	session = requests.Session()
 
-	if os.path.exists('blacklist.p'):
-		msgs_acted = pickle.load(open('blacklist.p', "rb"))
+	if os.path.exists('data/blacklist.p'):
+		msgs_acted = pickle.load(open('data/blacklist.p', "rb"))
 	else:
 		msgs_acted = []
 
@@ -233,14 +233,14 @@ def readChat():
 						
 						# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
 						# messages again.
-						f = open('.blist_temp.p', 'wb')
+						f = open('data/.blist_temp.p', 'wb')
 						pickle.dump(msgs_acted, f)
 
 						f.flush()
 						os.fsync(f.fileno())
 						f.close()
 
-						os.rename('.blist_temp.p', 'blacklist.p')
+						os.rename('data/.blist_temp.p', 'data/blacklist.p')
 
 		# Needs to be separate thread because while True loop won't loop until next chat event
 		# --------------------------------------------------------------------------------------

@@ -10,6 +10,7 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
+* **Planned for 0.2.3** - `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
 
 ###Setting up the config.py file:
 
@@ -28,7 +29,7 @@ Simply rename the `beambot.sqlite-template` to `beambot.sqlite`
 
 Simply run `python3 beambot.py`!
 
-## Features in 0.2.0 (RC 2)
+## Features in 0.2.2 (RC 2)
 
 It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
 
@@ -53,6 +54,8 @@ It's a Release Candidate because it works in its basic form. However, it still c
 **(0.2.1)** - pybot no longer not constantly pings the REST API + it's more responsive
 
 **(0.2.1)** - Bot will check for existence of config files and creates them if they don't exist
+
+**(0.2.2)** - Updated file structure so config files are now all stored in the `data` directory
 
 ###Current issues:
 
