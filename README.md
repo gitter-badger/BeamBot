@@ -10,7 +10,7 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
-* **Planned for 0.2.3** - `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
+* **Planned for 0.3.0** - `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
 
 ###Setting up the config.py file:
 
