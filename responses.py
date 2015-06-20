@@ -327,10 +327,15 @@ def ban(userName, curItem):
 
 	if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
 		banUser = curItem[1:].split()[1]
-		return "Not implemented yet - Planned for 2.0 ;("
+		return banUser + " has been chatbanned!", banUser
 
 	else:
-		return "Not implemented yet - Planned for 2.0 ;(" # Wrong # of args
+		return None # Wrong # of args
+
+def unban(userName, curItem):
+	if len(curItem[1:].split()[1]) >= 2:
+		uBanUser = curItem[1:].split()[1]
+		return uBanUser + " has been un-banned!", uBanUser
 
 def ping(userName):
 	cmd = 'ping'

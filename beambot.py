@@ -1,15 +1,16 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.2.2 (RC 2)
+#	Version: 	0.2.3 (RC 2)
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 19, 2015
+#	Date:		June 20, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to add: 	Mod controls (2.0)
-#				Need to update:	!ban, !command, users getting gears automatically
-#				Moved configuration files to data directory
+#				Need to add: 	Server-side control
+#				Need to update:	!command, users getting gears automatically
+#				Added !ban and !unban commands which ban/unban user from chatting
+#				Added !goodbye command which shuts down the bot properly
 # -+=============================================================+
 
 import os
@@ -84,8 +85,12 @@ def readChat():
 	else:
 		msgs_acted = []
 
-	timeIncr = 0
 	activeChat = []
+
+	if os.path.exists('data/bannedUsers.p'):
+		bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
+	else:
+		bannedUsers = []
 
 	websocket = yield from websockets.connect(endpoint)
 
@@ -99,6 +104,7 @@ def readChat():
 	response = yield from websocket.send(json.dumps(packet))
 
 	timeInit = datetime.now().strftime("%S")
+
 	if timeInit == 0:
 		timeInit += 1
 
@@ -121,8 +127,31 @@ def readChat():
 				userName = msg['user_name']
 				msgID = msg['id']
 
-				if timeIncr == 60:		# It's been 1 minute
-					activeChat.append(userName)
+				print (userID)
+				print (bannedUsers)
+
+				if userName in bannedUsers:
+					session = requests.session()
+
+					login_r = session.post(
+						addr + '/api/v1/users/login',
+						data=_get_auth_body()
+					)
+
+					if login_r.status_code != requests.codes.ok:
+						print (login_r.text)
+						print ("Not Authenticated!")
+						quit()
+
+					print (login_r.json())
+
+					del_r = session.delete(addr + '/api/v1/chats/' + str(channel) + '/message/' + msgID)
+
+					if del_r.status_code != requests.codes.ok:
+						print ('Response:\t\t',del_r.json())
+						quit()
+
+					session.close()
 
 				for item in msg['message']:	# Iterate through the message
 
@@ -158,7 +187,16 @@ def readChat():
 									response = responses.give(userName, curItem)
 
 								elif cmd[0] == "ban":	# Ban a user from chatting
-									response = responses.ban(userName, curItem)
+									response, banUser = responses.ban(userName, curItem)
+									bannedUsers.append(banUser)
+
+									pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
+
+								elif cmd[0] == "unban":	# Unban a user
+									response, uBanUser = responses.unban(userName, curItem)
+									bannedUsers.remove(uBanUser)
+
+									pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
 
 								elif cmd[0] == "quote":	# Get random quote from DB
 									response = responses.quote(userName, curItem)
@@ -200,7 +238,17 @@ def readChat():
 										response = responses.whitelistLS(userName, curItem)
 
 								elif cmd[0] == "goodbye":	# Turn off the bot correctly
-									websocket.close()		# Close the websocket/connection
+
+									packet = {
+										"type":"method",
+										"method":"msg",
+										"arguments":['Good night!'],
+										"id":msgLocalID
+									}
+
+									yield from websocket.send(json.dumps(packet))
+
+									yield from websocket.close()		# Close the websocket/connection
 									quit()					# Quit the bot
 
 								else:					# Unknown or custom command
@@ -242,42 +290,45 @@ def readChat():
 
 						os.rename('data/.blist_temp.p', 'data/blacklist.p')
 
-		# Needs to be separate thread because while True loop won't loop until next chat event
-		# --------------------------------------------------------------------------------------
-		# session = requests.Session()
+		#Needs to be separate thread because while True loop won't loop until next chat event
+		#--------------------------------------------------------------------------------------
 
-		# users_r = session.get(
-		# 	addr + '/api/v1/chats/' + str(channel) + '/users')
+		session = requests.Session()
 
-		# session.close()
+		users_r = session.get(
+			addr + '/api/v1/chats/' + str(channel) + '/users')
 
-		# users_r = users_r.json()
-		# for user in users_r:
-		# 	userName = user['userName']
-		# 	curItem = "!give " + userName + " 1"
+		session.close()
 
-		# 	responses.give('ParadigmShift3d', curItem)
+		users_r = users_r.json()
 
-		# 	timeCur = datetime.now().strftime("%S")
+		for user in users_r:
+			print (user)
+			userName = user['userName']
+			curItem = "!give " + userName + " 1"
 
-		# 	print ('timeInit:\t\t', timeInit)
-		# 	print ('timeCur:\t\t', timeCur)
-		# 	print ('int:\t\t',int(timeInit) / int(timeCur))
+			responses.give('ParadigmShift3d', curItem)
 
-		# 	if int(timeCur)	== 0:
-		# 		timeCur += 1
-		# 		if int(timeInit) / int(timeCur) >= 0:		# It's divisible by 3, thus 3 seconds
-		# 			if userName in activeChat:	# Has the user chatted in the last 60 seconds?
-		# 				curItem = "!give " + userName + " 2"
-		# 				responses.give('ParadigmShift3d', curItem)
-		# 				timeIncr += 1
+			timeCur = datetime.now().strftime("%S")
 
-		# 		elif int(timeCur) == 60:		# It's been 60 seconds
-		# 			curItem = '!give ' + userName + " 1"
-		# 			responses.give('ParadigmShift3d', curItem)	# Give the users however many they've accumulated
+			print ('timeInit:\t\t', timeInit)
+			print ('timeCur:\t\t', timeCur)
+			print ('int:\t\t',int(timeInit) % int(timeCur))
 
-		# 			timeIncr = 0	# Reset the time incrementer
-		# 			activeChat = []	# Reset the active chat watcher thingy
+			if int(timeCur)	== 0:
+				timeCur += 1
+				if int(timeInit) / int(timeCur) >= 0:		# It's divisible by 3, thus 3 seconds
+					if userName in activeChat:	# Has the user chatted in the last 60 seconds?
+						curItem = "!give " + userName + " 2"
+						responses.give('ParadigmShift3d', curItem)
+						timeIncr += 1
+
+				elif int(timeCur) == 60:		# It's been 60 seconds
+					curItem = '!give ' + userName + " 1"
+					responses.give('ParadigmShift3d', curItem)	# Give the users however many they've accumulated
+
+					timeIncr = 0	# Reset the time incrementer
+					activeChat = []	# Reset the active chat watcher thingy
 					
 # ----------------------------------------------------------------------
 # Main Code

@@ -29,7 +29,7 @@ Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
 Simply run `python3 beambot.py`!
 
-## Features in 0.2.2 (RC 2)
+## Features in 0.2.3 (RC 2)
 
 It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
 
@@ -57,6 +57,8 @@ It's a Release Candidate because it works in its basic form. However, it still c
 
 **(0.2.2)** - Updated file structure so config files are now all stored in the `data` directory
 
+**(0.2.3)** - You can now ban and un-ban users via the `!ban <user>` and `!unban <user>` commands respectively
+
 ###Current issues:
 
 * Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
@@ -64,8 +66,6 @@ It's a Release Candidate because it works in its basic form. However, it still c
 * Need a better name than pybot/beambot
 
 * Need to give pybot/beambot a command line interface to issue commands from
-
-* Make bot check for config files and if they don't exist, then create them (SQLite database, blacklist, whitelist)
 
 * Make `responses.py` use pickle/XML file to provide commands and responses
 
