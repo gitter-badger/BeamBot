@@ -10,7 +10,8 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
-* **Planned for 0.3.0** - `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
+* **NEW IN 0.3.0** - `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
+* **NEW IN 0.3.0** - `lxml`: This is required for the BeautifulSoup XML parsing and can be installed via `sudo pip3 install lxml`.
 
 ###Setting up the config.py file:
 
@@ -29,7 +30,7 @@ Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
 Simply run `python3 beambot.py`!
 
-## Features in 0.2.3 (RC 2)
+## Features in 0.3.0 (RC 3)
 
 It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
 
@@ -59,6 +60,10 @@ It's a Release Candidate because it works in its basic form. However, it still c
 
 **(0.2.3)** - You can now ban and un-ban users via the `!ban <user>` and `!unban <user>` commands respectively
 
+**(0.3.0)** - Cleaned up code, removed unnecessary duplication
+
+**(0.3.0)** - You can now create custom commands via `!command <commandname> <response>`. Also, append `+` to `!command` to make it a mod-only command, and append `-` to remove the command.
+
 ###Current issues:
 
 * Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
@@ -69,8 +74,8 @@ It's a Release Candidate because it works in its basic form. However, it still c
 
 * Make `responses.py` use pickle/XML file to provide commands and responses
 
-* Add give 3 gears if chatted in last minute automatically
+* Add give 3 gears if chatted in last minute automatically every 3 minutes
 
-* Add auto giving out of gears (1 every second) 
+* Add auto giving out of gears (1 every minute) 
 
 * Anything else I can't think of at this time but is still applicable

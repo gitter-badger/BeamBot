@@ -19,182 +19,135 @@ from bs4 import BeautifulSoup
 !gears  - Get # of gears for user
 !hey    - Basically say hi to the Bot
 !uptime - How long the bot has been running
-!whoami - Who are you - class whoami command
+!whoami - Who are you - classic whoami command
 !command   - Create new command for anyone to use
 !command+  - Create mod-only command
 !command-  - Remove command
-!ban    - Ban a user from chatting
+!ban       - Ban a user from chatting
 !whitelist - Whitelist a user to remove command restrictions
-!goodbye - Turn off the bot
+!goodbye   - Turn off the bot
 """
 
-global prevTime
+global prevTime, soup
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'gears':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
 
 if os.path.exists('data/whitelist.p'):
 	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 else:
-	WHITELIST = []
+	WHITELIST = ['ParadigmShift3d','pybot']
+	pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
+
+if os.path.exists('data/commands.xml'):
+	soup = BeautifulSoup(open('data/commands.xml', 'rb'), 'xml')
+else:
+	soup = BeautifulSoup('','xml')
+	soup.append(soup.new_tag('commands'))
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
-def _checkTime(cmd, user):
+def _checkTime(cmd, user, custom=False):
 	curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
-	if cmd == "tackle":			# Tackle command
-		
-		if user in prevTime['tackle'] and (curTime - prevTime['tackle'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['tackle'] and (curTime - prevTime['tackle'][user]) >= 30:	# Under 30 seconds
-			prevTime['tackle'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['tackle'][user] = curTime
-			return False		# Allow it to be run
+	if cmd in prevTime:		# Make sure the command exists, so no KeyError exceptions
+		if user in prevTime[cmd]:	# Make sure the user exists in that command dictionary
+			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user 
+				return True			# Too soon
+			elif (curTime - prevTime['tackle'][user]) >= 30:	# Under 30 seconds
+				prevTime[cmd][user] = curTime
+				return False
 
-	elif cmd == "slap":			# Slap command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['slap'] and (curTime - prevTime['slap'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['slap'] and (curTime - prevTime['slap'][user]) >= 30:	# Under 30 seconds
-			prevTime['slap'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['slap'][user] = curTime
-			return False		# Allow it to be run		# Allow it to be run
-
-	elif cmd == "quote":		# Quote command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-		
-		if user in prevTime['quote'] and (curTime - prevTime['quote'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['quote'] and (curTime - prevTime['quote'][user]) >= 30:	# Under 30 seconds
-			prevTime['quote'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['quote'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "ping":			# Ping pong command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['ping'] and (curTime - prevTime['ping'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['ping'] and (curTime - prevTime['ping'][user]) >= 30:	# Under 30 seconds
-			prevTime['ping'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['ping'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "hug":			# Hug command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['hug'] and (curTime - prevTime['hug'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['hug'] and (curTime - prevTime['hug'][user]) >= 30:	# Under 30 seconds
-			prevTime['hug'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['hug'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "give":			# Give gears command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['give'] and (curTime - prevTime['give'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['give'] and (curTime - prevTime['give'][user]) >= 30:	# Under 30 seconds
-			prevTime['give'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['give'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "gears":		# Check # of gears command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['gears'] and (curTime - prevTime['gears'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['gears'] and (curTime - prevTime['gears'][user]) >= 30:	# Under 30 seconds
-			prevTime['gears'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['gears'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "hey":			# Hey command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['hey'] and (curTime - prevTime['hey'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['hey'] and (curTime - prevTime['hey'][user]) >= 30:	# Under 30 seconds
-			prevTime['hey'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['hey'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "uptime":		# Bot uptime command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['uptime'] and (curTime - prevTime['uptime'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['uptime'] and (curTime - prevTime['uptime'][user]) >= 30:	# Under 30 seconds
-			prevTime['uptime'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['uptime'][user] = curTime
-			return False		# Allow it to be run
-
-	elif cmd == "whoami":		# Whoami command
-		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
-
-		if user in prevTime['whoami'] and (curTime - prevTime['whoami'][user]) <= 31:	# Only every 30 seconds per user 
-			return True			# Too soon
-		elif user in prevTime['whoami'] and (curTime - prevTime['whoami'][user]) >= 30:	# Under 30 seconds
-			prevTime['whoami'][user] = curTime
-			return False		# Allow it to be run
-		else:
-			prevTime['whoami'][user] = curTime
-			return False		# Allow it to be run
-
+	# If execution gets to this point, then either user or command does not exist and we need to create a value for that
+	prevTime[cmd] = {user : curTime}
+	return False		
+			
 # ------------------------------------------------------------------------
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
 def custom(userName, curItem):	# Check unknown command, might be custom one
-	return "Custom - Not implemented yet ;("
+	cmd = curItem[1:].split()[0]
+
+	if userName in WHITELIST:	# Is the user on the whitelist?
+		for e in soup.findAll('command', command=cmd):
+			return e.get_text()		# If op, then just automatically return text
+
+	if _checkTime(cmd, userName, True):
+
+		for e in soup.findAll('command', command=cmd):
+			if e['op']:			# Is it op-only?
+				return None		# Return nothing because user is not OP
+			else:				# Not op-only
+				return e.get_text()	# Return proper response
+
+	return None 		# If execution gets to this point, it's not a command, so no response
 
 def commandMod(userName, curItem):		# Command available to mods only
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
-		if len(curItem[1:].split()) >= 3:
-			cmd = curItem[1]
-			response = curItem[2]
+		print (curItem)
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			cmd = split[1]
+			response = " ".join(split[2:])
 
-		return "Not implemented yet ;("
+			new_string = soup.new_string(response)
+			new_tag = soup.new_tag('command', op='True', command=cmd)
+
+			for i in soup.findAll('command', command=cmd):
+				print ('command:\t',i['command'])
+				if cmd == i['command']:
+					return None		# Don't add duplicates
+
+			new_tag.append(new_string)
+			soup.commands.append(new_tag)
+
+		with open('data/commands.xml', 'w') as f:
+			f.write(soup.prettify())
+
+		return 'Command \'' + cmd + '\' created! ' + response
 
 	else:
 		return None						# Not whitelisted
 
 def command(userName, curItem):			# Command available to anyone
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
-		if len(curItem[1:].split()) >= 3:
-			cmd = curItem[1]
-			response = curItem[2]
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			cmd = split[1]
+			response = " ".join(split[2:])
 
-		return "Not implemented yet ;("
+			for i in soup.findAll('command', command=cmd):
+				print ('command:\t',i['command'])
+				if cmd == i['command']:
+					return None		# Don't add duplicates
+
+			new_string = soup.new_string(response)
+			new_tag = soup.new_tag('command', op='False', command=cmd)
+
+			new_tag.append(new_string)
+			soup.commands.append(new_tag)
+
+		with open('data/commands.xml', 'w') as f:
+			f.write(soup.prettify())
+
+		return 'Command \'' + cmd + '\' created! ' + response
 
 	else:
 		return None						# Not whitelisted
 
 def commandRM(userName, curItem):			# Remove a command
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
-		if len(curItem[1:].split()) >= 2:
-			cmdRemove = curItem[1]
-			return "Not implemented yet ;("
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			cmd = split[1]
+			for e in soup.findAll('command', command=cmd):
+				print ('e:\t\t',e)
+				e.decompose()
+
+		with open('data/commands.xml', 'w') as f:
+			f.write(soup.prettify())
+
+		return 'Command \'' + cmd + '\' removed!'
 
 	else:
 		return None						# Not whitelisted
@@ -491,7 +444,7 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 
-			print (curItem)
+			print ('curItem:\t',curItem)
 			WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 			if curItem[1:].split()[2] in WHITELIST:		# Make sure user being removed really is removable!
 				WHITELIST.remove(curItem[1:].split()[2])	# Append the new user to the whitelist!

@@ -11,3 +11,4 @@ data/beambot.sqlite
 data/blacklist.p
 data/whitelist.p
 data/bannedUsers.p
+data/commands.xml
