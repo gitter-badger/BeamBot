@@ -1,14 +1,13 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	0.3.0 (RC 3)
+#	Version: 	1.0.0 - Full Release! \o/
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 22, 2015
 #
 #	Changelog:	Got commands working with proper chat responses.
 #				Not full release level yet because not all commands are fully programmed yet
-#				Need to update:	users getting gears automatically
-#				Added !command, !command+, and !command- commands for custom commands
+#				Added automatic giving of gears
 # -+=============================================================+
 
 import os
@@ -20,6 +19,43 @@ import pickle
 import random
 import config, responses
 from datetime import datetime
+import threading
+
+@asyncio.coroutine
+def autoGears():
+
+	global activeChat
+
+	timeIncr = 0
+
+	while True:
+			
+		with requests.Session() as session:		# Get the list of currently active users
+			users_r = session.get(
+				addr + '/api/v1/chats/' + str(channel) + '/users')
+
+		users_r = users_r.json()
+
+		for user in users_r:					# Give all users +1 gear per minute
+			userName = user['userName']
+
+			curItem = '!give ' + userName + " 1"
+			response = responses.give('bot', curItem)	# Give the users +1 gear
+
+		if timeIncr == 3:
+
+			for user in users_r:					# Check all the currently active users
+				userName = user['userName']
+				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
+
+					curItem = '!give ' + userName + " 3"
+					response = responses.give('bot', curItem)	# Give the users +3 gear for being involved
+
+			timeIncr = 0	# Reset the time incrementer
+			activeChat = []	# Reset the active chat watcher thingy
+
+		yield from asyncio.sleep(60)
+		timeIncr += 1
 
 @asyncio.coroutine
 def connect():
@@ -70,7 +106,9 @@ def connect():
 @asyncio.coroutine
 def readChat():
 
-	global initTime
+	global initTime, activeChat
+
+	activeChat = []
 
 	session = requests.Session()
 
@@ -99,11 +137,6 @@ def readChat():
 
 	response = yield from websocket.send(json.dumps(packet))
 
-	timeInit = int(datetime.now().strftime("%S"))
-
-	if timeInit == 0:
-		timeInit += 1
-
 	while True:
 
 		timeCur = datetime.now().strftime("%S")
@@ -124,6 +157,9 @@ def readChat():
 				userID = msg['user_id']
 				userName = msg['user_name']
 				msgID = msg['id']
+
+				if userName not in activeChat:
+					activeChat.append(userName)
 
 				if userName in bannedUsers:		# Is the user chatbanned?
 					session = requests.session()
@@ -283,42 +319,6 @@ def readChat():
 
 					os.rename('data/.blist_temp.p', 'data/blacklist.p')
 
-		# Code for automatically giving gears out - not working 0.3.0
-		#Needs to be separate thread because while True loop won't loop until next chat event
-		#--------------------------------------------------------------------------------------
-
-		# session = requests.Session()
-
-		# users_r = session.get(
-		# 	addr + '/api/v1/chats/' + str(channel) + '/users')
-
-		# session.close()
-
-		# users_r = users_r.json()
-
-		# for user in users_r:
-		# 	userName = user['userName']
-		# 	curItem = "!give " + userName + " 1"
-
-		# 	responses.give('ParadigmShift3d', curItem)
-
-		# 	timeCur = int(datetime.now().strftime("%S"))
-
-		# 	if timeCur	== 0:
-		# 		timeCur += 1
-
-		# 	if timeInit / timeCur>= 0:		# It's divisible by 3, thus 3 seconds
-		# 		if userName in activeChat:	# Has the user chatted in the last 60 seconds?
-		# 			curItem = "!give " + userName + " 2"
-		# 			responses.give('ParadigmShift3d', curItem)
-		# 			timeIncr += 1
-
-		# 	elif timeCur == 60:		# It's been 60 seconds
-		# 		curItem = '!give ' + userName + " 1"
-		# 		responses.give('ParadigmShift3d', curItem)	# Give the users however many they've accumulated
-
-		# 		timeIncr = 0	# Reset the time incrementer
-		# 		activeChat = []	# Reset the active chat watcher thingy
 				
 # ----------------------------------------------------------------------
 # Main Code
@@ -377,8 +377,14 @@ def main():
 	print ('endpoint:\t',endpoint)
 
 	loop = asyncio.get_event_loop()
+	tasks = [
+		asyncio.async(readChat()),
+		asyncio.async(autoGears())
+	]
 	loop.run_until_complete(connect())
-	loop.run_until_complete(readChat())
+
+	loop.run_until_complete(asyncio.wait(tasks))	
+
 	loop.close()
 
 if __name__ == "__main__":

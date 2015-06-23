@@ -18,7 +18,7 @@ from bs4 import BeautifulSoup
 !give   - Give gears to a user
 !gears  - Get # of gears for user
 !hey    - Basically say hi to the Bot
-!uptime - How long the bot has been running
+!uptime - How long has the bot been running?
 !whoami - Who are you - classic whoami command
 !command   - Create new command for anyone to use
 !command+  - Create mod-only command
@@ -53,7 +53,7 @@ def _checkTime(cmd, user, custom=False):
 		if user in prevTime[cmd]:	# Make sure the user exists in that command dictionary
 			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user 
 				return True			# Too soon
-			elif (curTime - prevTime['tackle'][user]) >= 30:	# Under 30 seconds
+			elif (curTime - prevTime[cmd][user]) >= 30:	# Under 30 seconds
 				prevTime[cmd][user] = curTime
 				return False
 
@@ -277,18 +277,23 @@ def quote(userName, curItem):
 		return None
 
 def ban(userName, curItem):
+	if userName in WHITELIST:		# Make sure it's a whitelisted user
+		if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
+			banUser = curItem[1:].split()[1]
+			return banUser + " has been chatbanned!", banUser
 
-	if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
-		banUser = curItem[1:].split()[1]
-		return banUser + " has been chatbanned!", banUser
-
-	else:
-		return None # Wrong # of args
+		else:
+			return None # Wrong # of args
+	else:			# Not whitelisted
+		return None
 
 def unban(userName, curItem):
-	if len(curItem[1:].split()[1]) >= 2:
-		uBanUser = curItem[1:].split()[1]
-		return uBanUser + " has been un-banned!", uBanUser
+	if userName in WHITELIST:		# Make sure it's a whitelisted user
+		if len(curItem[1:].split()[1]) >= 2:
+			uBanUser = curItem[1:].split()[1]
+			return uBanUser + " has been un-banned!", uBanUser
+	else:			# Not whitelisted
+		return None
 
 def ping(userName):
 	cmd = 'ping'
@@ -333,7 +338,7 @@ def give(userName, curItem):
 			if len(results) >= 1:
 				userGearsOrig = results[0][0]
 
-				if userName == "ParadigmShift3d":	# If it's me, ignore removal of gears & # check
+				if userName == "bot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of gears & # check
 					userGears = int(userGearsOrig) + int(numSend)
 
 					command = '''UPDATE gears 
