@@ -84,7 +84,6 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 
 def commandMod(userName, curItem):		# Command available to mods only
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
-		print (curItem)
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			cmd = split[1]
@@ -338,7 +337,7 @@ def give(userName, curItem):
 			if len(results) >= 1:
 				userGearsOrig = results[0][0]
 
-				if userName == "bot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of gears & # check
+				if userName == "pybot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of gears & # check
 					userGears = int(userGearsOrig) + int(numSend)
 
 					command = '''UPDATE gears 

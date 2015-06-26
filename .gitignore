@@ -5,6 +5,7 @@
 # Don't need my testing files uploaded
 /testbot.py
 /gui.py
+/whitelist.py
 # Don't need any cached versions
 __pycache__/
 # Don't include the local config files

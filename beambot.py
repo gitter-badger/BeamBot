@@ -1,25 +1,25 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	1.0.0 - Full Release! \o/
+#	Version: 	2.0.0 - 2.0 release because it's a major change to the API
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 22, 2015
 #
-#	Changelog:	Got commands working with proper chat responses.
-#				Not full release level yet because not all commands are fully programmed yet
-#				Added automatic giving of gears
+#	Changelog:	Moved command responses out of readChat() into external file commands.py
+#				This:	A) Cleans up the code
+#						B) Makes it more modular, which:
+#							1) Makes modding easier
+#							2) Adding new commands easier
+#							3) Makes it possible to use IRC to send the bot commands
 # -+=============================================================+
 
 import os
-import requests
 import json
-import asyncio, websockets
-import time
+import asyncio, websockets, requests
+import time, random
 import pickle
-import random
-import config, responses
+import config, responses, commands
 from datetime import datetime
-import threading
 
 @asyncio.coroutine
 def autoGears():
@@ -40,21 +40,24 @@ def autoGears():
 			userName = user['userName']
 
 			curItem = '!give ' + userName + " 1"
-			response = responses.give('bot', curItem)	# Give the users +1 gear
+			autoGearsResponse = responses.give('pybot', curItem)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
 			for user in users_r:					# Check all the currently active users
 				userName = user['userName']
+
 				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
 
 					curItem = '!give ' + userName + " 3"
-					response = responses.give('bot', curItem)	# Give the users +3 gear for being involved
+					autoGearsResponse = responses.give('pybot', curItem)	# Give the users +3 gear for being involved
+
 
 			timeIncr = 0	# Reset the time incrementer
 			activeChat = []	# Reset the active chat watcher thingy
 
-		yield from asyncio.sleep(60)
+		yield from asyncio.sleep(10)
+
 		timeIncr += 1
 
 @asyncio.coroutine
@@ -87,8 +90,6 @@ def connect():
 	elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
 		timeStr = "evenin'"
 
-	initTime = datetime.now().strftime('%H.%M.%S')
-
 	# If the message doesn't send initially, send it again. The bot just needs to wake up chat
 	packet = {
 		"type":"method",
@@ -109,6 +110,7 @@ def readChat():
 	global initTime, activeChat
 
 	activeChat = []
+	msgLocalID = 0
 
 	session = requests.Session()
 
@@ -153,157 +155,37 @@ def readChat():
 			if result['event'] == "ChatMessage":
 
 				msg = result['data']
-
-				userID = msg['user_id']
-				userName = msg['user_name']
 				msgID = msg['id']
+				userName = msg['user_name']
 
 				if userName not in activeChat:
 					activeChat.append(userName)
 
-				if userName in bannedUsers:		# Is the user chatbanned?
-					session = requests.session()
+				response, goodbye = commands.prepCMD(msg, bannedUsers, msgLocalID, msgs_acted)
 
-					login_r = session.post(
-						addr + '/api/v1/users/login',
-						data=_get_auth_body()
-					)
+				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
+					yield from websocket.send(json.dumps(response))	# Send the message
+					yield from websocket.close()
+					quit()
 
-					if login_r.status_code != requests.codes.ok:
-						print (login_r.text)
-						print ("Not Authenticated!")
-						quit()
+				#----------------------------------------------------------
+				# Send the message
+				#----------------------------------------------------------
+				# Create the packet
+				packet = {
+					"type":"method",
+					"method":"msg",
+					"arguments":[response],
+					"id":msgLocalID
+				}
 
-					print (login_r.json())
+				msgLocalID += 1		# Increment the msg number variable
 
-					del_r = session.delete(addr + '/api/v1/chats/' + str(channel) + '/message/' + msgID)	# Delete the message
+				yield from websocket.send(json.dumps(packet))	# Send the message
+				ret_msg = yield from websocket.recv()			# Get the response
+				ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
-					if del_r.status_code != requests.codes.ok:
-						print ('Response:\t\t',del_r.json())
-						quit()
-
-					session.close()
-
-				curItem = ''
-				for i in range(0, len(msg['message'])):
-					if i % 2:		# Every 2 messages
-						curItem += msg['message'][i]['text']
-					else:
-						curItem += msg['message'][i]['data']
-
-				for item in msg['message']:	# Iterate through the message
-
-					msgLocalID = 0
-
-					if len(curItem) >= 1:	# Just make sure it's an actual message
-
-						if curItem[0] == '!' and msgID not in msgs_acted:	# It's a command! Pay attention!
-							
-							# Commands
-							# ----------------------------------------------------------
-							cmd = curItem[1:].split()
-
-							if cmd[0] == "hey":				# Say hey
-								response = responses.hey(userName)
-
-							elif cmd[0] == "ping":				# Ping Pong Command
-								response = responses.ping(userName)
-
-							elif cmd[0] == "gears":			# Get user balance
-								response = responses.gears(userName, curItem)
-
-							elif cmd[0] == "give":	# Give gears to a user
-								response = responses.give(userName, curItem)
-
-							elif cmd[0] == "ban":	# Ban a user from chatting
-								response, banUser = responses.ban(userName, curItem)
-								bannedUsers.append(banUser)
-
-								pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
-
-							elif cmd[0] == "unban":	# Unban a user
-								response, uBanUser = responses.unban(userName, curItem)
-								bannedUsers.remove(uBanUser)
-
-								pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
-
-							elif cmd[0] == "quote":	# Get random quote from DB
-								response = responses.quote(userName, curItem)
-
-							elif cmd[0] == "tackle":# Tackle a user!
-								response = responses.tackle(userName, curItem)
-
-							elif cmd[0] == "slap":	# Slap someone
-								response = responses.slap(userName)
-
-							elif cmd[0] == "uptime":# Bot uptime
-								response = responses.uptime(userName, initTime)
-
-							elif cmd[0] == "hug":	# Give hugs!
-								response = responses.hug(userName, curItem)
-
-							elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
-								response = responses.whoami(userName)
-
-							elif cmd[0] == "command":	# Add command for any users
-								response = responses.command(userName, curItem)
-
-							elif cmd[0] == "command+":	# Add mod-only command
-								response = responses.commandMod(userName, curItem)
-
-							elif cmd[0] == "command-":	# Remove a command
-								response = responses.commandRM(userName, curItem)
-
-							elif cmd[0] == "whitelist":	# Whitelist a user
-								print (len(cmd))
-								if len(cmd) >= 3:	# True means it has something like `add` or `remove`
-									if cmd[1] == 'add':
-										response = responses.whitelist(userName, curItem)
-									elif cmd[1] == 'remove':
-										response = responses.whitelistRM(userName, curItem)
-									else: 	# Not add or remove
-										response = None
-								else:		# Just get the whitelist
-									response = responses.whitelistLS(userName, curItem)
-
-							elif cmd[0] == "goodbye":	# Turn off the bot correctly
-
-								packet = {
-									"type":"method",
-									"method":"msg",
-									"arguments":['Good night!'],
-									"id":msgLocalID
-								}
-
-								yield from websocket.send(json.dumps(packet))
-
-								yield from websocket.close()		# Close the websocket/connection
-								quit()					# Quit the bot
-
-							else:					# Unknown or custom command
-								response = responses.custom(userName, curItem)
-
-							#----------------------------------------------------------
-							# Send the message
-							#----------------------------------------------------------
-							# Create the packet
-							packet = {
-								"type":"method",
-								"method":"msg",
-								"arguments":[response],
-								"id":msgLocalID
-							}
-
-							print ('command:\t',cmd,'\n',
-									'response:\t',response,'\n')	# Console logging
-
-							msgLocalID += 1		# Increment the msg number variable
-
-							yield from websocket.send(json.dumps(packet))	# Send the message
-							ret_msg = yield from websocket.recv()			# Get the response
-							ret_msg = json.loads(ret_msg)			# Convert response to JSON
-
-							packet['arguments'][0] = ''				# Clear the message arguments
+				print ('ret_msg:\t',ret_msg)
 
 				if msgID not in msgs_acted:		# Don't add duplicates
 					msgs_acted.append(msgID)		# Make sure we don't act on messages again
@@ -318,7 +200,6 @@ def readChat():
 					f.close()
 
 					os.rename('data/.blist_temp.p', 'data/blacklist.p')
-
 				
 # ----------------------------------------------------------------------
 # Main Code

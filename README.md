@@ -30,54 +30,56 @@ Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
 Simply run `python3 beambot.py`!
 
-## Features in 1.0.0 - Full Release
+## Features in 2.0.0
 
-It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
+###### **(0.1.0)** - The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
 
-**(0.1.0)** - The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
+###### **(0.1.0)** - The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated - Thank you Kirby for the ping pong response >:D),  and `!whoami` commands.
 
-**(0.1.0)** - The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated - Thank you Kirby for the ping pong response >:D),  and `!whoami` commands.
+###### **(0.1.0)** - Command responses are now handled by external module, `responses.py`.
 
-**(0.1.0)** - Command responses are now handled by external module, `responses.py`.
+###### **(0.1.1)** - Added better message filtering support for old messages
 
-**(0.1.1)** - Added better message filtering support for old messages
+###### **(0.1.2)** - Added 30 second command timeout per user
 
-**(0.1.2)** - Added 30 second command timeout per user
+###### **(0.1.2)** - Added gears and quote support
 
-**(0.1.2)** - Added gears and quote support
+###### **(0.2.0)** - Added user whitelist that will remove command timeout and allow access to mod-only commands
 
-**(0.2.0)** - Added user whitelist that will remove command timeout and allow access to mod-only commands
+###### **(0.2.0)** - Added the `!quote`, `!gears`, and `!give` commands.
 
-**(0.2.0)** - Added the `!quote`, `!gears`, and `!give` commands.
+###### **(0.2.1)** - Stopped bot from acting on any messages older than when it comes online.
 
-**(0.2.1)** - Stopped bot from acting on any messages older than when it comes online.
+###### **(0.2.1)** - pybot no longer not constantly pings the REST API + it's more responsive
 
-**(0.2.1)** - pybot no longer not constantly pings the REST API + it's more responsive
+###### **(0.2.1)** - Bot will check for existence of config files and creates them if they don't exist
 
-**(0.2.1)** - Bot will check for existence of config files and creates them if they don't exist
+###### **(0.2.2)** - Updated file structure so config files are now all stored in the `data` directory
 
-**(0.2.2)** - Updated file structure so config files are now all stored in the `data` directory
+###### **(0.2.3)** - You can now ban and un-ban users via the `!ban <user>` and `!unban <user>` commands respectively
 
-**(0.2.3)** - You can now ban and un-ban users via the `!ban <user>` and `!unban <user>` commands respectively
+###### **(0.3.0)** - Cleaned up code, removed unnecessary duplication
 
-**(0.3.0)** - Cleaned up code, removed unnecessary duplication
+###### **(0.3.0)** - You can now create custom commands via `!command <commandname> <response>`. Also, append `+` to `!command` to make it a mod-only command, and append `-` to remove the command.
 
-**(0.3.0)** - You can now create custom commands via `!command <commandname> <response>`. Also, append `+` to `!command` to make it a mod-only command, and append `-` to remove the command.
+###### **(1.0.0)** - 1.0 release! \o/
 
-**(1.0.0)** - 1.0 release! \o/
+###### **(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
 
-**(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
+**(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
+
+**(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
 
 ###Current issues:
 
-* Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
+* Need to add more commands and features
 
-* Need a better name than pybot/beambot
+* Need a better name than pybot/beambot (Bug #2)
 
-* Need to give pybot/beambot a command line interface to issue commands from
+* ~~Need to give pybot/beambot a command line interface to issue commands from~~ - Since we'll be using IRC, the command line interface is useless.
 
 * Add watching of IRC channel for commands
 
-* Make `responses.py` use pickle/XML file to provide commands and responses
+* Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
 * Anything else I can't think of at this time but is still applicable
