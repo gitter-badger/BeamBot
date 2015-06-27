@@ -31,12 +31,8 @@ def autoGears():
 
 		usersRet = usersRet.json()
 
-		print (usersRet)
-
 		for user in usersRet:					# Give all users +1 gear per minute
 			userName = user['userName']
-
-			print (userName)
 
 			curItem = '!give ' + userName + " 1"
 			autoGearsResponse = responses.give('pybot', curItem)	# Give the users +1 gear
@@ -231,8 +227,6 @@ def main():
 		quit()
 	
 	user_id = loginRet.json()['id']
-
-	print (config.CHANNEL)
 
 	if config.CHANNEL == None:		# If it's NOT None, then there's no auto-connect
 

@@ -41,6 +41,15 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 		session.close()
 
 	curItem = ''
+
+	"""
+	This loop goes through the message. If there is a link in the message, then it will show up every second
+	part of the message.
+
+	When there *is* a link, it won't have any text for the current part of the message, so use the "data" key
+	of the current part of the message.
+	"""
+
 	for i in range(0, len(msg['message'])):
 		if i % 2:		# Every 2 messages
 			curItem += msg['message'][i]['text']
