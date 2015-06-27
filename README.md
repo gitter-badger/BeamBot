@@ -45,7 +45,7 @@ You'll need to edit the various variables in `config.py` underneath the `#IRC In
 
 Simply run `python3 beambot.py`!
 
-## Features in 2.0.0
+## Features in 2.1.1
 
 ###### **(0.1.0)** - The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
 

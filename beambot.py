@@ -1,11 +1,12 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	2.1.0
+#	Version: 	2.1.1
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 27, 2015
 #
-#	Changelog:	Added auto-channel selection
+#	Changelog:	No beambot.py changes
+#				Changes made to config.py and irc.py - irc.py now uses config.py like the rest of the code
 # -+=============================================================+
 
 import os
