@@ -29,6 +29,18 @@ Once the proper libaries are installed, you need to edit the `data/config.py.tem
 ##Setting up the database
 Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
+##Setting up the IRC command watcher
+
+You'll need to edit the various variables in `config.py` underneath the `#IRC Information` comment header
+
+* The `HOST` variable doesn't need to be changed, unless you wish to use a different network than Freenode.
+* The `PORT` variable doesn't need to be changed, but can be if you wish.
+* The `NICK`, `IDENT`, and `REALNAME` variables all should be set to the same thing - your bot's account's name.
+* The `CHANNEL` variable doesn't have to be changed. If you want to have total anonymity, then put it in a different channel. Otherwise, if online in the `#BeamProCommand` room when a network-wide bot command is sent (eg. all bots should go down for an upgrade) the bot will respond to that.
+* The `PASSWORD` variable should be set to equal your bot's account's password.
+
+**PLEASE NOTE** - As of 2.1.1, the IRC watcher is not properly implemented in the slightest. No IRC channel will be watched for commands if you run the `beambot.py` script.
+
 ###Running:
 
 Simply run `python3 beambot.py`!

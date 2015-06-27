@@ -12,3 +12,12 @@ PASSWORD = 'PASSWORD'
 
 CHANNEL = None
 #CHANNEL = 1 # <- Change that to the chat channel ID you want
+
+# IRC Information
+HOST = "irc.freenode.net" 	# This is the IRC server variable.
+PORT = 6667 				# This is the port
+NICK = "INSERTNICKHERE" 	# Bot name
+IDENT = "INSERTNICKHERE" 	# ID to NickServ with this name
+REALNAME = "INSERTNICKHERE" # Bots real name for server identification
+CHANNEL = "#BeamProCommand"	# This is the channel name
+PASSWORD  = "PASSWORD HERE"	# Your bot's account's password

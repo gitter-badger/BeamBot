@@ -4,28 +4,22 @@ import sys
 import socket
 import string
 import time
+import config
 
-#Global Variables
-host="irc.freenode.net" # This is the IRC server variable.
-port=6667 				# This is the port
-nick="BeamProBot" 		# Bot name
-ident="BeamProBot" 		# ID to NickServ with this name
-realname="BeamProBot" 	# Bots real name for server identification
-channel="#BeamProCommand" # This is the channel name
 readbuffer="" 			# We need this to hold messages in a buffer, so we can make sure we can read them all
 
 # Commands
-SETNICK = ("NICK {}\r\n".format(nick)).encode()
-LOGIN = ("USER {} {} olander99 :{}\r\n".format(ident, host, realname)).encode()
-JOINCHAN = ("JOIN {}\r\n".format(channel)).encode()
+SETNICK = ("NICK {}\r\n".format(config.NICK)).encode()
+LOGIN = ("USER {} {} {} :{}\r\n".format(config.IDENT, config.HOST, config.REALNAME, config.PASSWORD)).encode()
+JOINCHAN = ("JOIN {}\r\n".format(config.CHANNEL)).encode()
 
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM) 					# Creates a new socket
-s.connect((host, port)) 			# Connect to the host IRC network through port 6667
+s.connect((config.HOST, config.PORT)) 			# Connect to the host IRC network through port 6667
 s.send(SETNICK)				# Send the NICK command to set our nickname
 s.send(LOGIN)				# Send the USER command to log in
-s.send((("PRIVMSG {} /msg NickServ identify olander99\r\n").format(channel)).encode())	# Identify with NickServ
+s.send((("PRIVMSG {} /msg NickServ identify olander99\r\n").format(config.CHANNEL)).encode())	# Identify with NickServ
 s.send(JOINCHAN)			# Join the #BeamProCommand channel
-s.send((("PRIVMSG {} {}\r\n").format(channel, "Hai. Ima bot.")).encode())	# Send the online notification message
+s.send((("PRIVMSG {} {}\r\n").format(config.CHANNEL, "Hai. Ima bot.")).encode())	# Send the online notification message
 data = s.recv(1024)
 
 while 1: # Loop forever because 1 == always True (keeps us connected to IRC)
@@ -53,4 +47,4 @@ while 1: # Loop forever because 1 == always True (keeps us connected to IRC)
 				print ('Command:\t', cmd)
 
 				# Have to accomodate for the result that checkCMD is expecting
-				cmd = 
+				#cmd = 
