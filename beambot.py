@@ -3,7 +3,7 @@
 # -+=============================================================+-
 #	Version: 	2.1.0
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 22, 2015
+#	Date:		June 27, 2015
 #
 #	Changelog:	Added auto-channel selection
 # -+=============================================================+
