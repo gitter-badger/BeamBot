@@ -1,16 +1,11 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	2.0.0 - 2.0 release because it's a major change to the API
+#	Version: 	2.1.0
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
 #	Date:		June 22, 2015
 #
-#	Changelog:	Moved command responses out of readChat() into external file commands.py
-#				This:	A) Cleans up the code
-#						B) Makes it more modular, which:
-#							1) Makes modding easier
-#							2) Adding new commands easier
-#							3) Makes it possible to use IRC to send the bot commands
+#	Changelog:	Added auto-channel selection
 # -+=============================================================+
 
 import os
@@ -31,20 +26,24 @@ def autoGears():
 	while True:
 			
 		with requests.Session() as session:		# Get the list of currently active users
-			users_r = session.get(
+			usersRet = session.get(
 				addr + '/api/v1/chats/' + str(channel) + '/users')
 
-		users_r = users_r.json()
+		usersRet = usersRet.json()
 
-		for user in users_r:					# Give all users +1 gear per minute
+		print (usersRet)
+
+		for user in usersRet:					# Give all users +1 gear per minute
 			userName = user['userName']
+
+			print (userName)
 
 			curItem = '!give ' + userName + " 1"
 			autoGearsResponse = responses.give('pybot', curItem)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
-			for user in users_r:					# Check all the currently active users
+			for user in usersRet:					# Check all the currently active users
 				userName = user['userName']
 
 				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
@@ -168,24 +167,25 @@ def readChat():
 					yield from websocket.close()
 					quit()
 
-				#----------------------------------------------------------
-				# Send the message
-				#----------------------------------------------------------
-				# Create the packet
-				packet = {
-					"type":"method",
-					"method":"msg",
-					"arguments":[response],
-					"id":msgLocalID
-				}
+				if response != None:			# Make sure response isn't nothing
+					#----------------------------------------------------------
+					# Send the message
+					#----------------------------------------------------------
+					# Create the packet
+					packet = {
+						"type":"method",
+						"method":"msg",
+						"arguments":[response],
+						"id":msgLocalID
+					}
 
-				msgLocalID += 1		# Increment the msg number variable
+					msgLocalID += 1		# Increment the msg number variable
 
-				yield from websocket.send(json.dumps(packet))	# Send the message
-				ret_msg = yield from websocket.recv()			# Get the response
-				ret_msg = json.loads(ret_msg)			# Convert response to JSON
+					yield from websocket.send(json.dumps(packet))	# Send the message
+					ret_msg = yield from websocket.recv()			# Get the response
+					ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
-				print ('ret_msg:\t',ret_msg)
+					print ('ret_msg:\t',ret_msg)
 
 				if msgID not in msgs_acted:		# Don't add duplicates
 					msgs_acted.append(msgID)		# Make sure we don't act on messages again
@@ -220,35 +220,47 @@ def main():
 
 	session = requests.Session()
 
-	login_r = session.post(
+	loginRet = session.post(
 		addr + '/api/v1/users/login',
 		data=_get_auth_body()
 	)
 
-	if login_r.status_code != requests.codes.ok:
-		print (login_r.text)
+	if loginRet.status_code != requests.codes.ok:
+		print (loginRet.text)
 		print ("Not Authenticated!")
 		quit()
 	
-	user_id = login_r.json()['id']
+	user_id = loginRet.json()['id']
 
-	channel = input("Channel? ")
+	print (config.CHANNEL)
 
-	if channel == 'p':		# Paradigm, me
-		channel = config.CHANNEL_PARA
-	elif channel == 'du':	# Duke
-		channel = config.CHANNEL_DUKE
-	elif channel == 'de':	# Deci
-		channel = config.CHANNEL_DECI
+	if config.CHANNEL == None:		# If it's NOT None, then there's no auto-connect
 
-	chat_r = session.get(
+		chanOwner = input("Channel [Channel owner's username]: ").lower()
+		chatChannel = session.get(
+			addr + '/api/v1/channels/' + chanOwner
+		)
+
+		if chatChannel.status_code != requests.codes.ok:
+			print ('ERROR!')
+			print ('Message:\t',chatChannel.json()['message'])
+			quit()
+
+		channel = chatChannel.json()['id']
+	
+	else:
+		channel = config.CHANNEL
+
+	chatRet = session.get(
 		addr + '/api/v1/chats/{}'.format(channel)
 	)
-	if chat_r.status_code != requests.codes.ok:
-		print ('Unknown error!')
+
+	if chatRet.status_code != requests.codes.ok:
+		print ('ERROR!')
+		print ('Message:\t',chatRet.json()['message'])
 		quit()
 
-	chat_details = chat_r.json()
+	chat_details = chatRet.json()
 
 	endpoint = chat_details['endpoints'][0]
 

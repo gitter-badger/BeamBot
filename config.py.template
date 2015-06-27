@@ -8,11 +8,7 @@ USERNAME = 'USERNAME'
 PASSWORD = 'PASSWORD'
 
 # The channel ID you want to log into.
-CHANNEL = 1 # <- Change that to the chat channel ID you want
+# Comment the CHANNEL = None line and uncommment the CHANNEL = 1 line after changing it to the chat ID you want for auto-connect.
 
-# Pre-Configured Channel IDs
-CHANNEL_DUKE = 3016
-
-CHANNEL_PARA = 20902
-
-CHANNEL_DECI = 1894
+CHANNEL = None
+#CHANNEL = 1 # <- Change that to the chat channel ID you want

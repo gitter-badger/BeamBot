@@ -19,7 +19,10 @@ Once the proper libaries are installed, you need to edit the `data/config.py.tem
 
 * The `BEAM_ADDR` variable should not be touched. It will break everything if that is changed.
 * The `USERNAME` and `PASSWORD` variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
-* The CHANNEL variable should be updated via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking the id number. You then swap that number for the 1 in config file.
+* **NEW IN 2.1.0** - The CHANNEL variable can be set to `None` to make it so you can choose which channel to go to on launch or set to a channel ID to auto-connect.
+* If you want to autoconnect, the `CHANNEL` variable should be updated via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number. 
+
+ You then swap that number for the 1 in config file, uncomment the `CHANNEL = 1`, line and comment the `CHANNEL = None` line.
 
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
@@ -66,9 +69,11 @@ Simply run `python3 beambot.py`!
 
 ###### **(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
 
-**(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
+###### **(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
 
-**(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
+###### **(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
+
+**(2.1.0)** - Added auto-connect/channel auto-selection via username
 
 ###Current issues:
 
