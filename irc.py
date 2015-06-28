@@ -10,16 +10,16 @@ readbuffer="" 			# We need this to hold messages in a buffer, so we can make sur
 
 # Commands
 SETNICK = ("NICK {}\r\n".format(config.NICK)).encode()
-LOGIN = ("USER {} {} {} :{}\r\n".format(config.IDENT, config.HOST, config.REALNAME, config.PASSWORD)).encode()
-JOINCHAN = ("JOIN {}\r\n".format(config.CHANNEL)).encode()
+LOGIN = ("USER {} {} {} :{}\r\n".format(config.IDENT, config.HOST, config.REALNAME, config.IRC_PASSWORD)).encode()
+JOINCHAN = ("JOIN {}\r\n".format(config.IRC_CHANNEL)).encode()
 
 s=socket.socket(socket.AF_INET, socket.SOCK_STREAM) 					# Creates a new socket
 s.connect((config.HOST, config.PORT)) 			# Connect to the host IRC network through port 6667
 s.send(SETNICK)				# Send the NICK command to set our nickname
 s.send(LOGIN)				# Send the USER command to log in
-s.send((("PRIVMSG {} /msg NickServ identify olander99\r\n").format(config.CHANNEL)).encode())	# Identify with NickServ
-s.send(JOINCHAN)			# Join the #BeamProCommand channel
-s.send((("PRIVMSG {} {}\r\n").format(config.CHANNEL, "Hai. Ima bot.")).encode())	# Send the online notification message
+s.send((("PRIVMSG {} /msg NickServ identify olander99\r\n").format(config.IRC_CHANNEL)).encode())	# Identify with NickServ
+s.send(JOINCHAN)			# Join the #BeamProCommand IRC_CHANNEL
+s.send((("PRIVMSG {} {}\r\n").format(config.IRC_CHANNEL, "Hai. Ima bot.")).encode())	# Send the online notification message
 data = s.recv(1024)
 
 while 1: # Loop forever because 1 == always True (keeps us connected to IRC)

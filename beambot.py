@@ -1,12 +1,13 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	2.1.1
+#	Version: 	2.2.0
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 27, 2015
+#	Date:		June 28, 2015
 #
-#	Changelog:	No beambot.py changes
-#				Changes made to config.py and irc.py - irc.py now uses config.py like the rest of the code
+#	Changelog:	Fixed conflicting IRC & Beam variables in config and made appropriate changes
+#				elsewhere as needed.
+#				Changed currency name from gears to dimes
 # -+=============================================================+
 
 import os
@@ -18,7 +19,7 @@ import config, responses, commands
 from datetime import datetime
 
 @asyncio.coroutine
-def autoGears():
+def autoCurrency():
 
 	global activeChat
 
@@ -36,7 +37,7 @@ def autoGears():
 			userName = user['userName']
 
 			curItem = '!give ' + userName + " 1"
-			autoGearsResponse = responses.give('pybot', curItem)	# Give the users +1 gear
+			autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
@@ -46,13 +47,13 @@ def autoGears():
 				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
 
 					curItem = '!give ' + userName + " 3"
-					autoGearsResponse = responses.give('pybot', curItem)	# Give the users +3 gear for being involved
+					autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +3 gear for being involved
 
 
 			timeIncr = 0	# Reset the time incrementer
 			activeChat = []	# Reset the active chat watcher thingy
 
-		yield from asyncio.sleep(10)
+		yield from asyncio.sleep(60)
 
 		timeIncr += 1
 
@@ -246,13 +247,15 @@ def main():
 	else:
 		channel = config.CHANNEL
 
+	print (channel)
+
 	chatRet = session.get(
 		addr + '/api/v1/chats/{}'.format(channel)
 	)
 
 	if chatRet.status_code != requests.codes.ok:
 		print ('ERROR!')
-		print ('Message:\t',chatRet.json()['message'])
+		print ('Message:\t',chatRet.json())
 		quit()
 
 	chat_details = chatRet.json()
@@ -267,7 +270,7 @@ def main():
 	loop = asyncio.get_event_loop()
 	tasks = [
 		asyncio.async(readChat()),
-		asyncio.async(autoGears())
+		asyncio.async(autoCurrency())
 	]
 	loop.run_until_complete(connect())
 

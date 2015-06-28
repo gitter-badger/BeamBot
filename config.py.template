@@ -19,5 +19,5 @@ PORT = 6667 				# This is the port
 NICK = "INSERTNICKHERE" 	# Bot name
 IDENT = "INSERTNICKHERE" 	# ID to NickServ with this name
 REALNAME = "INSERTNICKHERE" # Bots real name for server identification
-CHANNEL = "#BeamProCommand"	# This is the channel name
-PASSWORD  = "PASSWORD HERE"	# Your bot's account's password
+IRC_CHANNEL = "#BeamProCommand"	# This is the channel name
+IRC_PASSWORD  = "PASSWORD HERE"	# Your bot's account's password

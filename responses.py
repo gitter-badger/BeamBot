@@ -15,8 +15,8 @@ from bs4 import BeautifulSoup
 !quote  - Post a quote
 !ping   - Ping Pong!
 !hug    - Hug a user
-!give   - Give gears to a user
-!gears  - Get # of gears for user
+!give   - Give dimes/currency to a user
+!dimes/currency  - Get # of dimes/currency for user
 !hey    - Basically say hi to the Bot
 !uptime - How long has the bot been running?
 !whoami - Who are you - classic whoami command
@@ -29,7 +29,7 @@ from bs4 import BeautifulSoup
 """
 
 global prevTime, soup
-prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'gears':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
+prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
 
 if os.path.exists('data/whitelist.p'):
 	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
@@ -318,9 +318,9 @@ def give(userName, curItem):
 
 	split = curItem[1:].split()
 	if len(split) >= 3:
-		user = split[1]	# User recieving gears
+		user = split[1]	# User recieving dimes
 		try:	# Try to convert argument to int type
-			numSend = int(split[2])	# Number of gears being transferred
+			numSend = int(split[2])	# Number of dimes being transferred
 		except:	# Oops! User didn't provide an integer
 			return None
 
@@ -335,48 +335,48 @@ def give(userName, curItem):
 			results = cur.fetchall()
 
 			if len(results) >= 1:
-				userGearsOrig = results[0][0]
+				userDimesOrig = results[0][0]
 
-				if userName == "pybot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of gears & # check
-					userGears = int(userGearsOrig) + int(numSend)
-
-					command = '''UPDATE gears 
-								SET gears={}
-								WHERE name="{}"'''.format(userGears, user)
-
-					cur.execute(command)
-
-					return "@" + user + " now has " + str(userGears) + " gears!"					
-
-				if numSend <= userGearsOrig:	# Make sure the sending user has enough gears
-
-					userGears = int(userGearsOrig) + int(numSend)
+				if userName == "pybot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of dimes & # check
+					userDimes = int(userDimesOrig) + int(numSend)
 
 					command = '''UPDATE gears 
 								SET gears={}
-								WHERE name="{}"'''.format(userGears, user)
+								WHERE name="{}"'''.format(userDimes, user)
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userGears) + " gears!"
+					return "@" + user + " now has " + str(userDimes) + " dimes!"					
+
+				if numSend <= userGearsOrig:	# Make sure the sending user has enough dimes
+
+					userDimes = int(userDimesOrig) + int(numSend)
+
+					command = '''UPDATE gears 
+								SET gears={}
+								WHERE name="{}"'''.format(userDimes, user)
+
+					cur.execute(command)
+
+					return "@" + user + " now has " + str(userDimes) + " dimes!"
 
 				else:
 					return None
 
-			else:		# User not in gears database
+			else:		# User not in dimes database
 				command = '''INSERT INTO gears
 							(name, gears)
 							VALUES ("{}", {})'''.format(user, str(numSend))
 
 				cur.execute(command)	# Soooo... add 'em!
 
-				return "@" + user + " now has " + str(numSend) + " gears!"
+				return "@" + user + " now has " + str(numSend) + " dimes!"
 
 	else:
 		return None
 	
-def gears(userName, curItem):
-	cmd = 'gears'
+def dimes(userName, curItem):
+	cmd = 'dimes'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 	
@@ -398,9 +398,9 @@ def gears(userName, curItem):
 		results = cur.fetchall()
 
 		if len(results) >= 1:
-			return "@" + user + " has " + str(results[0][0]) + " gears."
+			return "@" + user + " has " + str(results[0][0]) + " dimes."
 		else:
-			return "@" + user + " has no gears! :o"
+			return "@" + user + " has no dimes! :o"
 
 def hey(userName):
 	cmd = 'hey'

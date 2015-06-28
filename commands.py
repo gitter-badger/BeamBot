@@ -77,10 +77,10 @@ def getResp(curItem, userName, msgLocalID):
 	elif cmd[0] == "ping":				# Ping Pong Command
 		response = responses.ping(userName)
 
-	elif cmd[0] == "gears":			# Get user balance
-		response = responses.gears(userName, curItem)
+	elif cmd[0] == "dimes":			# Get user balance
+		response = responses.dimes(userName, curItem)
 
-	elif cmd[0] == "give":	# Give gears to a user
+	elif cmd[0] == "give":	# Give dimes to a user
 		response = responses.give(userName, curItem)
 
 	elif cmd[0] == "ban":	# Ban a user from chatting

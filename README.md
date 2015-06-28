@@ -36,10 +36,10 @@ You'll need to edit the various variables in `config.py` underneath the `#IRC In
 * The `HOST` variable doesn't need to be changed, unless you wish to use a different network than Freenode.
 * The `PORT` variable doesn't need to be changed, but can be if you wish.
 * The `NICK`, `IDENT`, and `REALNAME` variables all should be set to the same thing - your bot's account's name.
-* The `CHANNEL` variable doesn't have to be changed. If you want to have total anonymity, then put it in a different channel. Otherwise, if online in the `#BeamProCommand` room when a network-wide bot command is sent (eg. all bots should go down for an upgrade) the bot will respond to that.
-* The `PASSWORD` variable should be set to equal your bot's account's password.
+* The `IRC_CHANNEL` variable doesn't have to be changed. If you want to have total anonymity, then put it in a different channel. Otherwise, if online in the `#BeamProCommand` room when a network-wide bot command is sent (eg. all bots should go down for an upgrade) the bot will respond to that.
+* The `IRC_PASSWORD` variable should be set to equal your bot's account's password.
 
-**PLEASE NOTE** - As of 2.1.1, the IRC watcher is not properly implemented in the slightest. No IRC channel will be watched for commands if you run the `beambot.py` script.
+**PLEASE NOTE** - As of 2.2.0, the IRC watcher is not properly implemented in the slightest. No IRC channel will be watched for commands if you run the `beambot.py` script.
 
 ###Running:
 
@@ -85,7 +85,11 @@ Simply run `python3 beambot.py`!
 
 ###### **(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
 
-**(2.1.0)** - Added auto-connect/channel auto-selection via username
+###### **(2.1.0)** - Added auto-connect/channel auto-selection via username
+
+**(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
+
+**(2.2.0)** - Changed gears to dimes
 
 ###Current issues:
 
