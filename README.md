@@ -10,8 +10,9 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
-* `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
-* `lxml`: This is required for the BeautifulSoup XML parsing and can be installed via `sudo pip3 install lxml`.
+* ~~`BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.~~
+* ~~`lxml`: This is required for the BeautifulSoup XML parsing and can be installed via `sudo pip3 install lxml`~~
+* Neither of those a required in 3.0.0+ because we've switched to using JSON instead of XML for custom command storage.
 
 ###Setting up the config.py file:
 
@@ -87,9 +88,13 @@ Simply run `python3 beambot.py`!
 
 ###### **(2.1.0)** - Added auto-connect/channel auto-selection via username
 
-**(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
+###### **(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
 
-**(2.2.0)** - Changed gears to dimes
+###### **(2.2.0)** - Changed gears to dimes
+
+**(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
+
+**(3.0.0)** - Changed custom commands so you can now update an existing command's response
 
 ###Current issues:
 

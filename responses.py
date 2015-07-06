@@ -6,7 +6,7 @@ import config
 import pickle
 import requests
 import os
-from bs4 import BeautifulSoup
+import json
 
 # Full list of commands
 """
@@ -28,7 +28,8 @@ from bs4 import BeautifulSoup
 !goodbye   - Turn off the bot
 """
 
-global prevTime, soup
+global prevTime, custCommands
+
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
 
 if os.path.exists('data/whitelist.p'):
@@ -37,11 +38,12 @@ else:
 	WHITELIST = ['ParadigmShift3d','pybot']
 	pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
 
-if os.path.exists('data/commands.xml'):
-	soup = BeautifulSoup(open('data/commands.xml', 'rb'), 'xml')
+if os.path.exists('data/commands.json'):
+	custCommands = json.load(open('data/commands.json', 'r'))
 else:
-	soup = BeautifulSoup('','xml')
-	soup.append(soup.new_tag('commands'))
+	custCommands = []
+	f = open('data/commands.json', 'w')
+	f.write(str(custCommands))
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -66,87 +68,137 @@ def _checkTime(cmd, user, custom=False):
 # ------------------------------------------------------------------------
 
 def custom(userName, curItem):	# Check unknown command, might be custom one
+	global custCommands
+
 	cmd = curItem[1:].split()[0]
 
 	if userName in WHITELIST:	# Is the user on the whitelist?
-		for e in soup.findAll('command', command=cmd):
-			return e.get_text()		# If op, then just automatically return text
+		for e in custCommands:	# Loop through the custom commands
+			e = json.loads(str(e))
+			if e['cmd'] == cmd:		# Does the current entry equal the command?
+				return e['response']		# If op, then just automatically return response
 
 	if _checkTime(cmd, userName, True):
 
-		for e in soup.findAll('command', command=cmd):
+		for e in custCommands:	# Loop through the custom commands
 			if e['op']:			# Is it op-only?
-				return None		# Return nothing because user is not OP
+				return None		# Return nothing because user is not whitelisted because program execution is here
 			else:				# Not op-only
-				return e.get_text()	# Return proper response
+				return e['response']	# Return proper response
 
 	return None 		# If execution gets to this point, it's not a command, so no response
 
 def commandMod(userName, curItem):		# Command available to mods only
+
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			cmd = split[1]
+			command = split[1]
 			response = " ".join(split[2:])
 
-			new_string = soup.new_string(response)
-			new_tag = soup.new_tag('command', op='True', command=cmd)
+			print ('cmd:\t',command)
+			print ('response:\t',response)
 
-			for i in soup.findAll('command', command=cmd):
-				print ('command:\t',i['command'])
-				if cmd == i['command']:
-					return None		# Don't add duplicates
+			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				print ('cmd:\t\t',custCommands)
+				print ('cmd[\'cmd\']:\t',cmd['cmd'])
+				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
+					cmd['response'] = response 	# Update the response
+					cmd['op'] = 'True'			# Update the OP-only value to True
+					with open('data/commands.json', 'w') as f:
+						f.write(json.dumps(custCommands, sort_keys=Truecmd))
 
-			new_tag.append(new_string)
-			soup.commands.append(new_tag)
+					# Command exists, so it has been updated
+					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			# If we make it past the for loop, then the command doesn't exist, so make a new one
+			
+			newCMD = {
+				'cmd':command,
+				'op':'True',
+				'response':response
+			}
 
-		return 'Command \'' + cmd + '\' created! ' + response
+			custCommands.append(newCMD)
+
+			print ('custCommands:\t',json.dumps(custCommands))
+
+			with open('data/commands.json', 'w') as f:
+				f.write(json.dumps(custCommands))		# Update the stored JSON file
+
+			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
+
+		return None	 	# Return None because the command lacks a response
 
 	else:
-		return None						# Not whitelisted
+		return None		# Not whitelisted
 
 def command(userName, curItem):			# Command available to anyone
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			cmd = split[1]
+			command = split[1]
 			response = " ".join(split[2:])
 
-			for i in soup.findAll('command', command=cmd):
-				print ('command:\t',i['command'])
-				if cmd == i['command']:
-					return None		# Don't add duplicates
+			print ('cmd:\t',command)
+			print ('response:\t',response)
 
-			new_string = soup.new_string(response)
-			new_tag = soup.new_tag('command', op='False', command=cmd)
+			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
+					cmd['op'] = 'False'			# Update the OP-only value to False
+					cmd['response'] = response 	# Update the response
+					with open('data/commands.json', 'w') as f:
+						cmd['cmd'] = cmd['cmd']
+						f.write(json.dumps(custCommands, sort_keys=True))
 
-			new_tag.append(new_string)
-			soup.commands.append(new_tag)
+					# Command exists, so it has been updated
+					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			# If we make it past the for loop, then the command doesn't exist, so make a new one
+			
+			newCMD = {
+				'cmd':command,
+				'op':'False',
+				'response':response
+			}
 
-		return 'Command \'' + cmd + '\' created! ' + response
+			custCommands.append(newCMD)
+
+			print ('custCommands:\t',json.dumps(custCommands))
+
+			with open('data/commands.json', 'w') as f:
+				f.write(json.dumps(custCommands))		# Update the stored JSON file
+
+			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
+
+		return None	 	# Return None because the command lacks a response
 
 	else:
-		return None						# Not whitelisted
+		return None		# Not whitelisted
 
 def commandRM(userName, curItem):			# Remove a command
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			cmd = split[1]
-			for e in soup.findAll('command', command=cmd):
-				print ('e:\t\t',e)
-				e.decompose()
+			for e in range(len(custCommands)):
+				custCommands = json.loads(str(custCommands))
+				if custCommands[e]['cmd'] == cmd:
+					print ('e:\t\t',custCommands[e]['cmd'])
+					del custCommands[e]
+					break
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			with open('data/commands.json', 'w') as f:
+				print (custCommands)
+				f.write(json.dumps(custCommands))
 
-		return 'Command \'' + cmd + '\' removed!'
+			return 'Command \'' + cmd + '\' removed!'
 
 	else:
 		return None						# Not whitelisted

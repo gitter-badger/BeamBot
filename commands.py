@@ -66,7 +66,9 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 
 	return response, goodbye
 
-def getResp(curItem, userName, msgLocalID):
+def getResp(curItem, userName=None, msgLocalID=None):
+	
+	# ----------------------------------------------------------	
 	# Commands
 	# ----------------------------------------------------------
 	cmd = curItem[1:].split()

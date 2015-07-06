@@ -5,6 +5,7 @@ import socket
 import string
 import time
 import config
+import commands
 
 readbuffer="" 			# We need this to hold messages in a buffer, so we can make sure we can read them all
 
@@ -32,19 +33,22 @@ while 1: # Loop forever because 1 == always True (keeps us connected to IRC)
 		line = line.rstrip()
 		line = line.split()
 
-		print ('line:',line)
+		print ('line:\t\t',line)
 
 		if len(line) >= 4	:
-			print ('line[1]:',line[1])
+			print ('line[1]:\t',line[1])
 			if line[3][2:] == "PING": 				# If someone pings us, we will pong back
 				# Take the first item in the line and split it on the !, then take the first element of THAT list
 				# and take the characters after the first character. This is our PINGer
 				pinger = line[0].split('!')[0][1:]
 				PONG = (("PONG {}\r\n").format(pinger).encode())
 				s.send(PONG)
-			elif line[1] == "PRIVMSG":				# It's a command
-				cmd = line[3][1:].lower()
+			elif line[1] == "PRIVMSG" and line[3][1:][0] == '!':				# It's a command
+
 				print ('Command:\t', cmd)
 
-				# Have to accomodate for the result that checkCMD is expecting
-				#cmd = 
+				# We need both the user name and command to send
+				userName = line[0][1:].split('!')[0]
+				cmd = line[3][1:].lower()[1:]
+
+				response = commands.getResp(cmd, userName, 'IRC')
