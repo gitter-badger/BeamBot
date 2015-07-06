@@ -19,6 +19,8 @@ import json
 !dimes/currency  - Get # of dimes/currency for user
 !hey    - Basically say hi to the Bot
 !uptime - How long has the bot been running?
+!raid 	- End of Stream command, provides link to Beam.pro channel
+!raided - Thank a raider who raided you
 !whoami - Who are you - classic whoami command
 !command   - Create new command for anyone to use
 !command+  - Create mod-only command
@@ -40,6 +42,7 @@ else:
 
 if os.path.exists('data/commands.json'):
 	custCommands = json.load(open('data/commands.json', 'r'))
+	print (custCommands)
 else:
 	custCommands = []
 	f = open('data/commands.json', 'w')
@@ -74,8 +77,22 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 
 	if userName in WHITELIST:	# Is the user on the whitelist?
 		for e in custCommands:	# Loop through the custom commands
-			e = json.loads(str(e))
+			print ('e:\t\t',str(e))
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
+				eArgs = e['cmd'].split("[[")
+				print ('eArgs:\t',eArgs)
+				if len(eArgs) >= 1:		# Make sure there's actually some args
+					print ('here')
+					for i in range(0, len(eArgs)):
+						print ('eArags[i]:\t',eArgs[i])
+						eArgs[i] = eArgs[i].replace(']]', '')
+						print ('eArags[i]:\t',eArgs[i])
+						if eArgs[i][0:3] == 'args':		# Use all the arguments
+							eArgs[i] = eArgs[i].replace(response[i][4:], '')
+							print ('eArgs[i]:\t',eArgs[i])
+						elif eArgs[i][0:3] == 'user':	# Use the sending user
+							pass
+
 				return e['response']		# If op, then just automatically return response
 
 	if _checkTime(cmd, userName, True):
@@ -108,7 +125,7 @@ def commandMod(userName, curItem):		# Command available to mods only
 					cmd['response'] = response 	# Update the response
 					cmd['op'] = 'True'			# Update the OP-only value to True
 					with open('data/commands.json', 'w') as f:
-						f.write(json.dumps(custCommands, sort_keys=Truecmd))
+						f.write(json.dumps(custCommands, sort_keys=cmd))
 
 					# Command exists, so it has been updated
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
@@ -188,7 +205,6 @@ def commandRM(userName, curItem):			# Remove a command
 		if len(split) >= 2:
 			cmd = split[1]
 			for e in range(len(custCommands)):
-				custCommands = json.loads(str(custCommands))
 				if custCommands[e]['cmd'] == cmd:
 					print ('e:\t\t',custCommands[e]['cmd'])
 					del custCommands[e]
@@ -459,6 +475,40 @@ def hey(userName):
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 	return "Saluton Mondo {}!".format(userName)
+
+def raid(userName, curItem):
+	cmd = 'raid'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
+
+def twitch(userName, curItem):
+	cmd = 'raid'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
+
+
+def raided(userName, curItem):
+	cmd = 'raided'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Thank you so much @{} for the raid!"\
+				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
 
 def uptime(userName, initTime):
 	cmd = 'uptime'

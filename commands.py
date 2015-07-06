@@ -112,6 +112,15 @@ def getResp(curItem, userName=None, msgLocalID=None):
 	elif cmd[0] == "hug":	# Give hugs!
 		response = responses.hug(userName, curItem)
 
+	elif cmd[0] == "raid":	# Go raid peoples
+		response = responses.raid(userName, curItem)
+
+	elif cmd[0] == "raided":	# You done got raided son!
+		response = responses.raided(userName, curItem)
+
+	elif cmd[0] == "twitch":	# Go raid peoples on Twitch.tv!
+		response = responses.twitch(userName, curItem)
+
 	elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
 		response = responses.whoami(userName)
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	2.2.0
+#	Version: 	3.0.0
 #	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
-#	Date:		June 28, 2015
+#	Date:		July 6, 2015
 #
-#	Changelog:	Fixed conflicting IRC & Beam variables in config and made appropriate changes
-#				elsewhere as needed.
-#				Changed currency name from gears to dimes
+#	Changelog:	Added !raid, !raided, and !twitch commands
+#				Updated custom command storage to use JSON instead of XML because it's easier
+#				Updated custom commands so you can now update command responses
 # -+=============================================================+
 
 import os

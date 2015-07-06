@@ -20,7 +20,7 @@ Once the proper libaries are installed, you need to edit the `data/config.py.tem
 
 * The `BEAM_ADDR` variable should not be touched. It will break everything if that is changed.
 * The `USERNAME` and `PASSWORD` variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
-* **NEW IN 2.1.0** - The CHANNEL variable can be set to `None` to make it so you can choose which channel to go to on launch or set to a channel ID to auto-connect.
+* The CHANNEL variable can be set to `None` to make it so you can choose which channel to go to on launch or set to a channel ID to auto-connect.
 * If you want to autoconnect, the `CHANNEL` variable should be updated via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number. 
 
  You then swap that number for the 1 in config file, uncomment the `CHANNEL = 1`, line and comment the `CHANNEL = None` line.
@@ -46,7 +46,7 @@ You'll need to edit the various variables in `config.py` underneath the `#IRC In
 
 Simply run `python3 beambot.py`!
 
-## Features in 2.1.1
+## Features in 3.0.0
 
 ###### **(0.1.0)** - The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
 
@@ -95,6 +95,8 @@ Simply run `python3 beambot.py`!
 **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
 
 **(3.0.0)** - Changed custom commands so you can now update an existing command's response
+
+**(3.0.0)** - Added !raid, !raided and !twitch commands
 
 ###Current issues:
 
