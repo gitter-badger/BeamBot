@@ -45,8 +45,8 @@ if os.path.exists('data/commands.json'):
 	print (custCommands)
 else:
 	custCommands = []
-	f = open('data/commands.json', 'w')
-	f.write(str(custCommands))
+	with open('data/commands.json', 'w') as f:
+		f.write(str(custCommands))
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -532,7 +532,7 @@ def whoami(userName):
 
 def whitelist(userName, curItem):		# Add user to command timeout whitelist
 	
-	if userName == "ParadigmShift3d":	# Make sure it's me (in the future, the streamer)
+	if userName not in WHITELIST:	# Make sure it's me (in the future, the streamer)
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 			WHITELIST.append(curItem[1:].split()[2])	# Append the new user to the whitelist!
@@ -546,7 +546,7 @@ def whitelist(userName, curItem):		# Add user to command timeout whitelist
 
 def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 
-	if userName == "ParadigmShift3d":	# Make sure it's me
+	if userName not in WHITELIST:	# Make sure it's me
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 
@@ -567,7 +567,7 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 
 def whitelistLS(userName, curItem):
 
-	if userName == "ParadigmShift3d":
+	if userName not in WHITELIST:
 		WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
 		response = 'Whitelisted users: '
 		for item in WHITELIST:

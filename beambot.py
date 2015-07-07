@@ -1,13 +1,13 @@
 #!/usr/bin/env python3 
 
 # -+=============================================================+-
-#	Version: 	3.0.0
-#	Author: 	RPiAwesomeness (AKA ParadigmShift3d)
+#	Version: 	3.1.0
+#	Author: 	RPiAwesomeness
 #	Date:		July 6, 2015
 #
-#	Changelog:	Added !raid, !raided, and !twitch commands
-#				Updated custom command storage to use JSON instead of XML because it's easier
-#				Updated custom commands so you can now update command responses
+#	Changelog:	Bot now uses config.json in data directory instead of config.py
+#				You can now set up the bot via the setup.py script
+#				Fixed a couple of random incorrect file names
 # -+=============================================================+
 
 import os
@@ -123,7 +123,7 @@ def readChat():
 		bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
 	else:
 		bannedUsers = []
-		pickle.dump(bannedUsers, open('data/blacklist.p', 'wb'))
+		pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
 
 	websocket = yield from websockets.connect(endpoint)
 
