@@ -1,4 +1,4 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 # -+=============================================================+-
 #	Version: 	3.1.0
@@ -26,7 +26,7 @@ def autoCurrency():
 	timeIncr = 0
 
 	while True:
-			
+
 		with requests.Session() as session:		# Get the list of currently active users
 			usersRet = session.get(
 				addr + '/api/v1/chats/' + str(channel) + '/users')
@@ -63,18 +63,18 @@ def connect():
 	global initTime
 
 	websocket = yield from websockets.connect(endpoint)
-	
+
 	packet = {
 		"type":"method",
 		"method":"auth",
 		"arguments":[channel, user_id, authkey],
 		"id":0
 	}
-	
+
 	yield from websocket.send(json.dumps(packet))
 	ret = yield from websocket.recv()
 	ret = json.loads(ret)
-	
+
 	if ret["error"] != None:
 		print (ret["error"])
 		print ("Error - Non-None error returned!")
@@ -187,7 +187,7 @@ def readChat():
 
 				if msgID not in msgs_acted:		# Don't add duplicates
 					msgs_acted.append(msgID)		# Make sure we don't act on messages again
-					
+
 					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
 					# messages again.
 					f = open('data/.blist_temp.p', 'wb')
@@ -198,7 +198,7 @@ def readChat():
 					f.close()
 
 					os.rename('data/.blist_temp.p', 'data/blacklist.p')
-				
+
 # ----------------------------------------------------------------------
 # Main Code
 # ----------------------------------------------------------------------
@@ -206,15 +206,17 @@ def readChat():
 def _get_auth_body():
 
 	return {
-		'username': config.USERNAME,
-		'password': config.PASSWORD
+		'username': config['USERNAME'],
+		'password': config['PASSWORD']
 	}
 
 def main():
 
-	global authkey, endpoint, channel, user_id, addr, loop
+	global authkey, endpoint, channel, user_id, addr, loop, config
 
-	addr = config.BEAM_ADDR
+	config = json.load(open('data/config.json', 'r'))
+
+	addr = config['BEAM_ADDR']
 
 	session = requests.Session()
 
@@ -227,10 +229,10 @@ def main():
 		print (loginRet.text)
 		print ("Not Authenticated!")
 		quit()
-	
+
 	user_id = loginRet.json()['id']
 
-	if config.CHANNEL == None:		# If it's NOT None, then there's no auto-connect
+	if config['CHANNEL'] == None:		# If it's NOT None, then there's no auto-connect
 
 		chanOwner = input("Channel [Channel owner's username]: ").lower()
 		chatChannel = session.get(
@@ -243,11 +245,9 @@ def main():
 			quit()
 
 		channel = chatChannel.json()['id']
-	
-	else:
-		channel = config.CHANNEL
 
-	print (channel)
+	else:
+		channel = config['CHANNEL']
 
 	chatRet = session.get(
 		addr + '/api/v1/chats/{}'.format(channel)
@@ -274,7 +274,7 @@ def main():
 	]
 	loop.run_until_complete(connect())
 
-	loop.run_until_complete(asyncio.wait(tasks))	
+	loop.run_until_complete(asyncio.wait(tasks))
 
 	loop.close()
 

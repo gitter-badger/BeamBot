@@ -15,7 +15,7 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
 
-* If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number. 
+* If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number.
 
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
@@ -25,7 +25,7 @@ Simply run `python3 beambot.py`!
 
 ## Features in 3.0.0
 
-**NOTE**: With the 3.1.0 release, I removed the new features for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
+**NOTE**: With the 3.1.0 release, I removed the new features listed for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
 
 ###### **(1.0.0)** - 1.0 release! \o/
 
@@ -52,6 +52,8 @@ Simply run `python3 beambot.py`!
 **(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
 
 **(3.1.0)** - Fixed a couple of random incorrect file names
+
+**(3.1.0)** - Updated code to use new `config.json` data.
 
 ###Current issues:
 

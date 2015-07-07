@@ -1,8 +1,9 @@
-#!/usr/bin/env python3 
+#!/usr/bin/env python3
 
 import os
 import sqlite3
 import json
+import pickle
 
 # This script just sets up the various files/variables that BeamBot needs to run
 
@@ -25,25 +26,24 @@ if autoConnect == '' or autoConnect.lower() == 'y':
 elif autoConnect.lower() == 'n':
 	config['CHANNEL'] = None
 
-# Store this information
-
-with open('data/config.json') as f:
-	f.write(json.dumps(config), 'w')
+# Store the config information
+with open('data/config.json', 'w') as f:
+	f.write(json.dumps(config))
 
 # Create the sqlite database
-with sqlite3.connect('test.sqlite') as con:
+with sqlite3.connect('data/beambot.sqlite') as con:
 
 	cur = con.cursor()
 
 	cur.execute("""
 		CREATE TABLE gears
-		(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE, 
-		 name TEXT UNIQUE, 
+		(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
+		 name TEXT UNIQUE,
 		 gears INTEGER)"""
 	)
 
 	cur.execute("""
-		CREATE TABLE 
+		CREATE TABLE quotes
 		(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
 		 name TEXT,
 		 game TEXT,

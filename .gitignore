@@ -8,9 +8,5 @@
 /whitelist.py
 # Don't need any cached versions
 __pycache__/
-# Don't include the local config files
-data/beambot.sqlite
-data/blacklist.p
-data/whitelist.p
-data/bannedUsers.p
-data/commands.json
+# Don't include the local config files in the data directory
+data/

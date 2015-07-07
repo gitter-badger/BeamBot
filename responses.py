@@ -2,7 +2,6 @@ import random
 import time
 from datetime import datetime
 import sqlite3
-import config
 import pickle
 import requests
 import os
@@ -32,7 +31,7 @@ import json
 
 global prevTime, custCommands
 
-prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
+prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}}
 
 if os.path.exists('data/whitelist.p'):
 	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
@@ -42,7 +41,7 @@ else:
 
 if os.path.exists('data/commands.json'):
 	custCommands = json.load(open('data/commands.json', 'r'))
-	print (custCommands)
+	print ('Custom commands loaded:\n' + str(custCommands))
 else:
 	custCommands = []
 	with open('data/commands.json', 'w') as f:
@@ -56,7 +55,7 @@ def _checkTime(cmd, user, custom=False):
 
 	if cmd in prevTime:		# Make sure the command exists, so no KeyError exceptions
 		if user in prevTime[cmd]:	# Make sure the user exists in that command dictionary
-			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user 
+			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user
 				return True			# Too soon
 			elif (curTime - prevTime[cmd][user]) >= 30:	# Under 30 seconds
 				prevTime[cmd][user] = curTime
@@ -64,8 +63,8 @@ def _checkTime(cmd, user, custom=False):
 
 	# If execution gets to this point, then either user or command does not exist and we need to create a value for that
 	prevTime[cmd] = {user : curTime}
-	return False		
-			
+	return False
+
 # ------------------------------------------------------------------------
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -131,7 +130,7 @@ def commandMod(userName, curItem):		# Command available to mods only
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
 			# If we make it past the for loop, then the command doesn't exist, so make a new one
-			
+
 			newCMD = {
 				'cmd':command,
 				'op':'True',
@@ -176,7 +175,7 @@ def command(userName, curItem):			# Command available to anyone
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
 			# If we make it past the for loop, then the command doesn't exist, so make a new one
-			
+
 			newCMD = {
 				'cmd':command,
 				'op':'False',
@@ -325,7 +324,7 @@ def quote(userName, curItem):
 		print ('command:\t',command)
 
 		cur.execute(command)
-		
+
 		results = cur.fetchall()
 
 		print ("results:\t\t",results)
@@ -378,7 +377,7 @@ def hug(userName, curItem):
 		return "{} gives a great big hug to {}! <3".format(userName, hugUser)
 	else:
 		return None	# Wrong # of args
-	
+
 def give(userName, curItem):
 	cmd = 'give'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
@@ -408,19 +407,19 @@ def give(userName, curItem):
 				if userName == "pybot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of dimes & # check
 					userDimes = int(userDimesOrig) + int(numSend)
 
-					command = '''UPDATE gears 
+					command = '''UPDATE gears
 								SET gears={}
 								WHERE name="{}"'''.format(userDimes, user)
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userDimes) + " dimes!"					
+					return "@" + user + " now has " + str(userDimes) + " dimes!"
 
 				if numSend <= userGearsOrig:	# Make sure the sending user has enough dimes
 
 					userDimes = int(userDimesOrig) + int(numSend)
 
-					command = '''UPDATE gears 
+					command = '''UPDATE gears
 								SET gears={}
 								WHERE name="{}"'''.format(userDimes, user)
 
@@ -442,18 +441,18 @@ def give(userName, curItem):
 
 	else:
 		return None
-	
+
 def dimes(userName, curItem):
 	cmd = 'dimes'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
-	
+
 	split = curItem[1:].split()
 	if len(split) >= 2:
 		user = split[1]
 	else:
 		user = userName
-		
+
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
@@ -462,7 +461,7 @@ def dimes(userName, curItem):
 					WHERE name LIKE \"%''' + user + '%\"'''
 
 		cur.execute(command)
-		
+
 		results = cur.fetchall()
 
 		if len(results) >= 1:
@@ -531,7 +530,7 @@ def whoami(userName):
 	return "Uh...you're {}. Are you all right? :)".format(userName)
 
 def whitelist(userName, curItem):		# Add user to command timeout whitelist
-	
+
 	if userName not in WHITELIST:	# Make sure it's me (in the future, the streamer)
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
@@ -572,5 +571,5 @@ def whitelistLS(userName, curItem):
 		response = 'Whitelisted users: '
 		for item in WHITELIST:
 			response += item + ", "
-		
+
 		return response[:-2]
