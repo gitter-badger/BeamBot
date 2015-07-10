@@ -1,13 +1,12 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.1.0
+#	Version: 	3.1.1
 #	Author: 	RPiAwesomeness
 #	Date:		July 6, 2015
 #
-#	Changelog:	Bot now uses config.json in data directory instead of config.py
-#				You can now set up the bot via the setup.py script
-#				Fixed a couple of random incorrect file names
+#	Changelog:	Forgot to remove 'import config'!
+#				Minor change in responses.py to remove reference to !currency command - not implemented
 # -+=============================================================+
 
 import os
@@ -15,7 +14,7 @@ import json
 import asyncio, websockets, requests
 import time, random
 import pickle
-import config, responses, commands
+import responses, commands
 from datetime import datetime
 
 @asyncio.coroutine

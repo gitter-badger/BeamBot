@@ -15,7 +15,7 @@ import json
 !ping   - Ping Pong!
 !hug    - Hug a user
 !give   - Give dimes/currency to a user
-!dimes/currency  - Get # of dimes/currency for user
+!dimes	- Get # of dimes/currency for user
 !hey    - Basically say hi to the Bot
 !uptime - How long has the bot been running?
 !raid 	- End of Stream command, provides link to Beam.pro channel
