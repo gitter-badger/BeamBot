@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.0.0
+## Features in 3.2.0
 
 **NOTE**: With the 3.1.0 release, I removed the new features listed for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
 
@@ -47,13 +47,26 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.0.0)** - Added !raid, !raided and !twitch commands
 
-**(3.1.0)**	- Added `setup.py` setup script, so user no longer has to manually edit config.py
+###### **(3.1.0)**	- Added `setup.py` setup script, so user no longer has to manually edit config.py
 
-**(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
+###### **(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
 
-**(3.1.0)** - Fixed a couple of random incorrect file names
+###### **(3.1.0)** - Fixed a couple of random incorrect file names
 
-**(3.1.0)** - Updated code to use new `config.json` data.
+###### **(3.1.0)** - Updated code to use new `config.json` data.
+
+**(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
+
+**(3.2.0)** - ``!give`, ``!quote`, and `!gears` now can be called via ``@USERNAME`
+OR plain `USERNAME` (no @ character)
+
+**(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
+
+**(3.2.0)** - Working on transferring command responses to `data/responses.json`
+
+**(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
+
+**(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
 
 ###Current issues:
 
@@ -64,5 +77,7 @@ Simply run `python3 beambot.py`!
 * Make bot watch beam.pro/pybot for commands
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
+
+* `!uptime` sometimes returns a negative value for the seconds
 
 * Anything else I can't think of at this time but is still applicable

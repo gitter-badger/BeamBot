@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.1.1
+#	Version: 	3.2.0
 #	Author: 	RPiAwesomeness
-#	Date:		July 6, 2015
+#	Date:		July 10, 2015
 #
-#	Changelog:	Forgot to remove 'import config'!
-#				Minor change in responses.py to remove reference to !currency command - not implemented
+#	Changelog:	Added response variables to custom commands
+#				Added !currency command
+#				Updated !give, !gears, and !quote to support @USERNAME as well
+#					as the current USERNAME (sans-@)
+#				Various bug fixes
 # -+=============================================================+
 
 import os

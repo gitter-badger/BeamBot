@@ -7,29 +7,7 @@ import requests
 import os
 import json
 
-# Full list of commands
-"""
-!tackle - Tackle a user
-!slap   - Slap a user
-!quote  - Post a quote
-!ping   - Ping Pong!
-!hug    - Hug a user
-!give   - Give dimes/currency to a user
-!dimes	- Get # of dimes/currency for user
-!hey    - Basically say hi to the Bot
-!uptime - How long has the bot been running?
-!raid 	- End of Stream command, provides link to Beam.pro channel
-!raided - Thank a raider who raided you
-!whoami - Who are you - classic whoami command
-!command   - Create new command for anyone to use
-!command+  - Create mod-only command
-!command-  - Remove command
-!ban       - Ban a user from chatting
-!whitelist - Whitelist a user to remove command restrictions
-!goodbye   - Turn off the bot
-"""
-
-global prevTime, custCommands
+global prevTime, custCommands, WHITELIST
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}}
 
@@ -72,35 +50,62 @@ def _checkTime(cmd, user, custom=False):
 def custom(userName, curItem):	# Check unknown command, might be custom one
 	global custCommands
 
-	cmd = curItem[1:].split()[0]
+	split = curItem[1:].split()
+	cmd = split[0]
+	response = ""
 
-	if userName in WHITELIST:	# Is the user on the whitelist?
+	print ('cmd:\t\t',cmd)
+	print ('split:\t',split)
+
+	if userName in WHITELIST:	# Is the user on the whitelist? If so, ignore timeout
 		for e in custCommands:	# Loop through the custom commands
-			print ('e:\t\t',str(e))
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
-				eArgs = e['cmd'].split("[[")
-				print ('eArgs:\t',eArgs)
-				if len(eArgs) >= 1:		# Make sure there's actually some args
-					print ('here')
-					for i in range(0, len(eArgs)):
-						print ('eArags[i]:\t',eArgs[i])
-						eArgs[i] = eArgs[i].replace(']]', '')
-						print ('eArags[i]:\t',eArgs[i])
-						if eArgs[i][0:3] == 'args':		# Use all the arguments
-							eArgs[i] = eArgs[i].replace(response[i][4:], '')
-							print ('eArgs[i]:\t',eArgs[i])
-						elif eArgs[i][0:3] == 'user':	# Use the sending user
-							pass
+				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
 
-				return e['response']		# If op, then just automatically return response
+				for i in range(0, len(eArgs)):
+
+					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+
+					# 3 - Compare stringCur to real response variables
+					if stringCur == 'args':	 # Replace with remainder of arguments
+						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
+						if len(split[1:]) >= 1:
+							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+						else:
+							response += eArgs[i][4:].strip(']')
+					elif stringCur == 'user':   # Replace with sending user
+						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
+						response += (userName + eArgs[i][4:].strip(']'))
+					else:
+						# Just append the curent string item, it's not a response variable
+						response += eArgs[i]
+
+			return response
 
 	if _checkTime(cmd, userName, True):
+		return None				# Too soon
 
+	else:
 		for e in custCommands:	# Loop through the custom commands
-			if e['op']:			# Is it op-only?
-				return None		# Return nothing because user is not whitelisted because program execution is here
-			else:				# Not op-only
-				return e['response']	# Return proper response
+			if e['cmd'] == cmd:		# Does the current entry equal the command?
+				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
+				for i in range(0, len(eArgs)):
+
+					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+
+					# 3 - Compare stringCur to real response variables
+					if stringCur == 'args':	 # Replace with remainder of arguments
+						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
+						response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+					elif stringCur == 'user':   # Replace with sending user
+						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
+						response += (userName + eArgs[i][4:].strip(']'))
+					else:
+						# Just append the curent string item, it's not a response variable
+						response += eArgs[i]
+
+			print ('response:\t',response)
+			return response
 
 	return None 		# If execution gets to this point, it's not a command, so no response
 
@@ -294,6 +299,9 @@ def quote(userName, curItem):
 
 			user = split[0]
 
+			if user[0] == '@':
+				user = user[1:]	# Remove the @ sign, we work without them
+
 			# The user is the first item after !quote add
 			if len(user.split()) != 1:	# It's just a username, anything more indicates an incorrect command
 				return None
@@ -380,12 +388,15 @@ def hug(userName, curItem):
 
 def give(userName, curItem):
 	cmd = 'give'
+
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 
 	split = curItem[1:].split()
 	if len(split) >= 3:
 		user = split[1]	# User recieving dimes
+		if user[0] == '@':
+			user = user[1:]			# Remove the @ character
 		try:	# Try to convert argument to int type
 			numSend = int(split[2])	# Number of dimes being transferred
 		except:	# Oops! User didn't provide an integer
@@ -509,6 +520,16 @@ def raided(userName, curItem):
 		return "Thank you so much @{} for the raid!"\
 				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
 
+def commands(userName):
+	commandList = json.loads(open('data/commands.json', 'r'))
+
+	return ", ".join(commandList)
+
+# def throw(userName, curItem):
+# 	cmd = 'throw'
+# 	if userName in WHITELIST:
+#
+
 def uptime(userName, initTime):
 	cmd = 'uptime'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
@@ -530,6 +551,7 @@ def whoami(userName):
 	return "Uh...you're {}. Are you all right? :)".format(userName)
 
 def whitelist(userName, curItem):		# Add user to command timeout whitelist
+	global WHITELIST
 
 	if userName not in WHITELIST:	# Make sure it's me (in the future, the streamer)
 
@@ -544,6 +566,7 @@ def whitelist(userName, curItem):		# Add user to command timeout whitelist
 		return None
 
 def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
+	global WHITELIST
 
 	if userName not in WHITELIST:	# Make sure it's me
 
@@ -565,11 +588,11 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 		return None
 
 def whitelistLS(userName, curItem):
+	global WHITELIST
 
-	if userName not in WHITELIST:
-		WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
-		response = 'Whitelisted users: '
-		for item in WHITELIST:
-			response += item + ", "
+	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
+	response = 'Whitelisted users: '
+	for item in WHITELIST:
+		response += item + ", "
 
-		return response[:-2]
+	return response[:-2]

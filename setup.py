@@ -65,4 +65,8 @@ custCommands = []
 with open('data/commands.json', 'w') as f:
 	f.write(str(custCommands))
 
+commandList = {}
+with open('data/commandList.json', 'w') as f:
+	f.write(str(commandList))
+
 print ("All set! Just run \"python3 beambot.py\" and you're good to go!")

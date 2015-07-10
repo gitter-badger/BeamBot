@@ -67,8 +67,8 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 	return response, goodbye
 
 def getResp(curItem, userName=None, msgLocalID=None):
-	
-	# ----------------------------------------------------------	
+
+	# ----------------------------------------------------------
 	# Commands
 	# ----------------------------------------------------------
 	cmd = curItem[1:].split()
@@ -79,7 +79,7 @@ def getResp(curItem, userName=None, msgLocalID=None):
 	elif cmd[0] == "ping":				# Ping Pong Command
 		response = responses.ping(userName)
 
-	elif cmd[0] == "dimes":			# Get user balance
+	elif cmd[0] == "dimes" or cmd[0] == "currency":			# Get user balance
 		response = responses.dimes(userName, curItem)
 
 	elif cmd[0] == "give":	# Give dimes to a user
@@ -153,7 +153,7 @@ def getResp(curItem, userName=None, msgLocalID=None):
 			"id":msgLocalID
 		}
 
-		return packet, True	# Return the Goodbye message packet & 
+		return packet, True	# Return the Goodbye message packet &
 
 	else:					# Unknown or custom command
 		response = responses.custom(userName, curItem)
