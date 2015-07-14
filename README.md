@@ -44,7 +44,7 @@ Simply run `python3 beambot.py`!
 ###### **(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
 
 ###### **(3.2.0)** - `!give`, `!quote`, and `!gears` now can be called via ``@USERNAME`
-OR plain `USERNAME` (no @ character)
+###### OR plain `USERNAME` (no @ character)
 
 ###### **(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
 
@@ -78,8 +78,6 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
 
-* Fix bug #2 and #3
-
 * Automatically whitelist channel mods and streamer as well as automatically detect streamer instead of using hard-coded "ParadigmShift3d".
 
 * This release will fix bugs #2, #3, #5, #6 and #7
@@ -93,11 +91,5 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 * Make bot watch beam.pro/pybot for commands
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
-
-* `!uptime` sometimes returns a negative value for the seconds
-
-* Need to automatically add users who are mod on the channel to the whitelist on startup
-
-* Need to make bot automatically detect streamer instead of just using direct "ParadigmShift3d"
 
 * Anything else I can't think of at this time but is still applicable
