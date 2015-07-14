@@ -7,9 +7,9 @@ import requests
 import os
 import json
 
-global prevTime, custCommands, WHITELIST
+global prevTime, custCommands, WHITELIST, commandList
 
-prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}}
+prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
 
 if os.path.exists('data/whitelist.p'):
 	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
@@ -24,6 +24,13 @@ else:
 	custCommands = []
 	with open('data/commands.json', 'w') as f:
 		f.write(str(custCommands))
+
+if os.path.exists('data/commandList.json'):
+	commandList = json.load(open('data/commandList.json', 'r'))
+else:
+	print ('Error:')
+	print ('data/commandList.json is missing! !commands will not work')
+	commandList = False
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -47,6 +54,51 @@ def _checkTime(cmd, user, custom=False):
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
+def blame(userName, curItem):
+	cmd = "blame"
+
+	if _checkTime(cmd, userName) and userName not in WHITELIST:
+		return None
+	else:
+		if curItem[1:][5] == " ":		# Is it a space?
+			return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
+					" you have been blamed!"
+		else:
+			return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
+					" you have been blamed!"
+
+def cmdList(userName, curItem):	# Returns list of commands
+
+	global commandList
+
+	response = ""
+	cmd = "cmdList"
+
+	if commandList == False:		# File missing
+		return None					# So no response!
+	else:
+
+		if userName not in WHITELIST:	# Command is whitelist-only
+			return None
+
+		else:
+			cmdListUsage = commandList['usage']
+			cmdList = commandList['list']
+
+			msg = curItem.split()[1:]		# Split the command up to see if there are args
+
+			if len(msg) >= 2:				# At least 2 items, so at least one arg
+				if msg[1] in cmdListUsage:	# Does a key exist with that argument's value?
+					return msg[1] + " - " + cmdListUsage[msg[1]] + " - " + cmdList[msg[1]]	# Return command + usage
+			else:					# Just !commands, so list commands
+				response += "Commands: "
+				for cmd in cmdList:
+					response += cmd + ", "
+
+				return response
+
+		return None					# If execution gets here, then we've got no matches
+
 def custom(userName, curItem):	# Check unknown command, might be custom one
 	global custCommands
 
@@ -55,7 +107,7 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 	response = ""
 
 	print ('cmd:\t\t',cmd)
-	print ('split:\t',split)
+	print ('split:\t\t',split)
 
 	if userName in WHITELIST:	# Is the user on the whitelist? If so, ignore timeout
 		for e in custCommands:	# Loop through the custom commands

@@ -23,23 +23,9 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.0
+## Features in 3.2.1
 
-**NOTE**: With the 3.1.0 release, I removed the new features listed for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
-
-###### **(1.0.0)** - 1.0 release! \o/
-
-###### **(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
-
-###### **(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
-
-###### **(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
-
-###### **(2.1.0)** - Added auto-connect/channel auto-selection via username
-
-###### **(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
-
-###### **(2.2.0)** - Changed gears to dimes
+**NOTE**: With the 3.2.1 release, I removed the new features listed for all old versions up to version 3.0.0. They are still accessible in the repository history, but the list was getting long again
 
 ###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
 
@@ -55,22 +41,52 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.1.0)** - Updated code to use new `config.json` data.
 
-**(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
+###### **(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
 
-**(3.2.0)** - ``!give`, ``!quote`, and `!gears` now can be called via ``@USERNAME`
+###### **(3.2.0)** - `!give`, `!quote`, and `!gears` now can be called via ``@USERNAME`
 OR plain `USERNAME` (no @ character)
 
-**(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
+###### **(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
 
-**(3.2.0)** - Working on transferring command responses to `data/responses.json`
+###### **(3.2.0)** - Working on transferring command responses to `data/responses.json`
 
-**(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
+###### **(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
 
-**(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
+###### **(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
+
+**(3.2.1)** - Added `!blame` command to blame people!
+
+**(3.2.1)** - Added `!commands` command to list available commands
+
+**(3.2.1)** - Updated command timeout to include global timeout (3 times max per minute)
+
+**(3.2.1)** - General progress towards 3.3.0 (a stability & quality release)
+
+### Info on future 3.3.0 release
+
+The code has, as I've been adding to it, slowly been getting less tidy and well-written.
+
+Plus, although I've tested the bot myself, I've yet to see it in action or have it truly tested by any other user than myself.
+
+Thus, although I plan on adding a few new features and commands for 3.3.0, it's going to mainly be a boring (but very important) stability and quality improvement release.
+
+**Plans for 3.3.0:**
+
+* Update `return None` statements to return usage from `data/commandList.json` if `None` is being returned for anything other than command timeout.
+
+* Add `!throw` and `!catch` commands for functions
+
+* Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
+
+* Fix bug #2 and #3
+
+* Automatically whitelist channel mods and streamer as well as automatically detect streamer instead of using hard-coded "ParadigmShift3d".
+
+* This release will fix bugs #2, #3, #5, #6 and #7
 
 ###Current issues:
 
-* Need to add more commands and features
+* Need to add more commands and features - The never-ending bug!
 
 * Need a better name than pybot/beambot (Bug #2)
 
@@ -79,5 +95,9 @@ OR plain `USERNAME` (no @ character)
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
 * `!uptime` sometimes returns a negative value for the seconds
+
+* Need to automatically add users who are mod on the channel to the whitelist on startup
+
+* Need to make bot automatically detect streamer instead of just using direct "ParadigmShift3d"
 
 * Anything else I can't think of at this time but is still applicable

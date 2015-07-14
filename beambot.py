@@ -3,13 +3,10 @@
 # -+=============================================================+-
 #	Version: 	3.2.0
 #	Author: 	RPiAwesomeness
-#	Date:		July 10, 2015
+#	Date:		July 11, 2015
 #
-#	Changelog:	Added response variables to custom commands
-#				Added !currency command
-#				Updated !give, !gears, and !quote to support @USERNAME as well
-#					as the current USERNAME (sans-@)
-#				Various bug fixes
+#	Changelog:	Added !blame commands (!blame<user>, !blame <user>)
+#				Added !commands command (!commands - mod only)
 # -+=============================================================+
 
 import os
@@ -167,7 +164,9 @@ def readChat():
 					yield from websocket.close()
 					quit()
 
-				if response != None:			# Make sure response isn't nothing
+				if response == None or response == "":	# Make sure response isn't nothing
+					next
+				else:
 					#----------------------------------------------------------
 					# Send the message
 					#----------------------------------------------------------

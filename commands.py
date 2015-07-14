@@ -73,7 +73,13 @@ def getResp(curItem, userName=None, msgLocalID=None):
 	# ----------------------------------------------------------
 	cmd = curItem[1:].split()
 
-	if cmd[0] == "hey":				# Say hey
+	if cmd[0][0:5] == "blame":		# Blame a user
+		response = responses.blame(userName, curItem)
+
+	elif cmd[0] == "commands":		# Get list of commands
+		response = responses.cmdList(userName, curItem)
+
+	elif cmd[0] == "hey":				# Say hey
 		response = responses.hey(userName)
 
 	elif cmd[0] == "ping":				# Ping Pong Command
