@@ -12,5 +12,6 @@ __pycache__/
 data/bannedUsers.p
 data/commands.json
 data/whitelist.p
+data/blacklist.p
 data/beambot.sqlite
 data/config.json
