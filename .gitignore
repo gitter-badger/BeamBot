@@ -9,4 +9,8 @@
 # Don't need any cached versions
 __pycache__/
 # Don't include the local config files in the data directory
-data/
+data/bannedUsers.p
+data/commands.json
+data/whitelist.p
+data/beambot.sqlite
+data/config.json

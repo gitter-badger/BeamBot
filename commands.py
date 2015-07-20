@@ -7,6 +7,7 @@ new code instead of having to figure out how to create the correct packet.
 
 from datetime import datetime
 import responses
+import callbacks
 
 initTime = datetime.now().strftime('%H.%M.%S')
 
@@ -73,7 +74,14 @@ def getResp(curItem, userName=None, msgLocalID=None):
 	# ----------------------------------------------------------
 	cmd = curItem[1:].split()
 
-	if cmd[0][0:5] == "blame":		# Blame a user
+	if cmd[0] == "throw":			# Throw a ball at another user
+		timer = callbacks.Timer(2)
+
+		print (timer.callback())
+
+		response = "Blargh"
+
+	elif cmd[0][0:5] == "blame":	# Blame a user
 		response = responses.blame(userName, curItem)
 
 	elif cmd[0] == "commands":		# Get list of commands
