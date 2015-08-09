@@ -26,7 +26,6 @@ Simply run `python3 beambot.py`!
 ## Features in 3.2.1
 
 **NOTE**: With the 3.2.1 release, I removed the new features listed for all old versions up to version 3.0.0. They are still accessible in the repository history, but the list was getting long again
-
 ###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
 
 ###### **(3.0.0)** - Changed custom commands so you can now update an existing command's response
@@ -62,9 +61,13 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.1)** - General progress towards 3.3.0 (a stability & quality release)
 
-**(3.2.2)** - Fixed code where including @ symbol in user-referencing command would mess it up
+###### **(3.2.2)** - Fixed code where including @ symbol in user-referencing command would mess it up
 
-**(3.2.2)** - General progress towards 3.3.0 (a stability & quality release)
+###### **(3.2.2)** - General progress towards 3.3.0 (a stability & quality release)
+
+**(3.2.3)** - General progress towards 3.3.0 (a stability & quality release)
+
+**(3.2.3)** - Updated bot to use per-channel ban lists, custom command lists, & whitelists
 
 ### Info on future 3.3.0 release
 
@@ -95,5 +98,7 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 * Make bot watch beam.pro/pybot for commands
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
+
+* Add [[count]] custom response variable
 
 * Anything else I can't think of at this time but is still applicable

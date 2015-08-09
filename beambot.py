@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.2
+#	Version: 	3.2.3
 #	Author: 	RPiAwesomeness
 #	Date:		August 8, 2015
 #
-#	Changelog:	Fixed remainder of commands to support an username argument
-#				that starts with the @ character
+#	Changelog:	Updated bot to automatically detect mods/streamers & auto-whitelist them
 # -+=============================================================+
 
 import os
@@ -97,6 +96,9 @@ def connect():
 	yield from websocket.send(json.dumps(packet))
 	ret_msg = yield from websocket.recv()
 	ret_msg = json.loads(ret_msg)
+
+	# Automatically whitelist streamer/stream mods
+
 
 	yield from websocket.close()
 

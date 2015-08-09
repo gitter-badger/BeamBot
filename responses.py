@@ -1,5 +1,3 @@
-#CHECKING FOR @ IN ARG
-
 import random
 import time
 from datetime import datetime
@@ -13,18 +11,20 @@ global prevTime, custCommands, WHITELIST, commandList
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
 
-if os.path.exists('data/whitelist.p'):
-	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
+config = json.load(open('data/config.json', 'r'))
+
+if os.path.exists('data/whitelist{}.p'.format(config['CHANNEL'])):
+	WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
 else:
 	WHITELIST = ['ParadigmShift3d','pybot']
-	pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
+	pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
 
-if os.path.exists('data/commands.json'):
-	custCommands = json.load(open('data/commands.json', 'r'))
+if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
+	custCommands = json.load(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
 	print ('Custom commands loaded:\n' + str(custCommands))
 else:
 	custCommands = []
-	with open('data/commands.json', 'w') as f:
+	with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 		f.write(str(custCommands))
 
 if os.path.exists('data/commandList.json'):
@@ -187,7 +187,7 @@ def commandMod(userName, curItem):		# Command available to mods only
 				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
 					cmd['response'] = response 	# Update the response
 					cmd['op'] = 'True'			# Update the OP-only value to True
-					with open('data/commands.json', 'w') as f:
+					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 						f.write(json.dumps(custCommands, sort_keys=cmd))
 
 					# Command exists, so it has been updated
@@ -205,7 +205,7 @@ def commandMod(userName, curItem):		# Command available to mods only
 
 			print ('custCommands:\t',json.dumps(custCommands))
 
-			with open('data/commands.json', 'w') as f:
+			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 				f.write(json.dumps(custCommands))		# Update the stored JSON file
 
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
@@ -231,7 +231,7 @@ def command(userName, curItem):			# Command available to anyone
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
 					cmd['op'] = 'False'			# Update the OP-only value to False
 					cmd['response'] = response 	# Update the response
-					with open('data/commands.json', 'w') as f:
+					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 						cmd['cmd'] = cmd['cmd']
 						f.write(json.dumps(custCommands, sort_keys=True))
 
@@ -250,7 +250,7 @@ def command(userName, curItem):			# Command available to anyone
 
 			print ('custCommands:\t',json.dumps(custCommands))
 
-			with open('data/commands.json', 'w') as f:
+			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 				f.write(json.dumps(custCommands))		# Update the stored JSON file
 
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
@@ -273,7 +273,7 @@ def commandRM(userName, curItem):			# Remove a command
 					del custCommands[e]
 					break
 
-			with open('data/commands.json', 'w') as f:
+			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 				print (custCommands)
 				f.write(json.dumps(custCommands))
 
@@ -602,7 +602,7 @@ def raided(userName, curItem):
 				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
 
 def commands(userName):
-	commandList = json.loads(open('data/commands.json', 'r'))
+	commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
 
 	return ", ".join(commandList)
 
@@ -638,7 +638,7 @@ def whitelist(userName, curItem):		# Add user to command timeout whitelist
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 			WHITELIST.append(curItem[1:].split()[2])	# Append the new user to the whitelist!
-			pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
+			pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
 			response = str("User " + curItem[1:].split()[2] + " added to whitelist!")
 			return response
 		else:
@@ -654,10 +654,10 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 
 			print ('curItem:\t',curItem)
-			WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
+			WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
 			if curItem[1:].split()[2] in WHITELIST:		# Make sure user being removed really is removable!
 				WHITELIST.remove(curItem[1:].split()[2])	# Append the new user to the whitelist!
-				pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
+				pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
 				response = str("User " + curItem[1:].split()[2] + " removed from whitelist!")
 				return response
 
@@ -671,7 +671,7 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 def whitelistLS(userName, curItem):
 	global WHITELIST
 
-	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
+	WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
 	response = 'Whitelisted users: '
 	for item in WHITELIST:
 		response += item + ", "

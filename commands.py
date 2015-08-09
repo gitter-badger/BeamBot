@@ -10,14 +10,16 @@ import responses
 import callbacks
 import os.path
 import pickle
+import json
 
 initTime = datetime.now().strftime('%H.%M.%S')
+config = json.load(open('data/config.json', 'r'))
 
-if os.path.exists('data/bannedUsers.p'):
-	bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
+if os.path.exists('data/bannedUsers{}.p'.format(config['CHANNEL'])):
+	bannedUsers = pickle.load(open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'rb'))
 else:
 	bannedUsers = []
-	pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
+	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
 def prepCMD(msg, msgLocalID, msgs_acted):
 
@@ -113,13 +115,13 @@ def getResp(curItem, userName=None, msgLocalID=None):
 
 		print ("bannedUsers",bannedUsers)
 
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
+		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 
 	elif cmd[0] == "unban":	# Unban a user
 		response, uBanUser = responses.unban(userName, curItem)
 		bannedUsers.remove(uBanUser)
 
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
+		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 
 	elif cmd[0] == "quote":	# Get random quote from DB
 		response = responses.quote(userName, curItem)
