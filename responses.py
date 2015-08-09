@@ -582,7 +582,7 @@ def twitch(userName, curItem):
 	if len(split) >= 2:
 		raid = split[1]
 		if raid[0] == "@":
-			raid = raid[1:]	raid# Remove the @ character
+			raid = raid[1:]			# Remove the @ character
 		return "Stream's over everyone!"\
 			" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
 
