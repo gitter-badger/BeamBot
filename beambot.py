@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.1
+#	Version: 	3.2.2
 #	Author: 	RPiAwesomeness
-#	Date:		July 11, 2015
+#	Date:		August 8, 2015
 #
-#	Changelog:	Fixed various commands to support an username argument
+#	Changelog:	Fixed remainder of commands to support an username argument
 #				that starts with the @ character
 # -+=============================================================+
 
@@ -118,12 +118,6 @@ def readChat():
 
 	activeChat = []
 
-	if os.path.exists('data/bannedUsers.p'):
-		bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
-	else:
-		bannedUsers = []
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
-
 	websocket = yield from websockets.connect(endpoint)
 
 	packet = {
@@ -157,7 +151,7 @@ def readChat():
 				if userName not in activeChat:
 					activeChat.append(userName)
 
-				response, goodbye = commands.prepCMD(msg, bannedUsers, msgLocalID, msgs_acted)
+				response, goodbye = commands.prepCMD(msg, msgLocalID, msgs_acted)
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
 					yield from websocket.send(json.dumps(response))	# Send the message

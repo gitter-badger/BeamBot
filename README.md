@@ -54,13 +54,17 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
 
-**(3.2.1)** - Added `!blame` command to blame people!
+###### **(3.2.1)** - Added `!blame` command to blame people!
 
-**(3.2.1)** - Added `!commands` command to list available commands
+###### **(3.2.1)** - Added `!commands` command to list available commands
 
-**(3.2.1)** - Updated command timeout to include global timeout (3 times max per minute)
+###### **(3.2.1)** - Updated command timeout to include global timeout (3 times max per minute)
 
-**(3.2.1)** - General progress towards 3.3.0 (a stability & quality release)
+###### **(3.2.1)** - General progress towards 3.3.0 (a stability & quality release)
+
+**(3.2.2)** - Fixed code where including @ symbol in user-referencing command would mess it up
+
+**(3.2.2)** - General progress towards 3.3.0 (a stability & quality release)
 
 ### Info on future 3.3.0 release
 

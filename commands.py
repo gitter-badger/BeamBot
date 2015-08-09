@@ -8,10 +8,18 @@ new code instead of having to figure out how to create the correct packet.
 from datetime import datetime
 import responses
 import callbacks
+import os.path
+import pickle
 
 initTime = datetime.now().strftime('%H.%M.%S')
 
-def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
+if os.path.exists('data/bannedUsers.p'):
+	bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
+else:
+	bannedUsers = []
+	pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
+
+def prepCMD(msg, msgLocalID, msgs_acted):
 
 	userID = msg['user_id']
 	userName = msg['user_name']
@@ -101,7 +109,9 @@ def getResp(curItem, userName=None, msgLocalID=None):
 
 	elif cmd[0] == "ban":	# Ban a user from chatting
 		response, banUser = responses.ban(userName, curItem)
-		bannedUsers.append("@" + banUser)
+		bannedUsers.append(banUser)
+
+		print ("bannedUsers",bannedUsers)
 
 		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
 
