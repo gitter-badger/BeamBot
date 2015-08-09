@@ -12,13 +12,14 @@
 #				Various bug fixes
 # -+=============================================================+
 
-import os
+import os, sys
 import json
 import asyncio, websockets, requests
 import time, random
 import pickle
 import responses, commands
 from datetime import datetime
+from time import sleep
 
 @asyncio.coroutine
 def autoCurrency():
@@ -281,4 +282,19 @@ def main():
 	loop.close()
 
 if __name__ == "__main__":
-	main()
+	try:
+		main()
+	except KeyboardInterrupt:
+		if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
+			sys.exit("\033[1;31mTerminated.\033[0m")
+		else:
+			main()
+	except Exception as e:
+		exception_type, exception_obj, exception_tb = sys.exc_info()
+		filename = exception_tb.tb_frame.f_code.co_filename
+
+		print('\033[1;31mI have crashed.\033[33m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
+		print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
+		sleep(10)
+		os.execl(sys.executable, sys.executable, * sys.argv)
+
