@@ -1,3 +1,5 @@
+#CHECKING FOR @ IN ARG
+
 import random
 import time
 from datetime import datetime
@@ -61,8 +63,13 @@ def blame(userName, curItem):
 		return None
 	else:
 		if curItem[1:][5] == " ":		# Is it a space?
-			return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
-					" you have been blamed!"
+
+			if curItem[1:][6] == "@":
+				return curItem[8:] + " has been duly blamed! " + curItem[7:] + \
+						" you have been blamed!"
+			else:
+				return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
+						" you have been blamed!"
 		else:
 			return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
 					" you have been blamed!"
@@ -339,6 +346,10 @@ def quote(userName, curItem):
 
 	elif len(split) == 2:		# If it's just 2 strings, get quote for user
 		user = split[1]		# Set the user to be the second string
+
+		if user[0] == "@":	# The first character is the @ character - remove that
+			user = user[1:]
+
 	elif len(split) >= 3:		# It's add quote
 		cmd = split[1]
 
@@ -406,6 +417,8 @@ def ban(userName, curItem):
 	if userName in WHITELIST:		# Make sure it's a whitelisted user
 		if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
 			banUser = curItem[1:].split()[1]
+			if banUser[0] == "@":
+				banUser = banUser[1:]	# Remove the @ character
 			return banUser + " has been chatbanned!", banUser
 
 		else:
@@ -417,6 +430,9 @@ def unban(userName, curItem):
 	if userName in WHITELIST:		# Make sure it's a whitelisted user
 		if len(curItem[1:].split()[1]) >= 2:
 			uBanUser = curItem[1:].split()[1]
+			if uBanUser[0] == "@":
+				uBanUser = banUser[1:]	# Remove the @ character
+
 			return uBanUser + " has been un-banned!", uBanUser
 	else:			# Not whitelisted
 		return None
@@ -434,7 +450,10 @@ def hug(userName, curItem):
 
 	if len(curItem[1:].split()) >= 2:
 		hugUser = curItem[1:].split()[1]
-		return "{} gives a great big hug to {}! <3".format(userName, hugUser)
+		if hugUser[0] == "@":
+			return "{} gives a great big hug to {}! <3".format(userName, hugUser)
+		else:	# Difference adds @ symbol if not included in the argument
+			return "{} gives a great big hug to @{}! <3".format(userName, hugUser)
 	else:
 		return None	# Wrong # of args
 
@@ -512,7 +531,10 @@ def dimes(userName, curItem):
 
 	split = curItem[1:].split()
 	if len(split) >= 2:
-		user = split[1]
+		if split[1][0] == "@":
+			user = split[1][1:]		# Remove @ character
+		else:
+			user = split[1]
 	else:
 		user = userName
 
@@ -546,6 +568,8 @@ def raid(userName, curItem):
 	split = curItem[1:].split()
 	if len(split) >= 2:
 		raid = split[1]
+		if raid[0] == "@":
+			raid = raid[1:]	# Remove the @ character
 		return "Stream's over everyone!"\
 				" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
 
@@ -557,9 +581,10 @@ def twitch(userName, curItem):
 	split = curItem[1:].split()
 	if len(split) >= 2:
 		raid = split[1]
+		if raid[0] == "@":
+			raid = raid[1:]	raid# Remove the @ character
 		return "Stream's over everyone!"\
-				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
-
+			" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
 
 def raided(userName, curItem):
 	cmd = 'raided'
@@ -569,7 +594,11 @@ def raided(userName, curItem):
 	split = curItem[1:].split()
 	if len(split) >= 2:
 		raid = split[1]
-		return "Thank you so much @{} for the raid!"\
+		if raid[0] == "@":
+			return "Thank you so much {} for the raid!"\
+				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
+		else:
+			return "Thank you so much @{} for the raid!"\
 				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
 
 def commands(userName):

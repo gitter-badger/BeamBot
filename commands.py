@@ -101,7 +101,7 @@ def getResp(curItem, userName=None, msgLocalID=None):
 
 	elif cmd[0] == "ban":	# Ban a user from chatting
 		response, banUser = responses.ban(userName, curItem)
-		bannedUsers.append(banUser)
+		bannedUsers.append("@" + banUser)
 
 		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
 

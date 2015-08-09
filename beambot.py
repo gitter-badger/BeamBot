@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.0
+#	Version: 	3.2.1
 #	Author: 	RPiAwesomeness
 #	Date:		July 11, 2015
 #
-#	Changelog:	Added !blame commands (!blame<user>, !blame <user>)
-#				Added !commands command (!commands - mod only)
+#	Changelog:	Fixed various commands to support an username argument
+#				that starts with the @ character
 # -+=============================================================+
 
 import os
