@@ -493,7 +493,7 @@ def give(user_name, curItem, is_mod):
 			if len(results) >= 1:
 				userDimesOrig = results[0][0]
 
-				if user_name == "pybot" or user_name == "ParadigmShift3d":	# If it's me/bot, ignore removal of dimes & # check
+				if user_name == "pybot":	# If it's bot, ignore removal of dimes & # check
 					userDimes = int(userDimesOrig) + int(numSend)
 
 					command = '''UPDATE gears

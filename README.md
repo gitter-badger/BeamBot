@@ -23,23 +23,9 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.1
+## Features in 3.2.3
 
-**NOTE**: With the 3.2.1 release, I removed the new features listed for all old versions up to version 3.0.0. They are still accessible in the repository history.
-
-###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
-
-###### **(3.0.0)** - Changed custom commands so you can now update an existing command's response
-
-###### **(3.0.0)** - Added !raid, !raided and !twitch commands
-
-###### **(3.1.0)**	- Added `setup.py` setup script, so user no longer has to manually edit config.py
-
-###### **(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
-
-###### **(3.1.0)** - Fixed a couple of random incorrect file names
-
-###### **(3.1.0)** - Updated code to use new `config.json` data.
+**NOTE**: With the 3.2.3 release, I removed the new features listed for all old versions up to version 3.2.0. They are still accessible in the repository history.
 
 ###### **(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
 
@@ -66,11 +52,14 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.2)** - General progress towards 3.3.0 (a stability & quality release)
 
-**(3.2.3)** - General progress towards 3.3.0 (a stability & quality release)
+###### **(3.2.3)** - General progress towards 3.3.0 (a stability & quality release)
 
-**(3.2.3)** - Updated bot to use per-channel ban lists, custom command lists, & whitelists
+###### **(3.2.3)** - Updated bot to use per-channel ban lists, custom command lists, & whitelists
 
-**(3.2.3)** - Bot now will recognize the streamer/channel mods & will automatically act as if they are whitelisted (Fixes #5)
+###### **(3.2.3)** - Bot now will recognize the streamer/channel mods & will automatically act as if they are whitelisted (Fixes #5)
+
+**(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
+
 
 ### Info on future 3.3.0 release
 

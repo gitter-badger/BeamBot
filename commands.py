@@ -30,9 +30,14 @@ def prepCMD(msg, msgLocalID, msgs_acted):
 	msg_id = msg['id']
 
 	is_mod = False
+	is_owner = False
 	user_roles = msg['user_roles']
-	if 'Owner' in user_roles or 'Mod' in user_roles:
-		print ('Elevated user!')
+	if 'Owner' in user_roles:
+		print ('Streamer/Owner!')
+		is_mod = True
+		is_owner = True
+	elif 'Mod' in user_roles:
+		print ('Stream mod!')
 		is_mod = True
 
 	response = None					# Have to declare variable as None to avoid UnboundLocalError
