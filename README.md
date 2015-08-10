@@ -60,7 +60,6 @@ Simply run `python3 beambot.py`!
 
 **(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
 
-
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.

@@ -25,6 +25,7 @@ if autoConnect == '' or autoConnect.lower() == 'y':
 # Nope, don't auto-connect
 elif autoConnect.lower() == 'n':
 	config['CHANNEL'] = None
+	config['CONTROL'] = 22085
 
 # Store the config information
 with open('data/config.json', 'w') as f:

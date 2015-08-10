@@ -111,10 +111,10 @@ def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
 		response = responses.cmdList(user_name, cur_item, is_mod)
 
 	elif cmd[0] == "hey":				# Say hey
-		response = responses.hey(user_name)
+		response = responses.hey(user_name, is_mod)
 
 	elif cmd[0] == "ping":				# Ping Pong Command
-		response = responses.ping(user_name)
+		response = responses.ping(user_name, is_mod)
 
 	elif cmd[0] == "dimes" or cmd[0] == "currency":			# Get user balance
 		response = responses.dimes(user_name, cur_item, is_mod)
@@ -143,7 +143,7 @@ def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
 		response = responses.tackle(user_name, cur_item, is_mod)
 
 	elif cmd[0] == "slap":	# Slap someone
-		response = responses.slap(user_name)
+		response = responses.slap(user_name, is_mod)
 
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime)
@@ -161,7 +161,7 @@ def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
 		response = responses.twitch(user_name, cur_item, is_mod)
 
 	elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
-		response = responses.whoami(user_name)
+		response = responses.whoami(user_name, is_mod)
 
 	elif cmd[0] == "command":	# Add command for any users
 		response = responses.command(user_name, cur_item, is_mod)

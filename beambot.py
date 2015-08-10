@@ -36,7 +36,7 @@ def autoCurrency():
 			userName = user['userName']
 
 			curItem = '!give ' + userName + " 1"
-			autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +1 gear
+			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
@@ -46,7 +46,7 @@ def autoCurrency():
 				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
 
 					curItem = '!give ' + userName + " 3"
-					autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +3 gear for being involved
+					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +3 gear for being involved
 
 
 			timeIncr = 0	# Reset the time incrementer
@@ -124,7 +124,7 @@ def readChat():
 		"type":"method",
 		"method":"auth",
 		"arguments":[channel, user_id, authkey],
-		"id":0
+		"id":msgLocalID
 	}
 
 	response = yield from websocket.send(json.dumps(packet))
@@ -137,7 +137,6 @@ def readChat():
 
 		if result != None:
 			result = json.loads(result)
-			next
 
 		print ('result:\t',result,'\n')
 
@@ -194,26 +193,48 @@ def readChat():
 
 					os.rename('data/.blist_temp.p', 'data/blacklist.p')
 
-# ----------------------------------------------------------------------
-# Main Code
-# ----------------------------------------------------------------------
+def controlChannel():
 
-def _get_auth_body():
-
-	return {
-		'username': config['USERNAME'],
-		'password': config['PASSWORD']
-	}
-
-def main():
-
-	global authkey, endpoint, channel, user_id, addr, loop, config
-
-	config = json.load(open('data/config.json', 'r'))
-
-	addr = config['BEAM_ADDR']
+	msgLocalID = 0
 
 	session = requests.Session()
+
+	websocket_control = yield from websockets.connect(endpoint_control)
+
+	packet = {
+		"type":"method",
+		"method":"auth",
+		"arguments":[config['CONTROL'], user_id, authkey_control],
+		"id":msgLocalID
+	}
+
+	response_control = yield from websocket_control.send(json.dumps(packet))
+
+	print ('HERE0!')
+
+	while True:
+		result_control = yield from websocket_control.recv()
+
+		if result_control != None:
+			result_control = json.loads(result_control)
+
+		print ('HERE1!')
+
+		print ('control:\t\t',result_control)
+
+		if 'event' in result_control:
+			print ('HERE2!')
+			if result_control['event'] == "ChatMessage":
+				print ('HERE3!')
+
+	packet = {
+		"type":"method",
+		"method":"auth",
+		"arguments":[config['CONTROL'], user_id, authkey_control],
+		"id":msgLocalID
+	}
+
+	response_control = yield from websocket_control.send(json.dumps(packet))
 
 	loginRet = session.post(
 		addr + '/api/v1/users/login',
@@ -223,7 +244,7 @@ def main():
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
 		print ("Not Authenticated!")
-		quit()
+		raise NotAuthed(loginRet.text)
 
 	user_id = loginRet.json()['id']
 
@@ -244,20 +265,34 @@ def main():
 	else:
 		channel = config['CHANNEL']
 
-	chatRet = session.get(
+	chat_ret = session.get(
 		addr + '/api/v1/chats/{}'.format(channel)
 	)
 
-	if chatRet.status_code != requests.codes.ok:
+	control_ret = session.get(
+		addr + '/api/v1/chats/{}'.format(config['CONTROL'])
+	)
+
+	print ('control_ret:\t',control_ret.json())
+
+	if control_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
-		print ('Message:\t',chatRet.json())
-		quit()
+		print ('Message:\t',control_ret.json())
+		raise ChatConnectFailure(control_ret.json())
 
-	chat_details = chatRet.json()
+	if chat_ret.status_code != requests.codes.ok:
+		print ('ERROR!')
+		print ('Message:\t',chat_ret.json())
+		raise ChatConnectFailure(chat_ret.json())
 
+	chat_details = chat_ret.json()
+	chat_details_control = control_ret.json()
+
+	endpoint_control = chat_details_control['endpoints'][0]
 	endpoint = chat_details['endpoints'][0]
 
 	authkey = chat_details['authkey']
+	authkey_control = chat_details['authkey']
 
 	print ('authkey:\t',authkey)
 	print ('endpoint:\t',endpoint)
@@ -265,9 +300,10 @@ def main():
 	loop = asyncio.get_event_loop()
 	tasks = [
 		asyncio.async(readChat()),
-		asyncio.async(autoCurrency())
+		asyncio.async(autoCurrency()),
+		asyncio.async(controlChannel())
 	]
-	loop.run_until_complete(connect())
+	loop.run_until_complete(connect())		# Announce your presence!
 
 	loop.run_until_complete(asyncio.wait(tasks))
 
