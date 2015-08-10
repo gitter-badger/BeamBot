@@ -3,9 +3,10 @@
 # -+=============================================================+-
 #	Version: 	3.2.3
 #	Author: 	RPiAwesomeness
-#	Date:		August 8, 2015
+#	Date:		August 9, 2015
 #
 #	Changelog:	Updated bot to automatically detect mods/streamers & auto-whitelist them
+#				(partially) Updated code to use more pythonic variable names (var_name vs varName)
 # -+=============================================================+
 
 import os
@@ -97,9 +98,6 @@ def connect():
 	ret_msg = yield from websocket.recv()
 	ret_msg = json.loads(ret_msg)
 
-	# Automatically whitelist streamer/stream mods
-
-
 	yield from websocket.close()
 
 @asyncio.coroutine
@@ -147,7 +145,7 @@ def readChat():
 			if result['event'] == "ChatMessage":
 
 				msg = result['data']
-				msgID = msg['id']
+				msg_id = msg['id']
 				userName = msg['user_name']
 
 				if userName not in activeChat:
@@ -182,8 +180,8 @@ def readChat():
 
 					print ('ret_msg:\t',ret_msg)
 
-				if msgID not in msgs_acted:		# Don't add duplicates
-					msgs_acted.append(msgID)		# Make sure we don't act on messages again
+				if msg_id not in msgs_acted:		# Don't add duplicates
+					msgs_acted.append(msg_id)		# Make sure we don't act on messages again
 
 					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
 					# messages again.

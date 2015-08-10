@@ -25,7 +25,8 @@ Simply run `python3 beambot.py`!
 
 ## Features in 3.2.1
 
-**NOTE**: With the 3.2.1 release, I removed the new features listed for all old versions up to version 3.0.0. They are still accessible in the repository history, but the list was getting long again
+**NOTE**: With the 3.2.1 release, I removed the new features listed for all old versions up to version 3.0.0. They are still accessible in the repository history.
+
 ###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
 
 ###### **(3.0.0)** - Changed custom commands so you can now update an existing command's response
@@ -69,6 +70,8 @@ Simply run `python3 beambot.py`!
 
 **(3.2.3)** - Updated bot to use per-channel ban lists, custom command lists, & whitelists
 
+**(3.2.3)** - Bot now will recognize the streamer/channel mods & will automatically act as if they are whitelisted (Fixes #5)
+
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.
@@ -85,9 +88,9 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
 
-* Automatically whitelist channel mods and streamer as well as automatically detect streamer instead of using hard-coded "ParadigmShift3d".
+* ~~Automatically whitelist channel mods and streamer as well as automatically detect streamer instead of using hard-coded "ParadigmShift3d".~~ (Fixed as of 3.2.3)
 
-* This release will fix bugs #2, #3, #5, #6 and #7
+* This release will fix bugs #2, #3, ~~#5~~ (Fixed as of 3.2.3), #6 and #7
 
 ###Current issues:
 
