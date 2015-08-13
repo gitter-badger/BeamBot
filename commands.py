@@ -185,14 +185,17 @@ def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 
-		packet = {
-			"type":"method",
-			"method":"msg",
-			"arguments":['See you later my dear sir, wot wot!'],
-			"id":msgLocalID
-		}
+		if is_owner:
+			packet = {
+				"type":"method",
+				"method":"msg",
+				"arguments":['See you later my dear sir, wot wot!'],
+				"id":msgLocalID
+			}
 
-		return packet, True	# Return the Goodbye message packet &
+			return packet, True	# Return the Goodbye message packet &
+		else:		# Don't want anyone but owner killing the bot
+			return None, False
 
 	else:					# Unknown or custom command
 		response = responses.custom(user_name, cur_item, is_mod)
