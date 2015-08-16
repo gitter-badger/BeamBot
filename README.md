@@ -10,74 +10,74 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
-* `BeautifulSoup4`: This can be installed via `sudo pip3 install beautifulsoup4`.
-* `lxml`: This is required for the BeautifulSoup XML parsing and can be installed via `sudo pip3 install lxml`.
 
-###Setting up the config.py file:
+###Setting up the bot
 
-Once the proper libaries are installed, you need to edit the `data/config.py.template` file with your Beam.pro information.
+Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
 
-* The `BEAM_ADDR` variable should not be touched. It will break everything if that is changed.
-* The `USERNAME` and `PASSWORD` variables should be set to the Beam.pro username and password (respectively) for the account you wish the bot to chat using.
-* The CHANNEL variable should be updated via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking the id number. You then swap that number for the 1 in config file.
+* If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number.
 
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
-
-##Setting up the database
-Simply rename the `data/beambot.sqlite-template` file to `data/beambot.sqlite`
 
 ###Running:
 
 Simply run `python3 beambot.py`!
 
-## Features in 1.0.0 - Full Release
+## Features in 3.2.0
 
-It's a Release Candidate because it works in its basic form. However, it still could use improvement, so that's why it's not a full 1.0 release.
+**NOTE**: With the 3.1.0 release, I removed the new features listed for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
 
-**(0.1.0)** - The bot will now announce his presence in chat with a cheery "top 'o the mornin'/evenin'/afternoon" depending on time of day.
+###### **(1.0.0)** - 1.0 release! \o/
 
-**(0.1.0)** - The `!tackle` command now works, as do the `!slap!`, `!uptime`, `!hug`, `!ping` (was working, now updated - Thank you Kirby for the ping pong response >:D),  and `!whoami` commands.
+###### **(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
 
-**(0.1.0)** - Command responses are now handled by external module, `responses.py`.
+###### **(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
 
-**(0.1.1)** - Added better message filtering support for old messages
+###### **(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
 
-**(0.1.2)** - Added 30 second command timeout per user
+###### **(2.1.0)** - Added auto-connect/channel auto-selection via username
 
-**(0.1.2)** - Added gears and quote support
+###### **(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
 
-**(0.2.0)** - Added user whitelist that will remove command timeout and allow access to mod-only commands
+###### **(2.2.0)** - Changed gears to dimes
 
-**(0.2.0)** - Added the `!quote`, `!gears`, and `!give` commands.
+###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
 
-**(0.2.1)** - Stopped bot from acting on any messages older than when it comes online.
+###### **(3.0.0)** - Changed custom commands so you can now update an existing command's response
 
-**(0.2.1)** - pybot no longer not constantly pings the REST API + it's more responsive
+###### **(3.0.0)** - Added !raid, !raided and !twitch commands
 
-**(0.2.1)** - Bot will check for existence of config files and creates them if they don't exist
+###### **(3.1.0)**	- Added `setup.py` setup script, so user no longer has to manually edit config.py
 
-**(0.2.2)** - Updated file structure so config files are now all stored in the `data` directory
+###### **(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
 
-**(0.2.3)** - You can now ban and un-ban users via the `!ban <user>` and `!unban <user>` commands respectively
+###### **(3.1.0)** - Fixed a couple of random incorrect file names
 
-**(0.3.0)** - Cleaned up code, removed unnecessary duplication
+###### **(3.1.0)** - Updated code to use new `config.json` data.
 
-**(0.3.0)** - You can now create custom commands via `!command <commandname> <response>`. Also, append `+` to `!command` to make it a mod-only command, and append `-` to remove the command.
+**(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
 
-**(1.0.0)** - 1.0 release! \o/
+**(3.2.0)** - ``!give`, ``!quote`, and `!gears` now can be called via ``@USERNAME`
+OR plain `USERNAME` (no @ character)
 
-**(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
+**(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
+
+**(3.2.0)** - Working on transferring command responses to `data/responses.json`
+
+**(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
+
+**(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
 
 ###Current issues:
 
-* Need to work on adding more commands and getting all existing commands in working order. Priority on getting existing commands working.
+* Need to add more commands and features
 
-* Need a better name than pybot/beambot
+* Need a better name than pybot/beambot (Bug #2)
 
-* Need to give pybot/beambot a command line interface to issue commands from
+* Make bot watch beam.pro/pybot for commands
 
-* Add watching of IRC channel for commands
+* Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
-* Make `responses.py` use pickle/XML file to provide commands and responses
+* `!uptime` sometimes returns a negative value for the seconds
 
 * Anything else I can't think of at this time but is still applicable

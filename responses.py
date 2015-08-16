@@ -2,34 +2,14 @@ import random
 import time
 from datetime import datetime
 import sqlite3
-import config
 import pickle
 import requests
 import os
-from bs4 import BeautifulSoup
+import json
 
-# Full list of commands
-"""
-!tackle - Tackle a user
-!slap   - Slap a user
-!quote  - Post a quote
-!ping   - Ping Pong!
-!hug    - Hug a user
-!give   - Give gears to a user
-!gears  - Get # of gears for user
-!hey    - Basically say hi to the Bot
-!uptime - How long has the bot been running?
-!whoami - Who are you - classic whoami command
-!command   - Create new command for anyone to use
-!command+  - Create mod-only command
-!command-  - Remove command
-!ban       - Ban a user from chatting
-!whitelist - Whitelist a user to remove command restrictions
-!goodbye   - Turn off the bot
-"""
+global prevTime, custCommands, WHITELIST
 
-global prevTime, soup
-prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'gears':{}, 'hey':{}, 'uptime':{}, 'whoami':{}} 
+prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}}
 
 if os.path.exists('data/whitelist.p'):
 	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
@@ -37,11 +17,13 @@ else:
 	WHITELIST = ['ParadigmShift3d','pybot']
 	pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
 
-if os.path.exists('data/commands.xml'):
-	soup = BeautifulSoup(open('data/commands.xml', 'rb'), 'xml')
+if os.path.exists('data/commands.json'):
+	custCommands = json.load(open('data/commands.json', 'r'))
+	print ('Custom commands loaded:\n' + str(custCommands))
 else:
-	soup = BeautifulSoup('','xml')
-	soup.append(soup.new_tag('commands'))
+	custCommands = []
+	with open('data/commands.json', 'w') as f:
+		f.write(str(custCommands))
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
@@ -51,7 +33,7 @@ def _checkTime(cmd, user, custom=False):
 
 	if cmd in prevTime:		# Make sure the command exists, so no KeyError exceptions
 		if user in prevTime[cmd]:	# Make sure the user exists in that command dictionary
-			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user 
+			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user
 				return True			# Too soon
 			elif (curTime - prevTime[cmd][user]) >= 30:	# Under 30 seconds
 				prevTime[cmd][user] = curTime
@@ -59,95 +41,184 @@ def _checkTime(cmd, user, custom=False):
 
 	# If execution gets to this point, then either user or command does not exist and we need to create a value for that
 	prevTime[cmd] = {user : curTime}
-	return False		
-			
+	return False
+
 # ------------------------------------------------------------------------
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
 def custom(userName, curItem):	# Check unknown command, might be custom one
-	cmd = curItem[1:].split()[0]
+	global custCommands
 
-	if userName in WHITELIST:	# Is the user on the whitelist?
-		for e in soup.findAll('command', command=cmd):
-			return e.get_text()		# If op, then just automatically return text
+	split = curItem[1:].split()
+	cmd = split[0]
+	response = ""
+
+	print ('cmd:\t\t',cmd)
+	print ('split:\t',split)
+
+	if userName in WHITELIST:	# Is the user on the whitelist? If so, ignore timeout
+		for e in custCommands:	# Loop through the custom commands
+			if e['cmd'] == cmd:		# Does the current entry equal the command?
+				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
+
+				for i in range(0, len(eArgs)):
+
+					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+
+					# 3 - Compare stringCur to real response variables
+					if stringCur == 'args':	 # Replace with remainder of arguments
+						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
+						if len(split[1:]) >= 1:
+							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+						else:
+							response += eArgs[i][4:].strip(']')
+					elif stringCur == 'user':   # Replace with sending user
+						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
+						response += (userName + eArgs[i][4:].strip(']'))
+					else:
+						# Just append the curent string item, it's not a response variable
+						response += eArgs[i]
+
+			return response
 
 	if _checkTime(cmd, userName, True):
+		return None				# Too soon
 
-		for e in soup.findAll('command', command=cmd):
-			if e['op']:			# Is it op-only?
-				return None		# Return nothing because user is not OP
-			else:				# Not op-only
-				return e.get_text()	# Return proper response
+	else:
+		for e in custCommands:	# Loop through the custom commands
+			if e['cmd'] == cmd:		# Does the current entry equal the command?
+				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
+				for i in range(0, len(eArgs)):
+
+					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+
+					# 3 - Compare stringCur to real response variables
+					if stringCur == 'args':	 # Replace with remainder of arguments
+						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
+						response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+					elif stringCur == 'user':   # Replace with sending user
+						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
+						response += (userName + eArgs[i][4:].strip(']'))
+					else:
+						# Just append the curent string item, it's not a response variable
+						response += eArgs[i]
+
+			print ('response:\t',response)
+			return response
 
 	return None 		# If execution gets to this point, it's not a command, so no response
 
 def commandMod(userName, curItem):		# Command available to mods only
+
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
-		print (curItem)
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			cmd = split[1]
+			command = split[1]
 			response = " ".join(split[2:])
 
-			new_string = soup.new_string(response)
-			new_tag = soup.new_tag('command', op='True', command=cmd)
+			print ('cmd:\t',command)
+			print ('response:\t',response)
 
-			for i in soup.findAll('command', command=cmd):
-				print ('command:\t',i['command'])
-				if cmd == i['command']:
-					return None		# Don't add duplicates
+			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				print ('cmd:\t\t',custCommands)
+				print ('cmd[\'cmd\']:\t',cmd['cmd'])
+				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
+					cmd['response'] = response 	# Update the response
+					cmd['op'] = 'True'			# Update the OP-only value to True
+					with open('data/commands.json', 'w') as f:
+						f.write(json.dumps(custCommands, sort_keys=cmd))
 
-			new_tag.append(new_string)
-			soup.commands.append(new_tag)
+					# Command exists, so it has been updated
+					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			# If we make it past the for loop, then the command doesn't exist, so make a new one
 
-		return 'Command \'' + cmd + '\' created! ' + response
+			newCMD = {
+				'cmd':command,
+				'op':'True',
+				'response':response
+			}
+
+			custCommands.append(newCMD)
+
+			print ('custCommands:\t',json.dumps(custCommands))
+
+			with open('data/commands.json', 'w') as f:
+				f.write(json.dumps(custCommands))		# Update the stored JSON file
+
+			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
+
+		return None	 	# Return None because the command lacks a response
 
 	else:
-		return None						# Not whitelisted
+		return None		# Not whitelisted
 
 def command(userName, curItem):			# Command available to anyone
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			cmd = split[1]
+			command = split[1]
 			response = " ".join(split[2:])
 
-			for i in soup.findAll('command', command=cmd):
-				print ('command:\t',i['command'])
-				if cmd == i['command']:
-					return None		# Don't add duplicates
+			print ('cmd:\t',command)
+			print ('response:\t',response)
 
-			new_string = soup.new_string(response)
-			new_tag = soup.new_tag('command', op='False', command=cmd)
+			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
+					cmd['op'] = 'False'			# Update the OP-only value to False
+					cmd['response'] = response 	# Update the response
+					with open('data/commands.json', 'w') as f:
+						cmd['cmd'] = cmd['cmd']
+						f.write(json.dumps(custCommands, sort_keys=True))
 
-			new_tag.append(new_string)
-			soup.commands.append(new_tag)
+					# Command exists, so it has been updated
+					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			# If we make it past the for loop, then the command doesn't exist, so make a new one
 
-		return 'Command \'' + cmd + '\' created! ' + response
+			newCMD = {
+				'cmd':command,
+				'op':'False',
+				'response':response
+			}
+
+			custCommands.append(newCMD)
+
+			print ('custCommands:\t',json.dumps(custCommands))
+
+			with open('data/commands.json', 'w') as f:
+				f.write(json.dumps(custCommands))		# Update the stored JSON file
+
+			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
+
+		return None	 	# Return None because the command lacks a response
 
 	else:
-		return None						# Not whitelisted
+		return None		# Not whitelisted
 
 def commandRM(userName, curItem):			# Remove a command
+	global custCommands
+
 	if userName in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			cmd = split[1]
-			for e in soup.findAll('command', command=cmd):
-				print ('e:\t\t',e)
-				e.decompose()
+			for e in range(len(custCommands)):
+				if custCommands[e]['cmd'] == cmd:
+					print ('e:\t\t',custCommands[e]['cmd'])
+					del custCommands[e]
+					break
 
-		with open('data/commands.xml', 'w') as f:
-			f.write(soup.prettify())
+			with open('data/commands.json', 'w') as f:
+				print (custCommands)
+				f.write(json.dumps(custCommands))
 
-		return 'Command \'' + cmd + '\' removed!'
+			return 'Command \'' + cmd + '\' removed!'
 
 	else:
 		return None						# Not whitelisted
@@ -228,6 +299,9 @@ def quote(userName, curItem):
 
 			user = split[0]
 
+			if user[0] == '@':
+				user = user[1:]	# Remove the @ sign, we work without them
+
 			# The user is the first item after !quote add
 			if len(user.split()) != 1:	# It's just a username, anything more indicates an incorrect command
 				return None
@@ -258,7 +332,7 @@ def quote(userName, curItem):
 		print ('command:\t',command)
 
 		cur.execute(command)
-		
+
 		results = cur.fetchall()
 
 		print ("results:\t\t",results)
@@ -311,17 +385,20 @@ def hug(userName, curItem):
 		return "{} gives a great big hug to {}! <3".format(userName, hugUser)
 	else:
 		return None	# Wrong # of args
-	
+
 def give(userName, curItem):
 	cmd = 'give'
+
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 
 	split = curItem[1:].split()
 	if len(split) >= 3:
-		user = split[1]	# User recieving gears
+		user = split[1]	# User recieving dimes
+		if user[0] == '@':
+			user = user[1:]			# Remove the @ character
 		try:	# Try to convert argument to int type
-			numSend = int(split[2])	# Number of gears being transferred
+			numSend = int(split[2])	# Number of dimes being transferred
 		except:	# Oops! User didn't provide an integer
 			return None
 
@@ -336,57 +413,57 @@ def give(userName, curItem):
 			results = cur.fetchall()
 
 			if len(results) >= 1:
-				userGearsOrig = results[0][0]
+				userDimesOrig = results[0][0]
 
-				if userName == "bot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of gears & # check
-					userGears = int(userGearsOrig) + int(numSend)
+				if userName == "pybot" or userName == "ParadigmShift3d":	# If it's me/bot, ignore removal of dimes & # check
+					userDimes = int(userDimesOrig) + int(numSend)
 
-					command = '''UPDATE gears 
+					command = '''UPDATE gears
 								SET gears={}
-								WHERE name="{}"'''.format(userGears, user)
+								WHERE name="{}"'''.format(userDimes, user)
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userGears) + " gears!"					
+					return "@" + user + " now has " + str(userDimes) + " dimes!"
 
-				if numSend <= userGearsOrig:	# Make sure the sending user has enough gears
+				if numSend <= userGearsOrig:	# Make sure the sending user has enough dimes
 
-					userGears = int(userGearsOrig) + int(numSend)
+					userDimes = int(userDimesOrig) + int(numSend)
 
-					command = '''UPDATE gears 
+					command = '''UPDATE gears
 								SET gears={}
-								WHERE name="{}"'''.format(userGears, user)
+								WHERE name="{}"'''.format(userDimes, user)
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userGears) + " gears!"
+					return "@" + user + " now has " + str(userDimes) + " dimes!"
 
 				else:
 					return None
 
-			else:		# User not in gears database
+			else:		# User not in dimes database
 				command = '''INSERT INTO gears
 							(name, gears)
 							VALUES ("{}", {})'''.format(user, str(numSend))
 
 				cur.execute(command)	# Soooo... add 'em!
 
-				return "@" + user + " now has " + str(numSend) + " gears!"
+				return "@" + user + " now has " + str(numSend) + " dimes!"
 
 	else:
 		return None
-	
-def gears(userName, curItem):
-	cmd = 'gears'
+
+def dimes(userName, curItem):
+	cmd = 'dimes'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
-	
+
 	split = curItem[1:].split()
 	if len(split) >= 2:
 		user = split[1]
 	else:
 		user = userName
-		
+
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
@@ -395,19 +472,63 @@ def gears(userName, curItem):
 					WHERE name LIKE \"%''' + user + '%\"'''
 
 		cur.execute(command)
-		
+
 		results = cur.fetchall()
 
 		if len(results) >= 1:
-			return "@" + user + " has " + str(results[0][0]) + " gears."
+			return "@" + user + " has " + str(results[0][0]) + " dimes."
 		else:
-			return "@" + user + " has no gears! :o"
+			return "@" + user + " has no dimes! :o"
 
 def hey(userName):
 	cmd = 'hey'
 	if _checkTime(cmd, userName) and userName not in WHITELIST:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 	return "Saluton Mondo {}!".format(userName)
+
+def raid(userName, curItem):
+	cmd = 'raid'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
+
+def twitch(userName, curItem):
+	cmd = 'raid'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
+
+
+def raided(userName, curItem):
+	cmd = 'raided'
+	if userName not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+		return None
+
+	split = curItem[1:].split()
+	if len(split) >= 2:
+		raid = split[1]
+		return "Thank you so much @{} for the raid!"\
+				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
+
+def commands(userName):
+	commandList = json.loads(open('data/commands.json', 'r'))
+
+	return ", ".join(commandList)
+
+# def throw(userName, curItem):
+# 	cmd = 'throw'
+# 	if userName in WHITELIST:
+#
 
 def uptime(userName, initTime):
 	cmd = 'uptime'
@@ -430,8 +551,9 @@ def whoami(userName):
 	return "Uh...you're {}. Are you all right? :)".format(userName)
 
 def whitelist(userName, curItem):		# Add user to command timeout whitelist
-	
-	if userName == "ParadigmShift3d":	# Make sure it's me (in the future, the streamer)
+	global WHITELIST
+
+	if userName not in WHITELIST:	# Make sure it's me (in the future, the streamer)
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 			WHITELIST.append(curItem[1:].split()[2])	# Append the new user to the whitelist!
@@ -444,8 +566,9 @@ def whitelist(userName, curItem):		# Add user to command timeout whitelist
 		return None
 
 def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
+	global WHITELIST
 
-	if userName == "ParadigmShift3d":	# Make sure it's me
+	if userName not in WHITELIST:	# Make sure it's me
 
 		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
 
@@ -465,11 +588,11 @@ def whitelistRM(userName, curItem):		# Add user to command timeout whitelist
 		return None
 
 def whitelistLS(userName, curItem):
+	global WHITELIST
 
-	if userName == "ParadigmShift3d":
-		WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
-		response = 'Whitelisted users: '
-		for item in WHITELIST:
-			response += item + ", "
-		
-		return response[:-2]
+	WHITELIST = pickle.load(open('data/whitelist.p', 'rb'))
+	response = 'Whitelisted users: '
+	for item in WHITELIST:
+		response += item + ", "
+
+	return response[:-2]

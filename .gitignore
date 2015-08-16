@@ -5,11 +5,16 @@
 # Don't need my testing files uploaded
 /testbot.py
 /gui.py
+/whitelist.py
 # Don't need any cached versions
 __pycache__/
-# Don't include the local config files
-data/beambot.sqlite
-data/blacklist.p
-data/whitelist.p
+# Don't include the local config files in the data directory
 data/bannedUsers.p
-data/commands.xml
+data/blacklist.p
+data/commands.json
+data/whitelist.p
+data/beambot.sqlite
+data/commandList.json
+data/config.json
+# Include .empty file in data directory so setup.py doesn't fail
+!data/.empty
