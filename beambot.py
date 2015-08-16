@@ -16,6 +16,7 @@ import pickle
 import responses, commands
 from datetime import datetime
 from control import goodbye
+from control import controlChannel
 
 @asyncio.coroutine
 def autoCurrency():
@@ -61,6 +62,39 @@ def connect():
 
 	global initTime
 
+	websocket = yield from websockets.connect(endpoint_control)
+
+	packet = {
+	    "type":"method",
+	    "method":"auth",
+	    "arguments":[22085, user_id, authkey],
+	    "id":0
+	}
+
+	yield from websocket.send(json.dumps(packet))
+	ret = yield from websocket.recv()
+	ret = json.loads(ret)
+
+	if ret["error"] != None:
+	    print ('Error:\t',ret["error"])
+	    print ("Error - Non-None error returned!")
+	    quit()
+
+	curTime = str(datetime.now().strftime('%H.%M.%S')) + ' - ' + str(datetime.now().strftime('%D'))
+
+	packet = {
+	    "type":"method",
+	    "method":"msg",
+	    "arguments":['Bot online - Current Date/Time: {}'.format(str(curTime))],
+	    "id":1
+	}
+
+	yield from websocket.send(json.dumps(packet))
+	ret_msg = yield from websocket.recv()
+	ret_msg = json.loads(ret_msg)
+
+	yield from websocket.close()
+
 	websocket = yield from websockets.connect(endpoint)
 
 	packet = {
@@ -73,6 +107,8 @@ def connect():
 	yield from websocket.send(json.dumps(packet))
 	ret = yield from websocket.recv()
 	ret = json.loads(ret)
+
+	print ('ret:\t\t',ret)
 
 	if ret["error"] != None:
 		print (ret["error"])
@@ -193,49 +229,6 @@ def readChat():
 
 					os.rename('data/.blist_temp.p', 'data/blacklist.p')
 
-def controlChannel():
-
-	msgLocalID = 0
-
-	session = requests.Session()
-
-	websocket_control = yield from websockets.connect(endpoint_control)
-
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[config['CONTROL'], user_id, authkey_control],
-		"id":msgLocalID
-	}
-
-	response_control = yield from websocket_control.send(json.dumps(packet))
-
-	print ('HERE0!')
-
-	while True:
-		result_control = yield from websocket_control.recv()
-
-		if result_control != None:
-			result_control = json.loads(result_control)
-
-		print ('HERE1!')
-
-		print ('control:\t\t',result_control)
-
-		if 'event' in result_control:
-			print ('HERE2!')
-			if result_control['event'] == "ChatMessage":
-				print ('HERE3!')
-
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[config['CONTROL'], user_id, authkey_control],
-		"id":msgLocalID
-	}
-
-	response_control = yield from websocket_control.send(json.dumps(packet))
-
 # ----------------------------------------------------------------------
 # Main Code
 # ----------------------------------------------------------------------
@@ -250,6 +243,8 @@ def _get_auth_body():
 def main():
 
 	global authkey, endpoint, channel, user_id, addr, loop, config
+
+	global authkey_control, endpoint_control
 
 	config = json.load(open('data/config.json', 'r'))
 
@@ -307,8 +302,8 @@ def main():
 	chat_details = chat_ret.json()
 	chat_details_control = control_ret.json()
 
-	endpoint_control = chat_details_control['endpoints'][0]
-	endpoint = chat_details['endpoints'][0]
+	endpoint = chat_details_control['endpoints'][0]
+	endpoint_control = chat_details['endpoints'][0]
 
 	authkey = chat_details['authkey']
 	authkey_control = chat_details['authkey']

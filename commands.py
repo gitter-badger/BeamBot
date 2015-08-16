@@ -186,7 +186,7 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 
-		goodbye(is_owner, msg_local_id)
+		goodbye(user_name, is_owner, msg_local_id)
 
 	else:					# Unknown or custom command
 		response = responses.custom(user_name, cur_item, is_mod)
