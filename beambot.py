@@ -16,6 +16,7 @@ import time, random
 import pickle
 import responses, commands
 from datetime import datetime
+from control import goodbye
 
 @asyncio.coroutine
 def autoCurrency():

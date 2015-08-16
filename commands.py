@@ -11,6 +11,7 @@ import callbacks
 import os.path
 import pickle
 import json
+from control import goodbye
 
 initTime = datetime.now().strftime('%H.%M.%S')
 config = json.load(open('data/config.json', 'r'))
@@ -21,7 +22,7 @@ else:
 	bannedUsers = []
 	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
-def prepCMD(msg, msgLocalID, msgs_acted):
+def prepCMD(msg, msg_local_id, msgs_acted):
 
 	print ('msg:\t\t',msg)
 
@@ -86,11 +87,11 @@ def prepCMD(msg, msgLocalID, msgs_acted):
 
 			if cur_item[0] == '!' and msg_id not in msgs_acted:	# It's a command! Pay attention!
 
-				response, goodbye = getResp(cur_item, user_name, msgLocalID, is_mod)
+				response, goodbye = getResp(cur_item, user_name, msg_local_id, is_mod)
 
 	return response, goodbye
 
-def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
+def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 
 	# ----------------------------------------------------------
 	# Commands
@@ -185,17 +186,7 @@ def getResp(cur_item, user_name=None, msgLocalID=None, is_mod=False):
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 
-		if is_owner:
-			packet = {
-				"type":"method",
-				"method":"msg",
-				"arguments":['See you later my dear sir, wot wot!'],
-				"id":msgLocalID
-			}
-
-			return packet, True	# Return the Goodbye message packet &
-		else:		# Don't want anyone but owner killing the bot
-			return None, False
+		goodbye(is_owner, msg_local_id)
 
 	else:					# Unknown or custom command
 		response = responses.custom(user_name, cur_item, is_mod)

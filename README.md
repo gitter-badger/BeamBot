@@ -72,11 +72,7 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Update `return None` statements to return usage from `data/commandList.json` if `None` is being returned for anything other than command timeout.
 
-* Add `!throw` and `!catch` commands for functions
-
 * Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
-
-* ~~Automatically whitelist channel mods and streamer as well as automatically detect streamer instead of using hard-coded "ParadigmShift3d".~~ (Fixed as of 3.2.3)
 
 * This release will fix bugs #2, #3, ~~#5~~ (Fixed as of 3.2.3), #6 and #7
 
