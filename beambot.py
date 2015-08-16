@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.3
+#	Version: 	3.2.3a
 #	Author: 	RPiAwesomeness
-#	Date:		August 9, 2015
+#	Date:		August 16, 2015
 #
-#	Changelog:	Updated bot to automatically detect mods/streamers & auto-whitelist them
-#				(partially) Updated code to use more pythonic variable names (var_name vs varName)
+#	Changelog:	Fixed code where I had accidentally removed stuff I shouldn't have
 # -+=============================================================+
 
 import os
@@ -237,6 +236,27 @@ def controlChannel():
 
 	response_control = yield from websocket_control.send(json.dumps(packet))
 
+# ----------------------------------------------------------------------
+# Main Code
+# ----------------------------------------------------------------------
+
+def _get_auth_body():
+
+	return {
+		'username': config['USERNAME'],
+		'password': config['PASSWORD']
+	}
+
+def main():
+
+	global authkey, endpoint, channel, user_id, addr, loop, config
+
+	config = json.load(open('data/config.json', 'r'))
+
+	addr = config['BEAM_ADDR']
+
+	session = requests.Session()
+
 	loginRet = session.post(
 		addr + '/api/v1/users/login',
 		data=_get_auth_body()
@@ -273,8 +293,6 @@ def controlChannel():
 	control_ret = session.get(
 		addr + '/api/v1/chats/{}'.format(config['CONTROL'])
 	)
-
-	print ('control_ret:\t',control_ret.json())
 
 	if control_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
