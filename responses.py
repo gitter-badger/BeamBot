@@ -80,7 +80,10 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-			return response
+			if response != None:
+				return response
+			else:
+				return None
 
 	if _checkTime(cmd, userName, True):
 		return None				# Too soon

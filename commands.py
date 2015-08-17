@@ -12,12 +12,25 @@ initTime = datetime.now().strftime('%H.%M.%S')
 
 def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 
+	global is_mod, is_owner
+
 	userID = msg['user_id']
 	userName = msg['user_name']
 	msgID = msg['id']
+	user_roles = msg['user_roles']
 
-	response = None					# Have to declare variable as None to avoid UnboundLocalError
-	goodbye  = False 				# Have to declare variable as False to avoid UnboundLocalError
+	is_mod = False		# Have to declare variable as False to avoid UnboundLocalError
+	is_owner = False	# Have to declare variable as False to avoid UnboundLocalError
+	response = None		# Have to declare variable as None to avoid UnboundLocalError
+	goodbye  = False 	# Have to declare variable as False to avoid UnboundLocalError
+
+	if 'Owner' in user_roles:
+		print ('Streamer/Owner!')
+		is_mod = True
+		is_owner = True
+	elif 'Mod' in user_roles:
+		print ('Stream mod!')
+		is_mod = True
 
 	if userName in bannedUsers:		# Is the user chatbanned?
 		session = requests.session()
@@ -97,7 +110,7 @@ def getResp(curItem, userName=None, msgLocalID=None):
 
 		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
 
-	elif cmd[0] == "quote":	# Get random quote from DB
+	elif cmd[0] == "quote": # Get random quote from DB
 		response = responses.quote(userName, curItem)
 
 	elif cmd[0] == "tackle":# Tackle a user!
@@ -145,16 +158,17 @@ def getResp(curItem, userName=None, msgLocalID=None):
 			response = responses.whitelistLS(userName, curItem)
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
+		if is_owner or userName == 'ParadigmShift3d':
+			packet = {
+				"type":"method",
+				"method":"msg",
+				"arguments":['See you later my dear sir, wot wot!'],
+				"id":msgLocalID
+			}
 
-		packet = {
-			"type":"method",
-			"method":"msg",
-			"arguments":['See you later my dear sir, wot wot!'],
-			"id":msgLocalID
-		}
-
-		return packet, True	# Return the Goodbye message packet &
-
+			return packet, True	# Return the Goodbye message packet &
+		else:		# Don't want anyone but owner killing the bot
+			return None, False
 	else:					# Unknown or custom command
 		response = responses.custom(userName, curItem)
 
