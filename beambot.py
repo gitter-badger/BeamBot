@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.3a
+#	Version: 	3.2.4
 #	Author: 	RPiAwesomeness
 #	Date:		August 16, 2015
 #
-#	Changelog:	Fixed code where I had accidentally removed stuff I shouldn't have
+#	Changelog:	Bot will now connect to and monitor beam.pro/pybot
+#				to recieve commands
 # -+=============================================================+
 
 import os
@@ -60,14 +61,17 @@ def autoCurrency():
 @asyncio.coroutine
 def connect():
 
-	global initTime
+	global initTime, authkey_control, endpoint_control, user_id
 
 	websocket = yield from websockets.connect(endpoint_control)
+
+	print ('user_id:\t',user_id)
+	print ('authkey_control:', authkey_control)
 
 	packet = {
 	    "type":"method",
 	    "method":"auth",
-	    "arguments":[22085, user_id, authkey],
+	    "arguments":[22085, user_id, authkey_control],
 	    "id":0
 	}
 
@@ -101,7 +105,7 @@ def connect():
 		"type":"method",
 		"method":"auth",
 		"arguments":[channel, user_id, authkey],
-		"id":0
+		"id":1
 	}
 
 	yield from websocket.send(json.dumps(packet))
@@ -286,7 +290,7 @@ def main():
 	)
 
 	control_ret = session.get(
-		addr + '/api/v1/chats/{}'.format(config['CONTROL'])
+		addr + '/api/v1/chats/22085'
 	)
 
 	if control_ret.status_code != requests.codes.ok:
@@ -302,11 +306,11 @@ def main():
 	chat_details = chat_ret.json()
 	chat_details_control = control_ret.json()
 
-	endpoint = chat_details_control['endpoints'][0]
-	endpoint_control = chat_details['endpoints'][0]
+	endpoint_control = chat_details_control['endpoints'][0]
+	endpoint = chat_details['endpoints'][0]
 
 	authkey = chat_details['authkey']
-	authkey_control = chat_details['authkey']
+	authkey_control = chat_details_control['authkey']
 
 	print ('authkey:\t',authkey)
 	print ('endpoint:\t',endpoint)

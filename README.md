@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.3
+## Features in 3.2.4
 
 **NOTE**: With the 3.2.3 release, I removed the new features listed for all old versions up to version 3.2.0. They are still accessible in the repository history.
 
@@ -58,13 +58,15 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.3)** - Bot now will recognize the streamer/channel mods & will automatically act as if they are whitelisted (Fixes #5)
 
-**(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
+###### **(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
+
+**(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
 
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.
 
-Plus, although I've tested the bot myself, I've yet to see it in action or have it truly tested by any other user than myself.
+Plus, although I've tested the bot myself, I've yet to see it in action or have it truly tested by any other user than myself. (Thank you to @xcentrik4 on Twitter for letting me deploy my bot on his streams)
 
 Thus, although I plan on adding a few new features and commands for 3.3.0, it's going to mainly be a boring (but very important) stability and quality improvement release.
 
@@ -74,15 +76,13 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
 
-* This release will fix bugs #2, #3, ~~#5~~ (Fixed as of 3.2.3), #6 and #7
+* This release will fix bugs #2, #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
 
 ###Current issues:
 
 * Need to add more commands and features - The never-ending bug!
 
-* Need a better name than pybot/beambot (Bug #2)
-
-* Make bot watch beam.pro/pybot for commands
+* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4)
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 

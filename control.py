@@ -1,8 +1,14 @@
+"""
+The control.py module takes care of monitoring the beam.pro/pybot channel for
+commands & provides bot control.
+"""
+
 import pickle
 from datetime import datetime
 import json
 import os
 import asyncio, websockets, requests
+import responses, commands
 
 global WHITELIST, config, loop
 
@@ -84,23 +90,15 @@ def controlChannel():
 		print ("Error - Non-None error returned!")
 		quit()
 
-	curTime = str(datetime.now().strftime('%H.%M.%S')) + ' - ' + str(datetime.now().strftime('%D'))
+	while True:
+		result = yield from websocket.recv()
 
-	packet = {
-		"type":"method",
-		"method":"msg",
-		"arguments":['Bot online - Current Date/Time: {}'.format(str(curTime))],
-		"id":1
-	}
-
-	yield from websocket.send(json.dumps(packet))
-	ret_msg = yield from websocket.recv()
-	ret_msg = json.loads(ret_msg)
-
-	yield from websocket.close()
+		print ('result:\t',result)
+		print ()
 
 def goodbye(user_name, is_owner, msgLocalID):
-	# Make sure I have the most updated user whitelist
+
+	# Make sure to have the most updated user whitelist
 	if os.path.exists('data/whitelist{}.p'.format(config['CHANNEL'])):
 		WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
 

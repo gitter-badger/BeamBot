@@ -11,7 +11,7 @@ import callbacks
 import os.path
 import pickle
 import json
-from control import goodbye
+import control
 
 initTime = datetime.now().strftime('%H.%M.%S')
 config = json.load(open('data/config.json', 'r'))
@@ -23,6 +23,8 @@ else:
 	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
 def prepCMD(msg, msg_local_id, msgs_acted):
+
+	global is_owner
 
 	print ('msg:\t\t',msg)
 
@@ -93,11 +95,13 @@ def prepCMD(msg, msg_local_id, msgs_acted):
 
 def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 
+	goodbye = False
+
 	# ----------------------------------------------------------
 	# Commands
 	# ----------------------------------------------------------
 	cmd = cur_item[1:].split()
-	# Doesn't work yet, working on figuring out none-blocking time tracking
+	# Doesn't work yet, working on figuring out non-blocking time tracking
 	# if cmd[0] == "throw":			# Throw a ball at another user
 	# 	timer = callbacks.Timer(2)
 	#
@@ -186,7 +190,7 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 
-		goodbye(user_name, is_owner, msg_local_id)
+		return control.goodbye(user_name, is_owner, msg_local_id)
 
 	else:					# Unknown or custom command
 		response = responses.custom(user_name, cur_item, is_mod)
