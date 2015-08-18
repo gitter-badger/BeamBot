@@ -51,15 +51,12 @@ with sqlite3.connect('data/beambot.sqlite') as con:
 		 quote TEXT)"""
 	)
 
-# Create various pickle files that are required for blacklist, user bans, command whitelist, and custom commands
-
-msgs_acted = []
-pickle.dump(msgs_acted, open('data/blacklist.p', 'wb'))
+# Create various pickle files that are required for user bans, command whitelist, and custom commands
 
 bannedUsers = []
 pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
 
-WHITELIST = ['ParadigmShift3d','pybot']
+WHITELIST = ['pybot']
 pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
 
 custCommands = []

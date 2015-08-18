@@ -35,19 +35,19 @@ def autoCurrency():
 		usersRet = usersRet.json()
 
 		for user in usersRet:					# Give all users +1 gear per minute
-			userName = user['userName']
+			user_name = user['userName']
 
-			curItem = '!give ' + userName + " 1"
+			curItem = '!give ' + user_name + " 1"
 			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
 			for user in usersRet:					# Check all the currently active users
-				userName = user['userName']
+				user_name = user['userName']
 
-				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
+				if user_name in activeChat:				# Has the user chatted in the last 3 minutes?
 
-					curItem = '!give ' + userName + " 3"
+					curItem = '!give ' + user_name + " 3"
 					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +3 gear for being involved
 
 
@@ -64,9 +64,6 @@ def connect():
 	global initTime, authkey_control, endpoint_control, user_id
 
 	websocket = yield from websockets.connect(endpoint_control)
-
-	print ('user_id:\t',user_id)
-	print ('authkey_control:', authkey_control)
 
 	packet = {
 	    "type":"method",
@@ -112,8 +109,6 @@ def connect():
 	ret = yield from websocket.recv()
 	ret = json.loads(ret)
 
-	print ('ret:\t\t',ret)
-
 	if ret["error"] != None:
 		print (ret["error"])
 		print ("Error - Non-None error returned!")
@@ -143,18 +138,12 @@ def connect():
 @asyncio.coroutine
 def readChat():
 
-	global initTime, activeChat
+	global initTime, activeChat, user_id
 
 	activeChat = []
 	msgLocalID = 0
 
 	session = requests.Session()
-
-	if os.path.exists('data/blacklist.p'):
-		msgs_acted = pickle.load(open('data/blacklist.p', "rb"))
-	else:
-		msgs_acted = []
-		pickle.dump(msgs_acted, open('data/blacklist.p', 'wb'))
 
 	activeChat = []
 
@@ -178,21 +167,54 @@ def readChat():
 		if result != None:
 			result = json.loads(result)
 
-		print ('result:\t',result,'\n')
+		if 'event' in result:		# Otherwise it crashes when type = response
 
-		if 'event' in result:
-			if result['event'] == "ChatMessage":
+			if result['event'] == 'UserJoin':
+				print ('User joined:\t', result['data']['username'],
+						'-', result['data']['id'],
+						end='\n\n')
+
+			elif result['event'] == 'UserLeave':
+				print ('User left:\t', result['data']['username'],
+						'-', result['data']['id'],
+						end='\n\n')
+
+			elif result['event'] == "ChatMessage":
 
 				msg = result['data']
 				msg_id = msg['id']
-				userName = msg['user_name']
 
-				if userName not in activeChat:
-					activeChat.append(userName)
+				user_roles = msg['user_roles']
+				user_name = msg['user_name']
+				user_id = msg['user_id']
+				user_msg = msg['message']
 
-				response, goodbye = commands.prepCMD(msg, msgLocalID, msgs_acted)
+				print ('User:\t\t', user_name,
+						'-', user_id)
+				if len(user_msg) > 1:	# There's an emoticon in there
+					for section in user_msg:
+
+						msg_text = ''
+
+						if section['type'] == 'text' and section['data'] != '':
+							msg_text += section['data']
+
+						elif 'text' in section:		# Emoticon
+
+							msg_text += section['text']
+
+					print ('Message:\t', msg_text, end='\n\n')
+
+				else:		# Just plain chat text
+					print ('Message:\t',user_msg[0]['data'], end='\n\n')
+
+				if user_name not in activeChat:
+					activeChat.append(user_name)
+
+				response, goodbye = commands.prepCMD(msg, msgLocalID)
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
+
 					yield from websocket.send(json.dumps(response))	# Send the message
 					yield from websocket.close()
 					quit()
@@ -217,21 +239,11 @@ def readChat():
 					ret_msg = yield from websocket.recv()			# Get the response
 					ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
-					print ('ret_msg:\t',ret_msg)
+					print ('Response:\t', ret_msg['data'])
 
-				if msg_id not in msgs_acted:		# Don't add duplicates
-					msgs_acted.append(msg_id)		# Make sure we don't act on messages again
-
-					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
-					# messages again.
-					f = open('data/.blist_temp.p', 'wb')
-					pickle.dump(msgs_acted, f)
-
-					f.flush()
-					os.fsync(f.fileno())
-					f.close()
-
-					os.rename('data/.blist_temp.p', 'data/blacklist.p')
+					if ret_msg['error'] != None:
+						print ('Error:\t',ret_msg['error'])
+						print ('Code:\t',ret_msg['id'])
 
 # ----------------------------------------------------------------------
 # Main Code
@@ -264,6 +276,7 @@ def main():
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
 		print ("Not Authenticated!")
+
 		raise NotAuthed(loginRet.text)
 
 	user_id = loginRet.json()['id']
@@ -313,7 +326,7 @@ def main():
 	authkey_control = chat_details_control['authkey']
 
 	print ('authkey:\t',authkey)
-	print ('endpoint:\t',endpoint)
+	print ('endpoint:\t',endpoint, end='\n\n')
 
 	loop = asyncio.get_event_loop()
 	tasks = [

@@ -60,7 +60,11 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
 
-**(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
+###### **(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
+
+**(3.2.5)** - Bot now prints nicely formatted information about the messages, instead of raw JSON
+
+**(3.2.5)** - Removed extraneous message blacklisting code, since it is no longer needed since the bot uses websockets correctly.
 
 ### Info on future 3.3.0 release
 
@@ -74,9 +78,9 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Update `return None` statements to return usage from `data/commandList.json` if `None` is being returned for anything other than command timeout.
 
-* Clean up the codebase and stress-test/bug test the heck out of the code with outside users, preferably in a production (live stream with active chat) environment.
+* Clean up the codebase and stress-test/bug test the code with outside users, preferably in a production (live stream with active chat) environment.
 
-* This release will fix bugs #2, #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
+* This release will fix bugs ~~#2~~ (Not going to change the bot name, at least not for 3.3.0), #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
 
 ###Current issues:
 
@@ -86,6 +90,8 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
-* Add [[count]] custom response variable
+* Add settings & ability to change default command responses (^)
+
+* Add [[count]], [[currency]] custom response variable
 
 * Anything else I can't think of at this time but is still applicable

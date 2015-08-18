@@ -114,9 +114,6 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 	cmd = split[0]
 	response = ""
 
-	print ('cmd:\t\t',cmd)
-	print ('split:\t\t',split)
-
 	if user_name in WHITELIST:	# Is the user on the whitelist? If so, ignore timeout
 		for e in custCommands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
@@ -179,11 +176,9 @@ def commandMod(user_name, curItem, is_mod):		# Command available to mods only
 			command = split[1]
 			response = " ".join(split[2:])
 
-			print ('cmd:\t',command)
 			print ('response:\t',response)
 
 			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
-				print ('cmd:\t\t',custCommands)
 				print ('cmd[\'cmd\']:\t',cmd['cmd'])
 				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
 					cmd['response'] = response 	# Update the response
@@ -225,7 +220,6 @@ def command(user_name, curItem, is_mod):			# Command available to anyone
 			command = split[1]
 			response = " ".join(split[2:])
 
-			print ('cmd:\t',command)
 			print ('response:\t',response)
 
 			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
@@ -356,8 +350,6 @@ def quote(user_name, curItem, is_mod):
 
 	elif len(split) >= 3:		# It's add quote
 		cmd = split[1]
-
-		print ('split:\t\t',split)
 
 		if cmd == "add":
 
@@ -614,11 +606,6 @@ def commands(user_name, is_mod):
 	commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
 
 	return ", ".join(commandList)
-
-# def throw(user_name, curItem):
-# 	cmd = 'throw'
-# 	if user_name in WHITELIST:
-#
 
 def uptime(user_name, initTime, is_mode):
 	cmd = 'uptime'

@@ -3,7 +3,6 @@
         {
             "ban":"Ban a user from chatting",
             "blame":"Blame a user!",
-            "catch":"Catch a ball thrown at you. NOT IMPLEMENTED",
             "command":"Make/update a new command - Whitelist Only",
             "command+":"Make/update a new mod-only command - Whitelist Only",
             "command-":"Remove a custom command - Whitelist Only",
@@ -20,7 +19,6 @@
             "slap":"Slap another user",
             "tackle":"Tackle another user",
             "twitch":"Raid another streamer on Twitch.tv",
-            "throw":"Throw a ball at another player. NOT IMPLEMENTED",
             "whitelist":"Whitelist a user - Streamer only",
             "whoami":"Classic whoami command",
             "uptime":"Display how long the bot's been activated"

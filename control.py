@@ -9,8 +9,12 @@ import json
 import os
 import asyncio, websockets, requests
 import responses, commands
+import subprocess
 
 global WHITELIST, config, loop
+global local_msg_id
+
+local_msg_id = 0
 
 try:
 	config = json.load(open('data/config.json', 'r'))
@@ -37,7 +41,8 @@ def _get_auth_body():
 @asyncio.coroutine
 def controlChannel():
 
-	global authkey_control, endpoint_control, channel, user_id, addr, loop
+	global user_id
+	global websocket
 
 	addr = config['BEAM_ADDR']
 
@@ -93,8 +98,18 @@ def controlChannel():
 	while True:
 		result = yield from websocket.recv()
 
-		print ('result:\t',result)
-		print ()
+		result = json.loads(result)
+
+		if result['event'] == 'ChatMessage':
+			print ('Control channel:')
+
+			result = result['data']
+			msg = result['message'][0]
+
+			print ('User:\t\t',result['user_name'],
+					'-', result['user_id'])
+
+			print ('Message:\t', msg['data'], end='\n\n')
 
 def goodbye(user_name, is_owner, msgLocalID):
 
@@ -113,3 +128,21 @@ def goodbye(user_name, is_owner, msgLocalID):
 		return packet, True	# Return the Goodbye message packet &
 	else:		# Don't want anyone but owner killing the bot
 		return None, False
+
+def restart(user_name, websocket):
+
+	print ('Restarting bot in 10 seconds...')
+	subprocess.Popen(['sh','restart.sh'])
+	closeSocket(websocket)
+
+@asyncio.coroutine
+def closeSocket(websocket):	# Properly closes all websockets
+
+	websocket.close()
+	return None
+
+"""Used to send messages. Provide websocket to send via, message, & boolean main to tell which msg ID to use"""
+@asyncio.coroutine
+def sendMsg(websocket, message, main=True):
+	yield from websocket.send()
+	pass

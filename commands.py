@@ -22,25 +22,22 @@ else:
 	bannedUsers = []
 	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
-def prepCMD(msg, msg_local_id, msgs_acted):
+def prepCMD(msg, msg_local_id):
 
 	global is_owner
-
-	print ('msg:\t\t',msg)
 
 	user_id = msg['user_id']
 	user_name = msg['user_name']
 	msg_id = msg['id']
+	user_roles = msg['user_roles']
 
 	is_mod = False
 	is_owner = False
-	user_roles = msg['user_roles']
+
 	if 'Owner' in user_roles:
-		print ('Streamer/Owner!')
 		is_mod = True
 		is_owner = True
 	elif 'Mod' in user_roles:
-		print ('Stream mod!')
 		is_mod = True
 
 	response = None					# Have to declare variable as None to avoid UnboundLocalError
@@ -87,7 +84,7 @@ def prepCMD(msg, msg_local_id, msgs_acted):
 
 		if len(cur_item) >= 1:	# Just make sure it's an actual message
 
-			if cur_item[0] == '!' and msg_id not in msgs_acted:	# It's a command! Pay attention!
+			if cur_item[0] == '!':	# It's a command! Pay attention!
 
 				response, goodbye = getResp(cur_item, user_name, msg_local_id, is_mod)
 
