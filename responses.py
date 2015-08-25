@@ -137,7 +137,11 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
+		if response != "":
+			print ('customRespW:\t',response)
 			return response
+		else:
+			return None
 
 	if _checkTime(cmd, user_name, True):
 		return None				# Too soon
@@ -161,8 +165,11 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-			print ('response:\t',response)
+		if response != "":
+			print ('customRespNW:\t',response)
 			return response
+		else:
+			return None
 
 	return None 		# If execution gets to this point, it's not a command, so no response
 

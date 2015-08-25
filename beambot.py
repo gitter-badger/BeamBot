@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.4
+#	Version: 	3.2.5
 #	Author: 	RPiAwesomeness
-#	Date:		August 16, 2015
+#	Date:		August 25, 2015
 #
-#	Changelog:	Bot will now connect to and monitor beam.pro/pybot
-#				to recieve commands
+#	Changelog:	Fixed bug where only the first custom command would actually work
+#				Fixed bug where non-existent commands would elicit a blank message from the bot 
 # -+=============================================================+
 
 import os

@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.4
+## Features in 3.2.5
 
 **NOTE**: With the 3.2.3 release, I removed the new features listed for all old versions up to version 3.2.0. They are still accessible in the repository history.
 
@@ -65,6 +65,10 @@ Simply run `python3 beambot.py`!
 **(3.2.5)** - Bot now prints nicely formatted information about the messages, instead of raw JSON
 
 **(3.2.5)** - Removed extraneous message blacklisting code, since it is no longer needed since the bot uses websockets correctly.
+
+**(3.2.5)** - Fixed bug where only the first custom command would actually work
+
+**(3.2.5)** - Fixed bug where non-existent commands would elicit a blank message from the bot 
 
 ### Info on future 3.3.0 release
 
