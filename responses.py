@@ -48,7 +48,8 @@ def _checkTime(cmd, user, custom=False):
 # ------------------------------------------------------------------------
 
 def custom(userName, curItem):	# Check unknown command, might be custom one
-	global custCommands
+
+	custCommands = json.load(open('data/commands.json', 'r'))	
 
 	split = curItem[1:].split()
 	cmd = split[0]
@@ -79,11 +80,10 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 					else:
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
-
-			if response != None:
-				return response
-			else:
-				return None
+		if response != "":
+			return response
+		else:
+			return None
 
 	if _checkTime(cmd, userName, True):
 		return None				# Too soon
@@ -107,8 +107,10 @@ def custom(userName, curItem):	# Check unknown command, might be custom one
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-			print ('response:\t',response)
+		if response != "":
 			return response
+		else:
+			return None
 
 	return None 		# If execution gets to this point, it's not a command, so no response
 
@@ -175,6 +177,7 @@ def command(userName, curItem):			# Command available to anyone
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
 					cmd['op'] = 'False'			# Update the OP-only value to False
 					cmd['response'] = response 	# Update the response
+
 					with open('data/commands.json', 'w') as f:
 						cmd['cmd'] = cmd['cmd']
 						f.write(json.dumps(custCommands, sort_keys=True))
@@ -213,7 +216,6 @@ def commandRM(userName, curItem):			# Remove a command
 			cmd = split[1]
 			for e in range(len(custCommands)):
 				if custCommands[e]['cmd'] == cmd:
-					print ('e:\t\t',custCommands[e]['cmd'])
 					del custCommands[e]
 					break
 
