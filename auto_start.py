@@ -2,7 +2,7 @@ import subprocess
 from time import sleep
 import requests
 import json
-from os import path
+import os
 
 config = json.load(open('data/config.json', 'r'))   # Read in the data from the config.json config file
 addr = config['BEAM_ADDR']      # Get the Beam.pro API link
@@ -26,6 +26,11 @@ while True:         # Loop forever
 
     if is_live:     # If the channel is live...
         if not os.path.exists(chan + '.lock'):  # Check if the bot is running via channel ID.lock file
-            subprocess.call(['python3','beambot.py'])   # Launch the bot
+            try:
+                subprocess.call(['python3','beambot.py'])   # Launch the bot
+            except KeyboardInterrupt:           # Grab Ctrl-C
+                if os.path.exists(chan + '.lock'):
+                    os.remove(chan + '.lock')
+                    quit()  # Eventually add code to send !goodbye command
         else:                                   # Bot is already running, don't launch it again!
             pass
