@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.5
+#	Version: 	3.2.6
 #	Author: 	RPiAwesomeness
-#	Date:		August 25, 2015
+#	Date:		August 27, 2015
 #
-#	Changelog:	Fixed bug where only the first custom command would actually work
-#				Fixed bug where non-existent commands would elicit a blank message from the bot 
+#	Changelog:	Added auto_start.py to make the bot auto-launch if a channel goes live
+#				Updated setup script to either take numeric ID or channel name
+#				Updated bot to create lock file on startup and remove it on proper shutdown
 # -+=============================================================+
 
-import os
+import sys, os
 import json
 import asyncio, websockets, requests
 import time, random
@@ -30,7 +31,7 @@ def autoCurrency():
 
 		with requests.Session() as session:		# Get the list of currently active users
 			usersRet = session.get(
-				addr + '/api/v1/chats/' + str(channel) + '/users')
+				addr + '/chats/' + str(channel) + '/users')
 
 		usersRet = usersRet.json()
 
@@ -160,7 +161,7 @@ def readChat():
 
 	while True:
 
-		timeCur = datetime.now().strftime("%S")
+		time_pre_recv = (datetime.now().strftime("%M"))
 
 		result = yield from websocket.recv()
 
@@ -191,6 +192,7 @@ def readChat():
 
 				print ('User:\t\t', user_name,
 						'-', user_id)
+
 				if len(user_msg) > 1:	# There's an emoticon in there
 					for section in user_msg:
 
@@ -199,8 +201,10 @@ def readChat():
 						if section['type'] == 'text' and section['data'] != '':
 							msg_text += section['data']
 
-						elif 'text' in section:		# Emoticon
+						elif section['type'] == 'emoticon':		# Emoticon
+							msg_text += section['text']
 
+						elif section['type'] == 'link':			# Link/URL
 							msg_text += section['text']
 
 					print ('Message:\t', msg_text, end='\n\n')
@@ -262,14 +266,30 @@ def main():
 
 	global authkey_control, endpoint_control
 
-	config = json.load(open('data/config.json', 'r'))
+	if os.path.exists('data/config.json'):
+		config = json.load(open('data/config.json', 'r'))
+	else:
+		print ('\033[1;31mConfig file missing!\033[0m\n')
+		print ('Please run setup before launching the bot.')
+		print ('To do so run:\tpython3 setup.py')
+		quit()
+
+	if os.path.exists(config['CHANNEL'] + '.lock'):		# Does the lock file already exist (probably wasn't removed because of failed shutdown)
+
+		sys.exit("""\033[1;31mLock file detected!\033[0m\n
+This could mean the previous bot crashed, or one is still running.\n
+If you are sure the bot crashed and thus launching another bot won't be an issue
+please remove """ + config['CHANNEL'] + ".lock and restart the bot!\n")
+
+	with open(config['CHANNEL'] + '.lock', 'w') as lock:
+		lock.write('Bot launched!' + datetime.now().strftime("%D-%H.%M.%S"))	# Write to the lock file to make it stay
 
 	addr = config['BEAM_ADDR']
 
 	session = requests.Session()
 
 	loginRet = session.post(
-		addr + '/api/v1/users/login',
+		addr + '/users/login',
 		data=_get_auth_body()
 	)
 
@@ -277,15 +297,13 @@ def main():
 		print (loginRet.text)
 		print ("Not Authenticated!")
 
-		raise NotAuthed(loginRet.text)
-
 	user_id = loginRet.json()['id']
 
 	if config['CHANNEL'] == None:		# If it's NOT None, then there's no auto-connect
 
 		chanOwner = input("Channel [Channel owner's username]: ").lower()
 		chatChannel = session.get(
-			addr + '/api/v1/channels/' + chanOwner
+			addr + '/channels/' + chanOwner
 		)
 
 		if chatChannel.status_code != requests.codes.ok:
@@ -299,22 +317,24 @@ def main():
 		channel = config['CHANNEL']
 
 	chat_ret = session.get(
-		addr + '/api/v1/chats/{}'.format(channel)
+		addr + '/chats/{}'.format(channel)
 	)
 
 	control_ret = session.get(
-		addr + '/api/v1/chats/22085'
+		addr + '/chats/22085'
 	)
 
 	if control_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
 		print ('Message:\t',control_ret.json())
-		raise ChatConnectFailure(control_ret.json())
+		print(control_ret.json())
+		quit()
 
 	if chat_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
 		print ('Message:\t',chat_ret.json())
-		raise ChatConnectFailure(chat_ret.json())
+		print(chat_ret.json())
+		quit()
 
 	chat_details = chat_ret.json()
 	chat_details_control = control_ret.json()
@@ -345,6 +365,7 @@ if __name__ == "__main__":
 		main()
 	except KeyboardInterrupt:
 		if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
+			os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
 			sys.exit("\033[1;31mTerminated.\033[0m")
 		else:
 			main()
@@ -352,7 +373,9 @@ if __name__ == "__main__":
 		exception_type, exception_obj, exception_tb = sys.exc_info()
 		filename = exception_tb.tb_frame.f_code.co_filename
 
-		print('\033[1;31mI have crashed.\033[33m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
+		print('\033[1;31mI have crashed.\033[0m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
 		print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
-		sleep(10)
+		time.sleep(10)
+		if os.path.exists(config['CHANNEL'] + '.lock'):
+			os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
 		os.execl(sys.executable, sys.executable, * sys.argv)

@@ -17,36 +17,17 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 * If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number.
 
+* **NEW as of 3.2.6** - You can now just provide the stream owner's name. However, the numeric ID is still accepted.
+
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
 ###Running:
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.5
+## Features in 3.2.6
 
-**NOTE**: With the 3.2.3 release, I removed the new features listed for all old versions up to version 3.2.0. They are still accessible in the repository history.
-
-###### **(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
-
-###### **(3.2.0)** - `!give`, `!quote`, and `!gears` now can be called via ``@USERNAME`
-###### OR plain `USERNAME` (no @ character)
-
-###### **(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
-
-###### **(3.2.0)** - Working on transferring command responses to `data/responses.json`
-
-###### **(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
-
-###### **(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
-
-###### **(3.2.1)** - Added `!blame` command to blame people!
-
-###### **(3.2.1)** - Added `!commands` command to list available commands
-
-###### **(3.2.1)** - Updated command timeout to include global timeout (3 times max per minute)
-
-###### **(3.2.1)** - General progress towards 3.3.0 (a stability & quality release)
+**NOTE**: With the 3.2.6 release, I removed the new features listed for all old versions up to version 3.2.2. They are still accessible in the repository history.
 
 ###### **(3.2.2)** - Fixed code where including @ symbol in user-referencing command would mess it up
 
@@ -62,13 +43,19 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
 
-**(3.2.5)** - Bot now prints nicely formatted information about the messages, instead of raw JSON
+###### **(3.2.5)** - Bot now prints nicely formatted information about the messages, instead of raw JSON
 
-**(3.2.5)** - Removed extraneous message blacklisting code, since it is no longer needed since the bot uses websockets correctly.
+######**(3.2.5)** - Removed extraneous message blacklisting code, since it is no longer needed since the bot uses websockets correctly.
 
-**(3.2.5)** - Fixed bug where only the first custom command would actually work
+###### **(3.2.5)** - Fixed bug where only the first custom command would actually work
 
-**(3.2.5)** - Fixed bug where non-existent commands would elicit a blank message from the bot 
+###### **(3.2.5)** - Fixed bug where non-existent commands would elicit a blank message from the bot
+
+**(3.2.6)** - Added auto_start.py to make the bot auto-launch if a channel goes live
+
+**(3.2.6)** - Updated setup script to either take numeric ID or channel name
+
+**(3.2.6)** - Updated bot to create lock file on startup and remove it on proper shutdown
 
 ### Info on future 3.3.0 release
 
@@ -97,5 +84,7 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 * Add settings & ability to change default command responses (^)
 
 * Add [[count]], [[currency]] custom response variable
+
+* Fix bug in the response-monitoring code where it won't show emoticons as text in terminal output (micro bug, lines 203-204 in beambot.py)
 
 * Anything else I can't think of at this time but is still applicable

@@ -4,12 +4,13 @@ import os
 import sqlite3
 import json
 import pickle
+import requests
 
 # This script just sets up the various files/variables that BeamBot needs to run
 
 # Default values, can be changed manually if the user wants
 config = {}
-config['BEAM_ADDR'] = 'https://beam.pro'
+config['BEAM_ADDR'] = 'https://beam.pro/api/v1'
 
 # Beam.pro account stuff
 config['USERNAME'] = input ("Beam.pro username? ")
@@ -20,7 +21,29 @@ autoConnect = input ("Do you want to auto-connect to a channel on bot startup? [
 
 # If user just hits enter or enters y or Y, then they want to autoconnect
 if autoConnect == '' or autoConnect.lower() == 'y':
-	config['CHANNEL'] = input ("What channel do you want to connect to? [Channel ID] ")
+
+	while True:		# Loop until we have a working chat ID
+		CHANNEL = input ("What channel do you want to connect to? [Channel ID or Name] ")
+
+		if type(CHANNEL) == int:
+			config['CHANNEL'] = str(chan_ret.json()['id'])
+			break				# If we're this far, then it was a numeric ID
+
+		else:		# Nope, gotta do it manually
+			session = requests.Session()
+
+			chan_ret = session.get(
+				'https://beam.pro/api/v1/channels/' + CHANNEL
+			)
+
+			CHANNEL = chan_ret.json()['id']
+
+			if type(CHANNEL) == int:
+					config['CHANNEL'] = str(chan_ret.json()['id'])
+					break # Get out of the loop, the channel ID works
+
+			else:	# Nope, gotta ask for it again...
+				print ('Sorry, that channel doesn\'t exist or Beam\'s servers are derping. Please try again!')
 
 # Nope, don't auto-connect
 elif autoConnect.lower() == 'n':
