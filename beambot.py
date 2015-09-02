@@ -40,7 +40,7 @@ def autoCurrency():
 			user_name = user['userName']
 
 			curItem = '!give ' + user_name + " 1"
-			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +1 gear
+			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
@@ -50,7 +50,7 @@ def autoCurrency():
 				if user_name in activeChat:				# Has the user chatted in the last 3 minutes?
 
 					curItem = '!give ' + user_name + " 3"
-					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True)	# Give the users +3 gear for being involved
+					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +3 gear for being involved
 
 
 			timeIncr = 0	# Reset the time incrementer
