@@ -53,6 +53,8 @@ def controlChannel():
 		data=_get_auth_body()
 	)
 
+	print (loginRet.json())
+
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
 
