@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.6
+#	Version: 	3.2.7
 #	Author: 	RPiAwesomeness
-#	Date:		August 27, 2015
+#	Date:		September 2, 2015
 #
-#	Changelog:	Added auto_start.py to make the bot auto-launch if a channel goes live
-#				Updated setup script to either take numeric ID or channel name
-#				Updated bot to create lock file on startup and remove it on proper shutdown
+#	Changelog:	Removed auto_start.py because it wasn't useful
+#				Removed whitelist entirely, it was only in place because of me
+#					being lazy and not wanting to implement a simple feature
+#				Removed lock file because it's not needed anymore (no autostart)
 # -+=============================================================+
 
 import sys, os
@@ -78,9 +79,10 @@ def connect():
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
-	    print ('Error:\t',ret["error"])
-	    print ("Error - Non-None error returned!")
-	    quit()
+		print ('CONTROL CHANNEL')
+		print ('Error:\t',ret["error"])
+		print ("Error - Non-None error returned!")
+		quit()
 
 	curTime = str(datetime.now().strftime('%H.%M.%S')) + ' - ' + str(datetime.now().strftime('%D'))
 
@@ -111,6 +113,7 @@ def connect():
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
+		print ("MAIN CHANNEL")
 		print (ret["error"])
 		print ("Error - Non-None error returned!")
 		quit()
@@ -275,16 +278,6 @@ def main():
 		print ('To do so run:\tpython3 setup.py')
 		quit()
 
-	if os.path.exists(config['CHANNEL'] + '.lock'):		# Does the lock file already exist (probably wasn't removed because of failed shutdown)
-
-		sys.exit("""\033[1;31mLock file detected!\033[0m\n
-This could mean the previous bot crashed, or one is still running.\n
-If you are sure the bot crashed and thus launching another bot won't be an issue
-please remove """ + config['CHANNEL'] + ".lock and restart the bot!\n")
-
-	with open(config['CHANNEL'] + '.lock', 'w') as lock:
-		lock.write('Bot launched!' + datetime.now().strftime("%D-%H.%M.%S"))	# Write to the lock file to make it stay
-
 	addr = config['BEAM_ADDR']
 
 	session = requests.Session()
@@ -363,21 +356,3 @@ please remove """ + config['CHANNEL'] + ".lock and restart the bot!\n")
 
 if __name__ == "__main__":
 	main()
-	# try:
-	# 	main()
-	# except KeyboardInterrupt:
-	# 	if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
-	# 		os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
-	# 		sys.exit("\033[1;31mTerminated.\033[0m")
-	# 	else:
-	# 		main()
-	# except Exception as e:
-	# 	exception_type, exception_obj, exception_tb = sys.exc_info()
-	# 	filename = exception_tb.tb_frame.f_code.co_filename
-	#
-	# 	print('\033[1;31mI have crashed.\033[0m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
-	# 	print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
-	# 	time.sleep(10)
-	# 	if os.path.exists(config['CHANNEL'] + '.lock'):
-	# 		os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
-	# 	os.execl(sys.executable, sys.executable, * sys.argv)

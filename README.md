@@ -25,7 +25,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.6
+## Features in 3.2.7
 
 **NOTE**: With the 3.2.6 release, I removed the new features listed for all old versions up to version 3.2.2. They are still accessible in the repository history.
 
@@ -51,11 +51,19 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.5)** - Fixed bug where non-existent commands would elicit a blank message from the bot
 
-**(3.2.6)** - Added auto_start.py to make the bot auto-launch if a channel goes live
+###### **(3.2.6)** - Added auto_start.py to make the bot auto-launch if a channel goes live
 
-**(3.2.6)** - Updated setup script to either take numeric ID or channel name
+###### **(3.2.6)** - Updated setup script to either take numeric ID or channel name
 
-**(3.2.6)** - Updated bot to create lock file on startup and remove it on proper shutdown
+###### **(3.2.6)** - Updated bot to create lock file on startup and remove it on proper shutdown
+
+**(3.2.7)** - Removed auto_start.py because it wasn't useful
+
+**(3.2.7)** - Removed lock file because it's not needed anymore (no autostart)
+
+**(3.2.7)** - Removed whitelist entirely, it was only in place because of me being lazy and not wanting to implement a simple feature
+
+**(3.2.7)** - Yes, I just essentially undid the entire previous release. But there were broken things I had to fix and in the process of doing that I realized that those "features" were useless and annoying :P
 
 ### Info on future 3.3.0 release
 

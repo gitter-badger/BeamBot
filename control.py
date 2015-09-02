@@ -49,11 +49,9 @@ def controlChannel():
 	session = requests.Session()
 
 	loginRet = session.post(
-		addr + '/api/v1/users/login',
+		addr + '/users/login',
 		data=_get_auth_body()
 	)
-
-	print (loginRet.json())
 
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
@@ -63,7 +61,7 @@ def controlChannel():
 	channel = config['CHANNEL']
 
 	control_ret = session.get(
-		addr + '/api/v1/chats/22085'
+		addr + '/chats/22085'
 	)
 
 	if control_ret.status_code != requests.codes.ok:

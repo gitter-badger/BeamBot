@@ -86,11 +86,11 @@ def prepCMD(msg, msg_local_id):
 
 			if cur_item[0] == '!':	# It's a command! Pay attention!
 
-				response, goodbye = getResp(cur_item, user_name, msg_local_id, is_mod)
+				response, goodbye = getResp(cur_item, user_name, msg_local_id, is_mod, is_owner)
 
 	return response, goodbye
 
-def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
+def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=False):
 
 	goodbye = False
 
@@ -98,34 +98,27 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 	# Commands
 	# ----------------------------------------------------------
 	cmd = cur_item[1:].split()
-	# Doesn't work yet, working on figuring out non-blocking time tracking
-	# if cmd[0] == "throw":			# Throw a ball at another user
-	# 	timer = callbacks.Timer(2)
-	#
-	# 	print (timer.callback())
-	#
-	# 	response = "Blargh"
 
 	if cmd[0][0:5] == "blame":	# Blame a user
-		response = responses.blame(user_name, cur_item, is_mod)
+		response = responses.blame(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "commands":		# Get list of commands
-		response = responses.cmdList(user_name, cur_item, is_mod)
+		response = responses.cmdList(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "hey":				# Say hey
-		response = responses.hey(user_name, is_mod)
+		response = responses.hey(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "ping":				# Ping Pong Command
-		response = responses.ping(user_name, is_mod)
+		response = responses.ping(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "dimes" or cmd[0] == "currency":			# Get user balance
-		response = responses.dimes(user_name, cur_item, is_mod)
+		response = responses.dimes(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "give":	# Give dimes to a user
-		response = responses.give(user_name, cur_item, is_mod)
+		response = responses.give(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "ban":	# Ban a user from chatting
-		response, banUser = responses.ban(user_name, cur_item, is_mod)
+		response, banUser = responses.ban(user_name, cur_item, is_mod, is_owner)
 		bannedUsers.append(banUser)
 
 		print ("bannedUsers",bannedUsers)
@@ -133,64 +126,54 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False):
 		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 
 	elif cmd[0] == "unban":	# Unban a user
-		response, uBanUser = responses.unban(user_name, cur_item, is_mod)
+		response, uBanUser = responses.unban(user_name, cur_item, is_mod, is_owner)
 		bannedUsers.remove(uBanUser)
 
 		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 
 	elif cmd[0] == "quote":	# Get random quote from DB
-		response = responses.quote(user_name, cur_item, is_mod)
+		response = responses.quote(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "tackle":# Tackle a user!
-		response = responses.tackle(user_name, cur_item, is_mod)
+		response = responses.tackle(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "slap":	# Slap someone
-		response = responses.slap(user_name, is_mod)
+		response = responses.slap(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime)
 
 	elif cmd[0] == "hug":	# Give hugs!
-		response = responses.hug(user_name, cur_item, is_mod)
+		response = responses.hug(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "raid":	# Go raid peoples
-		response = responses.raid(user_name, cur_item, is_mod)
+		response = responses.raid(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "raided":	# You done got raided son!
-		response = responses.raided(user_name, cur_item, is_mod)
+		response = responses.raided(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "twitch":	# Go raid peoples on Twitch.tv!
-		response = responses.twitch(user_name, cur_item, is_mod)
+		response = responses.twitch(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
-		response = responses.whoami(user_name, is_mod)
+		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		response = responses.command(user_name, cur_item, is_mod)
+		print ('162COMMANDS_command')
+		response = responses.command(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
-		response = responses.commandMod(user_name, cur_item, is_mod)
+		response = responses.commandMod(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "command-":	# Remove a command
-		response = responses.commandRM(user_name, cur_item, is_mod)
-
-	elif cmd[0] == "whitelist":	# Whitelist a user
-		if len(cmd) >= 3:	# True means it has something like `add` or `remove`
-			if cmd[1] == 'add':
-				response = responses.whitelist(user_name, cur_item, is_mod)
-			elif cmd[1] == 'remove':
-				response = responses.whitelistRM(user_name, cur_item, is_mod)
-			else: 	# Not add or remove
-				response = None
-		else:		# Just get the whitelist
-			response = responses.whitelistLS(user_name, cur_item, is_mod)
+		response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 
 		return control.goodbye(user_name, is_owner, msg_local_id)
 
 	else:					# Unknown or custom command
-		response = responses.custom(user_name, cur_item, is_mod)
+		response = responses.custom(user_name, cur_item, is_mod, is_owner)
 
 	print ('command:\t',cmd,'\n',
 		'response:\t',response,'\n')	# Console logging

@@ -7,17 +7,11 @@ import requests
 import os
 import json
 
-global prevTime, custCommands, WHITELIST, commandList
+global prevTime, custCommands, commandList
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
 
 config = json.load(open('data/config.json', 'r'))
-
-if os.path.exists('data/whitelist{}.p'.format(config['CHANNEL'])):
-	WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
-else:
-	WHITELIST = ['pybot']
-	pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
 
 if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
 	custCommands = json.load(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
@@ -56,11 +50,11 @@ def _checkTime(cmd, user, custom=False):
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
-def blame(user_name, curItem, is_mod):
+def blame(user_name, curItem, is_mod, is_owner):
 	cmd = "blame"
 
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:
 			return None
 	else:
 		if curItem[1:][5] == " ":		# Is it a space?
@@ -75,7 +69,7 @@ def blame(user_name, curItem, is_mod):
 			return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
 					" you have been blamed!"
 
-def cmdList(user_name, curItem, is_mod):	# Returns list of commands
+def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 
 	global commandList
 
@@ -86,10 +80,7 @@ def cmdList(user_name, curItem, is_mod):	# Returns list of commands
 		return None					# So no response!
 	else:
 
-		if user_name not in WHITELIST:	# Command is whitelist-only
-			return None
-
-		else:
+		if is_mod or is_owner:	# Command is elevated privledges user-only
 			cmdListUsage = commandList['usage']
 			cmdList = commandList['list']
 
@@ -105,16 +96,19 @@ def cmdList(user_name, curItem, is_mod):	# Returns list of commands
 
 				return response
 
+		else:
+			return None
+
 		return None					# If execution gets here, then we've got no matches
 
-def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom one
+def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might be custom one
 	global custCommands
 
 	split = curItem[1:].split()
 	cmd = split[0]
 	response = ""
 
-	if user_name in WHITELIST:	# Is the user on the whitelist? If so, ignore timeout
+	if is_mod or is_owner:	# Is the user mod/owner? If so, ignore timeout
 		for e in custCommands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
 				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
@@ -143,13 +137,14 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 		else:
 			return None
 
-	if _checkTime(cmd, user_name, True):
+	elif _checkTime(cmd, user_name, True):
 		return None				# Too soon
 
-	else:
+	else:		# Not mod or owner, but not time-out, so let it run
 		for e in custCommands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
 				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
+
 				for i in range(0, len(eArgs)):
 
 					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
@@ -157,7 +152,10 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 					# 3 - Compare stringCur to real response variables
 					if stringCur == 'args':	 # Replace with remainder of arguments
 						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
-						response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+						if len(split[1:]) >= 1:
+							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
+						else:
+							response += eArgs[i][4:].strip(']')
 					elif stringCur == 'user':   # Replace with sending user
 						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
 						response += (user_name + eArgs[i][4:].strip(']'))
@@ -165,19 +163,12 @@ def custom(user_name, curItem, is_mod):	# Check unknown command, might be custom
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-		if response != "":
-			print ('customRespNW:\t',response)
-			return response
-		else:
-			return None
 
-	return None 		# If execution gets to this point, it's not a command, so no response
-
-def commandMod(user_name, curItem, is_mod):		# Command available to mods only
+def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
 
 	global custCommands
 
-	if user_name in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
+	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			command = split[1]
@@ -218,22 +209,27 @@ def commandMod(user_name, curItem, is_mod):		# Command available to mods only
 	else:
 		return None		# Not whitelisted
 
-def command(user_name, curItem, is_mod):			# Command available to anyone
+def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
 	global custCommands
 
-	if user_name in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
+	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
+		print ('split:\t',split)
 		if len(split) >= 2:
 			command = split[1]
 			response = " ".join(split[2:])
 
 			print ('response:\t',response)
+			print ('231HERE')
 
 			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				print ('234FOR')
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
+					print ('236IF')
 					cmd['op'] = 'False'			# Update the OP-only value to False
 					cmd['response'] = response 	# Update the response
 					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
+						print ('240WITH')
 						cmd['cmd'] = cmd['cmd']
 						f.write(json.dumps(custCommands, sort_keys=True))
 
@@ -241,7 +237,7 @@ def command(user_name, curItem, is_mod):			# Command available to anyone
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
 			# If we make it past the for loop, then the command doesn't exist, so make a new one
-
+			print ('248NEW')
 			newCMD = {
 				'cmd':command,
 				'op':'False',
@@ -262,10 +258,10 @@ def command(user_name, curItem, is_mod):			# Command available to anyone
 	else:
 		return None		# Not whitelisted
 
-def commandRM(user_name, curItem, is_mod):			# Remove a command
+def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
 	global custCommands
 
-	if user_name in WHITELIST:	# Make sure the user is a mod or streamer or otherwise whitelisted
+	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			cmd = split[1]
@@ -284,10 +280,10 @@ def commandRM(user_name, curItem, is_mod):			# Remove a command
 	else:
 		return None						# Not whitelisted
 
-def tackle(user_name, curItem, is_mod):
+def tackle(user_name, curItem, is_mod, is_owner):
 	cmd = 'tackle'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 	if len(curItem[1:].split()) >= 2:
 		rand = random.randrange(0, 51)
@@ -310,23 +306,23 @@ def tackle(user_name, curItem, is_mod):
 			else:
 				return "pybot {} {}.".format("tackles", curItem[1:].split()[1])
 
-def slap(user_name, is_mod):
+def slap(user_name, is_mod, is_owner):
 	cmd = 'slap'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 	return ":o Why on earth would I want to do that?"
 
-def quote(user_name, curItem, is_mod):
+def quote(user_name, curItem, is_mod, is_owner):
 	cmd = 'quote'
 	"""
 	If _checkTime() returns True then the command is on timeout, return nothing
-	also, if the user is in the whitelist (mod or streamer or otherwise whitelisted)
-	then just let them run it as much as they want
+	also, if the user is mod or streamer then just let them run it as much as
+	they want.
 	"""
 
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:
 			return None
 
 	split = curItem[1:].split()
@@ -416,8 +412,8 @@ def quote(user_name, curItem, is_mod):
 	else:		# No quotes in the database for user!
 		return None
 
-def ban(user_name, curItem, is_mod):
-	if user_name in WHITELIST:		# Make sure it's a whitelisted user
+def ban(user_name, curItem, is_mod, is_owner):
+	if is_mod or is_owner:		# Only want mods/owners to have ban control
 		if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
 			banUser = curItem[1:].split()[1]
 			if banUser[0] == "@":
@@ -426,31 +422,31 @@ def ban(user_name, curItem, is_mod):
 
 		else:
 			return None # Wrong # of args
-	else:			# Not whitelisted
+	else:			# Not mod/owner
 		return None
 
-def unban(user_name, curItem, is_mod):
-	if user_name in WHITELIST:		# Make sure it's a whitelisted user
+def unban(user_name, curItem, is_mod, is_owner):
+	if is_mod or is_owner:		# Only want mods/owners to have ban control
 		if len(curItem[1:].split()[1]) >= 2:
 			uBanUser = curItem[1:].split()[1]
 			if uBanUser[0] == "@":
 				uBanUser = banUser[1:]	# Remove the @ character
 
 			return uBanUser + " has been un-banned!", uBanUser
-	else:			# Not whitelisted
+	else:			# Not owner/mod
 		return None
 
-def ping(user_name, is_mod):
+def ping(user_name, is_mod, is_owner):
 	cmd = 'ping'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 	return "(>^.^)>-O ____|____ ° Q(^.^<) pong!"
 
-def hug(user_name, curItem, is_mod):
+def hug(user_name, curItem, is_mod, is_owner):
 	cmd = 'hug'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 
 	if len(curItem[1:].split()) >= 2:
@@ -462,11 +458,11 @@ def hug(user_name, curItem, is_mod):
 	else:
 		return None	# Wrong # of args
 
-def give(user_name, curItem, is_mod):
+def give(user_name, curItem, is_mod, is_owner):
 	cmd = 'give'
 
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 
 	split = curItem[1:].split()
@@ -530,10 +526,10 @@ def give(user_name, curItem, is_mod):
 	else:
 		return None
 
-def dimes(user_name, curItem, is_mod):
+def dimes(user_name, curItem, is_mod, is_owner):
 	cmd = 'dimes'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 
 	split = curItem[1:].split()
@@ -561,29 +557,30 @@ def dimes(user_name, curItem, is_mod):
 		else:
 			return "@" + user + " has no dimes! :o"
 
-def hey(user_name, is_mod):
+def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 	return "Saluton Mondo {}!".format(user_name)
 
-def raid(user_name, curItem, is_mod):
+def raid(user_name, curItem, is_mod, is_owner):
 	cmd = 'raid'
-	if user_name not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+	if is_mod or is_owner:	# Check if mod or owner
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			raid = split[1]
+			if raid[0] == "@":
+				raid = raid[1:]	# Remove the @ character
+			return "Stream's over everyone!"\
+					" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
+
+	else:
 		return None
 
-	split = curItem[1:].split()
-	if len(split) >= 2:
-		raid = split[1]
-		if raid[0] == "@":
-			raid = raid[1:]	# Remove the @ character
-		return "Stream's over everyone!"\
-				" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
-
-def twitch(user_name, curItem, is_mod):
+def twitch(user_name, curItem, is_mod, is_owner):
 	cmd = 'raid'
-	if user_name not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+	if is_mod or is_owner:	# Check if user is owner/mod
 		return None
 
 	split = curItem[1:].split()
@@ -594,9 +591,9 @@ def twitch(user_name, curItem, is_mod):
 		return "Stream's over everyone!"\
 			" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
 
-def raided(user_name, curItem, is_mod):
+def raided(user_name, curItem, is_mod, is_owner):
 	cmd = 'raided'
-	if user_name not in WHITELIST:	# Check if user is whitelisted/allowed to run command
+	if is_mod or is_owner:	# Check if user is owner/mod
 		return None
 
 	split = curItem[1:].split()
@@ -609,15 +606,15 @@ def raided(user_name, curItem, is_mod):
 			return "Thank you so much @{} for the raid!"\
 				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
 
-def commands(user_name, is_mod):
+def commands(user_name, is_mod, is_owner):
 	commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
 
 	return ", ".join(commandList)
 
-def uptime(user_name, initTime, is_mode):
+def uptime(user_name, initTime, is_mod, is_owner):
 	cmd = 'uptime'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 
 	initTime = initTime.split('.')
@@ -628,57 +625,10 @@ def uptime(user_name, initTime, is_mode):
 
 	return response
 
-def whoami(user_name, is_mod):
+def whoami(user_name, is_mod, is_owner):
 	cmd = 'whoami'
-	if _checkTime(cmd, user_name) and user_name not in WHITELIST:
-		if not is_mod:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name):
+		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 			return None
 
 	return "Uh...you're {}. Are you all right? :)".format(user_name)
-
-def whitelist(user_name, curItem, is_mod):		# Add user to command timeout whitelist
-	global WHITELIST
-
-	if user_name not in WHITELIST:	# Make sure it's me (in the future, the streamer)
-
-		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
-			WHITELIST.append(curItem[1:].split()[2])	# Append the new user to the whitelist!
-			pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
-			response = str("User " + curItem[1:].split()[2] + " added to whitelist!")
-			return response
-		else:
-			return None
-	else:			# Not me/streamer, ignored
-		return None
-
-def whitelistRM(user_name, curItem, is_mod):		# Add user to command timeout whitelist
-	global WHITELIST
-
-	if user_name not in WHITELIST:	# Make sure it's me
-
-		if len(curItem[1:].split()) >= 2:	# Make sure the # of args is correct
-
-			print ('curItem:\t',curItem)
-			WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
-			if curItem[1:].split()[2] in WHITELIST:		# Make sure user being removed really is removable!
-				WHITELIST.remove(curItem[1:].split()[2])	# Append the new user to the whitelist!
-				pickle.dump(WHITELIST, open('data/whitelist{}.p'.format(config['CHANNEL']), 'wb'))
-				response = str("User " + curItem[1:].split()[2] + " removed from whitelist!")
-				return response
-
-			else:
-				return "User " + curItem[1:].split()[2] + " not in whitelist!"
-		else:
-			return None
-	else:
-		return None
-
-def whitelistLS(user_name, curItem, is_mod):
-	global WHITELIST
-
-	WHITELIST = pickle.load(open('data/whitelist{}.p'.format(config['CHANNEL']), 'rb'))
-	response = 'Whitelisted users: '
-	for item in WHITELIST:
-		response += item + ", "
-
-	return response[:-2]
