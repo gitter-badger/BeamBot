@@ -55,8 +55,6 @@ def controlChannel():
 
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
-		print ("Not Authenticated!")
-		quit()
 
 	user_id = loginRet.json()['id']
 
