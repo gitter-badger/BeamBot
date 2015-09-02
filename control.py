@@ -56,7 +56,7 @@ def controlChannel():
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
 		print ("Not Authenticated!")
-		raise NotAuthed(loginRet.text)
+		quit()
 
 	user_id = loginRet.json()['id']
 
@@ -69,7 +69,7 @@ def controlChannel():
 	if control_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
 		print ('Message:\t',control_ret.json())
-		raise ChatConnectFailure(control_ret.json())
+		quit()
 
 	chat_details_control = control_ret.json()
 

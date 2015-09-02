@@ -243,6 +243,7 @@ def readChat():
 					ret_msg = yield from websocket.recv()			# Get the response
 					ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
+					print ('ret_msg:\t', ret_msg)
 					print ('Response:\t', ret_msg['data'])
 
 					if ret_msg['error'] != None:
