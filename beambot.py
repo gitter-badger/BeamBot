@@ -361,21 +361,22 @@ please remove """ + config['CHANNEL'] + ".lock and restart the bot!\n")
 	loop.close()
 
 if __name__ == "__main__":
-	try:
-		main()
-	except KeyboardInterrupt:
-		if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
-			os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
-			sys.exit("\033[1;31mTerminated.\033[0m")
-		else:
-			main()
-	except Exception as e:
-		exception_type, exception_obj, exception_tb = sys.exc_info()
-		filename = exception_tb.tb_frame.f_code.co_filename
-
-		print('\033[1;31mI have crashed.\033[0m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
-		print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
-		time.sleep(10)
-		if os.path.exists(config['CHANNEL'] + '.lock'):
-			os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
-		os.execl(sys.executable, sys.executable, * sys.argv)
+	main()
+	# try:
+	# 	main()
+	# except KeyboardInterrupt:
+	# 	if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
+	# 		os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
+	# 		sys.exit("\033[1;31mTerminated.\033[0m")
+	# 	else:
+	# 		main()
+	# except Exception as e:
+	# 	exception_type, exception_obj, exception_tb = sys.exc_info()
+	# 	filename = exception_tb.tb_frame.f_code.co_filename
+	#
+	# 	print('\033[1;31mI have crashed.\033[0m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
+	# 	print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
+	# 	time.sleep(10)
+	# 	if os.path.exists(config['CHANNEL'] + '.lock'):
+	# 		os.remove(config['CHANNEL'] + '.lock')		# Delete the lock file
+	# 	os.execl(sys.executable, sys.executable, * sys.argv)
