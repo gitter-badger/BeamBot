@@ -220,10 +220,8 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 			response = " ".join(split[2:])
 
 			print ('response:\t',response)
-			print ('231HERE')
 
 			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
-				print ('234FOR')
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
 					print ('236IF')
 					cmd['op'] = 'False'			# Update the OP-only value to False
@@ -237,7 +235,6 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
 
 			# If we make it past the for loop, then the command doesn't exist, so make a new one
-			print ('248NEW')
 			newCMD = {
 				'cmd':command,
 				'op':'False',

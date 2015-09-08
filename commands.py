@@ -159,7 +159,6 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		print ('162COMMANDS_command')
 		response = responses.command(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
