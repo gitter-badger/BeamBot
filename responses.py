@@ -185,8 +185,8 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 		print ('split:\t',split)
 
 		if len(split) >= 2:
-			command = split[1]
-			response = " ".join(split[2:])
+			command = split[2]
+			response = " ".join(split[3:])
 
 			print ('response:\t',response)
 
@@ -230,8 +230,8 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			command = split[1]
-			response = " ".join(split[2:])
+			command = split[2]
+			response = " ".join(split[3:])
 
 			print ('response:\t',response)
 
@@ -275,7 +275,7 @@ def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		if len(split) >= 2:
-			cmd = split[1]
+			cmd = split[2]
 			for e in range(len(custCommands)):
 				if custCommands[e]['cmd'] == cmd:
 					print ('e:\t\t',custCommands[e]['cmd'])

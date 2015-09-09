@@ -172,6 +172,8 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
+		print ('commands175:\t',cmd[1])
+		print ('commands176:\t',cmd)
 		if cmd[1] == "add":
 			response = responses.command(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "remove":
