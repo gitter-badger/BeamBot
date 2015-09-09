@@ -43,6 +43,6 @@ def prepCmd(user, cmd, is_mod, is_owner):
 			else:
 				print ('No usage for command', cmd + "!")
 				return None
-				
+
 		else:
 			return "Usage currently unavailable!"

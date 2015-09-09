@@ -25,6 +25,7 @@
     "usage":
         {
             "ban":"!ban <user>",
+            "unban":"!unban <user>",
             "blame":"!blame<user>, !blame <user>",
             "command":"!command [add/remove]<command> <response>",
             "command+":"!command+ [add/remove] <command> <response>",
@@ -36,8 +37,8 @@
             "hug":"!hug <user>",
             "quote":"!quote (for random), !quote <user> for specific user's quote, !quote add <user> \"<quote>\" <game>",
             "ping":"!ping",
-            "raid":"!raid user",
-            "raided":"!raided user",
+            "raid":"!raid <user>",
+            "raided":"!raided <user>",
             "slap":"!slap <user>",
             "tackle":"!tackle <user>",
             "twitch":"!twitch <user>",

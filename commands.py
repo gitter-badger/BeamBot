@@ -128,7 +128,8 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 
 	elif cmd[0] == "ban":	# Ban a user from chatting
 		response, banUser = responses.ban(user_name, cur_item, is_mod, is_owner)
-		bannedUsers.append(banUser)
+		if banUser != "":
+			bannedUsers.append(banUser)
 
 		print ("bannedUsers",bannedUsers)
 
@@ -136,7 +137,10 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 
 	elif cmd[0] == "unban":	# Unban a user
 		response, uBanUser = responses.unban(user_name, cur_item, is_mod, is_owner)
-		bannedUsers.remove(uBanUser)
+		if uBanUser != "":
+			bannedUsers.remove(uBanUser)
+
+		print ("bannedUsers",bannedUsers)
 
 		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 

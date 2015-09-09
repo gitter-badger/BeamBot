@@ -177,52 +177,6 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
-
-	global custCommands
-
-	if is_mod or is_owner:	# Make sure the user is a mod or streamer
-		split = curItem[1:].split()
-		if len(split) >= 2:
-			command = split[1]
-			response = " ".join(split[2:])
-
-			print ('response:\t',response)
-
-			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
-				print ('cmd[\'cmd\']:\t',cmd['cmd'])
-				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
-					cmd['response'] = response 	# Update the response
-					cmd['op'] = 'True'			# Update the OP-only value to True
-					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-						f.write(json.dumps(custCommands, sort_keys=cmd))
-
-					# Command exists, so it has been updated
-					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
-
-			# If we make it past the for loop, then the command doesn't exist, so make a new one
-
-			newCMD = {
-				'cmd':command,
-				'op':'True',
-				'response':response
-			}
-
-			custCommands.append(newCMD)
-
-			print ('custCommands:\t',json.dumps(custCommands))
-
-			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-				f.write(json.dumps(custCommands))		# Update the stored JSON file
-
-			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
-
-		response = usage.prepCmd(user, "command+", is_mod, is_owner) # Return None because the command lacks a response
-		return response
-
-	else:
-		return None		# Not whitelisted
-
 def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
 	global custCommands
 
@@ -265,6 +219,52 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
 
 		return None	 	# Return None because the command lacks a response
+
+	else:
+		return None		# Not whitelisted
+
+def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
+
+	global custCommands
+
+	if is_mod or is_owner:	# Make sure the user is a mod or streamer
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			command = split[1]
+			response = " ".join(split[2:])
+
+			print ('response:\t',response)
+
+			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+				print ('cmd[\'cmd\']:\t',cmd['cmd'])
+				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
+					cmd['response'] = response 	# Update the response
+					cmd['op'] = 'True'			# Update the OP-only value to True
+					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
+						f.write(json.dumps(custCommands, sort_keys=cmd))
+
+					# Command exists, so it has been updated
+					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
+
+			# If we make it past the for loop, then the command doesn't exist, so make a new one
+
+			newCMD = {
+				'cmd':command,
+				'op':'True',
+				'response':response
+			}
+
+			custCommands.append(newCMD)
+
+			print ('custCommands:\t',json.dumps(custCommands))
+
+			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
+				f.write(json.dumps(custCommands))		# Update the stored JSON file
+
+			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
+
+		response = usage.prepCmd(user, "command+", is_mod, is_owner) # Return None because the command lacks a response
+		return response
 
 	else:
 		return None		# Not whitelisted
@@ -317,10 +317,14 @@ def tackle(user_name, curItem, is_mod, is_owner):
 			else:
 				return "pybot {} {}.".format("tackles", curItem[1:].split()[1])
 
+	else:		# Too short, no user supplied
+		return usage.prepCmd(user_name, "tackle", is_mod, is_owner)
+
 def slap(user_name, is_mod, is_owner):
 	cmd = 'slap'
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
+
 	return ":o Why on earth would I want to do that?"
 
 def quote(user_name, curItem, is_mod, is_owner):
@@ -375,23 +379,27 @@ def quote(user_name, curItem, is_mod, is_owner):
 
 			# The user is the first item after !quote add
 			if len(user.split()) != 1:	# It's just a username, anything more indicates an incorrect command
-				return None
+				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
-			# The quote is the second item(s) in the list
-			quote = split[1]
-			# The game is the third item in the list, but may have spaces on either side
-			game = split[2].lstrip().rstrip()
+			elif len(user.split()) >= 2:
+				# The quote is the second item(s) in the list
+				quote = split[1]
+				# The game is the third item in the list, but may have spaces on either side
+				game = split[2].lstrip().rstrip()
 
-			command = '''INSERT INTO quotes
-						(name, game, quote)
-						VALUES ("{}", "{}", "{}")'''.format(user, game, quote)
+				command = '''INSERT INTO quotes
+							(name, game, quote)
+							VALUES ("{}", "{}", "{}")'''.format(user, game, quote)
 
-			with sqlite3.connect('data/beambot.sqlite') as con:
-				cur = con.cursor()
+				with sqlite3.connect('data/beambot.sqlite') as con:
+					cur = con.cursor()
 
-				cur.execute(command)
+					cur.execute(command)
 
-			con = None
+				con = None
+
+			else:
+				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
@@ -418,30 +426,37 @@ def quote(user_name, curItem, is_mod, is_owner):
 		response = "\"" + quote + "\" - " + game + " - " + user
 
 		return response
+
 	else:		# No quotes in the database for user!
 		return None
 
 def ban(user_name, curItem, is_mod, is_owner):
 	if is_mod or is_owner:		# Only want mods/owners to have ban control
 		if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
-			banUser = curItem[1:].split()[1]
-			if banUser[0] == "@":
-				banUser = banUser[1:]	# Remove the @ character
-			return banUser + " has been chatbanned!", banUser
+			ban_user = curItem[1:].split()[1]
+			if ban_user[0] == "@":
+				ban_user = ban_user[1:]	# Remove the @ character
+			return ban_user + " has been chatbanned!", ban_user
 
-		else:
-			return None # Wrong # of args
+		else:	# Wrong # of args
+			ban_user = ""
+			return usage.prepCmd(user_name, "ban", is_mod, is_owner), ban_user
 	else:			# Not mod/owner
 		return None
 
 def unban(user_name, curItem, is_mod, is_owner):
 	if is_mod or is_owner:		# Only want mods/owners to have ban control
-		if len(curItem[1:].split()[1]) >= 2:
-			uBanUser = curItem[1:].split()[1]
-			if uBanUser[0] == "@":
-				uBanUser = banUser[1:]	# Remove the @ character
 
-			return uBanUser + " has been un-banned!", uBanUser
+		if len(curItem[1:].split()) >= 2:
+			uban_user = curItem[1:].split()[1]
+			if uban_user[0] == "@":
+				uban_user = ban_user[1:]	# Remove the @ character
+
+			return uban_user + " has been un-banned!", uban_user
+
+		else:	# Wrong # of args
+			uban_user = ""
+			return usage.prepCmd(user_name, "unban", is_mod, is_owner), uban_user
 	else:			# Not owner/mod
 		return None
 
@@ -449,10 +464,12 @@ def ping(user_name, is_mod, is_owner):
 	cmd = 'ping'
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
+
 	return "Pong!"
 
 def hug(user_name, curItem, is_mod, is_owner):
 	cmd = 'hug'
+
 	if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 
@@ -462,8 +479,8 @@ def hug(user_name, curItem, is_mod, is_owner):
 			return "{} gives a great big hug to {}! <3".format(user_name, hugUser)
 		else:	# Difference adds @ symbol if not included in the argument
 			return "{} gives a great big hug to @{}! <3".format(user_name, hugUser)
-	else:
-		return None	# Wrong # of args
+	else:	# Wrong # of args
+		return usage.prepCmd(user_name, "hug", is_mod, is_owner)
 
 def give(user_name, curItem, is_mod, is_owner):
 	cmd = 'give'
@@ -472,6 +489,7 @@ def give(user_name, curItem, is_mod, is_owner):
 			return None
 
 	split = curItem[1:].split()
+
 	if len(split) >= 3:
 		user = split[1]	# User recieving dimes
 		if user[0] == '@':
@@ -479,7 +497,7 @@ def give(user_name, curItem, is_mod, is_owner):
 		try:	# Try to convert argument to int type
 			numSend = int(split[2])	# Number of dimes being transferred
 		except:	# Oops! User didn't provide an integer
-			return None
+			return usage.prepCmd(user_name, "give", is_mod, is_owner)
 
 		with sqlite3.connect('data/beambot.sqlite') as con:
 			cur = con.cursor()
@@ -530,14 +548,16 @@ def give(user_name, curItem, is_mod, is_owner):
 				return "@" + user + " now has " + str(numSend) + " dimes!"
 
 	else:
-		return None
+		return usage.prepCmd(user_name, "give", is_mod, is_owner)
 
 def dimes(user_name, curItem, is_mod, is_owner):
 	cmd = 'dimes'
+
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	split = curItem[1:].split()
+
 	if len(split) >= 2:
 		if split[1][0] == "@":
 			user = split[1][1:]		# Remove @ character
@@ -564,6 +584,7 @@ def dimes(user_name, curItem, is_mod, is_owner):
 
 def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'
+
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
@@ -571,6 +592,7 @@ def hey(user_name, is_mod, is_owner):
 
 def raid(user_name, curItem, is_mod, is_owner):
 	cmd = 'raid'
+
 	if is_mod or is_owner:	# Check if mod or owner
 		split = curItem[1:].split()
 		if len(split) >= 2:
@@ -580,28 +602,39 @@ def raid(user_name, curItem, is_mod, is_owner):
 			return "Stream's over everyone!"\
 					" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
 
+		else:		# Wrong # of args
+			return usage.prepCmd(user_name, "raid", is_mod, is_owner)
+
 	else:
 		return None
 
 def twitch(user_name, curItem, is_mod, is_owner):
-	cmd = 'raid'
-	if is_mod or is_owner:	# Check if user is owner/mod
-		return None
+	cmd = 'twitch'
 
-	split = curItem[1:].split()
-	if len(split) >= 2:
-		raid = split[1]
-		if raid[0] == "@":
-			raid = raid[1:]			# Remove the @ character
-		return "Stream's over everyone!"\
-			" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
+	if is_mod or is_owner:	# Check if user is owner/mod
+
+		split = curItem[1:].split()
+		if len(split) >= 2:
+			raid = split[1]
+			if raid[0] == "@":
+				raid = raid[1:]			# Remove the @ character
+			return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
+
+		else:		# Wrong # of args
+			return usage.prepCmd(user_name, "twitch", is_mod, is_owner)
+
+	else:
+		return None
 
 def raided(user_name, curItem, is_mod, is_owner):
 	cmd = 'raided'
-	if is_mod or is_owner:	# Check if user is owner/mod
+
+	if not is_mod or not is_owner:	# Check if user is owner/mod
 		return None
 
 	split = curItem[1:].split()
+	print ("responses637:\t",split)
 	if len(split) >= 2:
 		raid = split[1]
 		if raid[0] == "@":
@@ -610,6 +643,9 @@ def raided(user_name, curItem, is_mod, is_owner):
 		else:
 			return "Thank you so much @{} for the raid!"\
 				" Everyone go give them some love at beam.pro/{}!".format(raid, raid)
+
+	else:		# Wrong # of args
+		return usage.prepCmd(user_name, "raided", is_mod, is_owner)
 
 def commands(user_name, is_mod, is_owner):
 	commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
