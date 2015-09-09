@@ -55,7 +55,7 @@ Simply run `python3 beambot.py`!
 
 **(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
 
-**(3.2.8)** - Updated custom command creation syntax to use `command **add**` and `command remove` instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
+**(3.2.8)** - Updated custom command creation syntax to use `command` **add** and `command` **remove** instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
 
 **(3.2.8)** - Added usage response if command arguments incorrect
 
