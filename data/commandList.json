@@ -1,12 +1,11 @@
 {
     "list":
         {
-            "ban":"Ban a user from chatting",
+            "ban":"Ban a user from chatting - Owner Only",
             "blame":"Blame a user!",
-            "command":"Make/update a new command - Whitelist Only",
-            "command+":"Make/update a new mod-only command - Whitelist Only",
-            "command-":"Remove a custom command - Whitelist Only",
-            "commands":"List all of commands - Whitelist Only",
+            "command":"Make/update a new command - Mod/Owner Only",
+            "command+":"Make/update a new mod-only command - Mod/Owner Only",
+            "commands":"List all of commands - Mod/Owner Only",
             "dimes":"Display number of dimes a user has",
             "give":"Give dimes to a user",
             "goodbye":"Turn off the bot",
@@ -19,7 +18,7 @@
             "slap":"Slap another user",
             "tackle":"Tackle another user",
             "twitch":"Raid another streamer on Twitch.tv",
-            "whitelist":"Whitelist a user - Streamer only",
+            "whitelist":"Whitelist a user - Owner only",
             "whoami":"Classic whoami command",
             "uptime":"Display how long the bot's been activated"
         },
@@ -27,10 +26,8 @@
         {
             "ban":"!ban <user>",
             "blame":"!blame<user>, !blame <user>",
-            "catch":"!catch <user> NOT IMPLEMENTED",
-            "command":"!command <command> <response>",
-            "command+":"!command+ <command> <response>",
-            "command-":"!command- <command>",
+            "command":"!command [add/remove]<command> <response>",
+            "command+":"!command+ [add/remove] <command> <response>",
             "commands":"!commands, !commands <command>",
             "dimes":"!dimes for your # of Gears, !dimes <user> for specific user's gears",
             "give":"!give <user> <#ofGears>",
@@ -44,7 +41,6 @@
             "slap":"!slap <user>",
             "tackle":"!tackle <user>",
             "twitch":"!twitch <user>",
-            "throw":"!throw <user> NOT IMPLEMENTED",
             "whitelist":"!whitelist <user>",
             "whoami":"!whoami",
             "uptime":"!uptime"

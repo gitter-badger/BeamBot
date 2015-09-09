@@ -7,6 +7,9 @@ import requests
 import os
 import json
 
+# PyBot Modules
+import usage
+
 global prevTime, custCommands, commandList
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
@@ -24,14 +27,18 @@ else:
 if os.path.exists('data/commandList.json'):
 	commandList = json.load(open('data/commandList.json', 'r'))
 else:
-	print ('Error:')
-	print ('data/commandList.json is missing! !commands will not work')
+	print ('\033[1;31mCommand list file (data/commandList.json) missing!\033[0m\n')
+	print ('data/commandList.json is missing! !commands and command usage will not work')
 	commandList = False
 
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
-def _checkTime(cmd, user, custom=False):
+def _checkTime(cmd, user, is_mod, is_owner, custom=False):
+
+	if is_mod or is_owner:
+		return False		# No need to check if it's mod/owner
+
 	curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
 	if cmd in prevTime:		# Make sure the command exists, so no KeyError exceptions
@@ -53,21 +60,24 @@ def _checkTime(cmd, user, custom=False):
 def blame(user_name, curItem, is_mod, is_owner):
 	cmd = "blame"
 
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 	else:
-		if curItem[1:][5] == " ":		# Is it a space?
+		if len(curItem[1:]) > 5:
+			if curItem[1:][5] == " ":		# Is it a space?
 
-			if curItem[1:][6] == "@":
-				return curItem[8:] + " has been duly blamed! " + curItem[7:] + \
+				if curItem[1:][6] == "@":	# Is it an @USERNAME?
+					return curItem[8:] + " has been duly blamed! " + curItem[7:] + \
+							" you have been blamed!"
+				else:			# Nope, add the @ symbol
+					return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
+							" you have been blamed!"
+			else:				# Nope, take the 6th character onward
+				return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
 						" you have been blamed!"
-			else:
-				return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
-						" you have been blamed!"
-		else:
-			return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
-					" you have been blamed!"
+
+		else:	# It's too short to include anyone to blame, so return usage
+			return usage.prepCmd(user_name, cmd, is_mod, is_owner)
 
 def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 
@@ -84,17 +94,21 @@ def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 			cmdListUsage = commandList['usage']
 			cmdList = commandList['list']
 
-			msg = curItem.split()[1:]		# Split the command up to see if there are args
+			if len(curItem.split()) >= 2:		# At least 2 items, so at least one arg
+				cmdSplit = curItem.split()[1:][0]		# Split the command up to see if there are args
+				if cmdSplit in cmdListUsage:	# Does a key exist with that argument's value?
+					response = "Command: " + cmdSplit + " Usage: " + cmdListUsage[cmdSplit] + " - " + cmdList[cmdSplit]
+					# In future, make this return Command & Usage in separate messages
+					return response # Return command + usage
 
-			if len(msg) >= 2:				# At least 2 items, so at least one arg
-				if msg[1] in cmdListUsage:	# Does a key exist with that argument's value?
-					return msg[1] + " - " + cmdListUsage[msg[1]] + " - " + cmdList[msg[1]]	# Return command + usage
 			else:					# Just !commands, so list commands
 				response += "Commands: "
-				for cmd in cmdList:
+				for cmd in sorted(cmdList):
 					response += cmd + ", "
 
-				return response
+				response = response[:-1]
+				# In future, make this return all-access & custom commands separately - exclude mod & owner-only
+				return response[:-1]
 
 		else:
 			return None
@@ -163,7 +177,6 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
-
 def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
 
 	global custCommands
@@ -204,7 +217,8 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
 
-		return None	 	# Return None because the command lacks a response
+		response = usage.prepCmd(user, "command+", is_mod, is_owner) # Return None because the command lacks a response
+		return response
 
 	else:
 		return None		# Not whitelisted
@@ -215,6 +229,7 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		print ('split:\t',split)
+
 		if len(split) >= 2:
 			command = split[1]
 			response = " ".join(split[2:])
@@ -223,11 +238,10 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 
 			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
-					print ('236IF')
 					cmd['op'] = 'False'			# Update the OP-only value to False
 					cmd['response'] = response 	# Update the response
+
 					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-						print ('240WITH')
 						cmd['cmd'] = cmd['cmd']
 						f.write(json.dumps(custCommands, sort_keys=True))
 
@@ -279,9 +293,9 @@ def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
 
 def tackle(user_name, curItem, is_mod, is_owner):
 	cmd = 'tackle'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
+
 	if len(curItem[1:].split()) >= 2:
 		rand = random.randrange(0, 51)
 		if rand >= 45:	# Super rare response!
@@ -305,8 +319,7 @@ def tackle(user_name, curItem, is_mod, is_owner):
 
 def slap(user_name, is_mod, is_owner):
 	cmd = 'slap'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 	return ":o Why on earth would I want to do that?"
 
@@ -318,8 +331,7 @@ def quote(user_name, curItem, is_mod, is_owner):
 	they want.
 	"""
 
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	split = curItem[1:].split()
@@ -435,16 +447,14 @@ def unban(user_name, curItem, is_mod, is_owner):
 
 def ping(user_name, is_mod, is_owner):
 	cmd = 'ping'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
-	return "(>^.^)>-O ____|____ ° Q(^.^<) pong!"
+	return "Pong!"
 
 def hug(user_name, curItem, is_mod, is_owner):
 	cmd = 'hug'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
-			return None
+	if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+		return None
 
 	if len(curItem[1:].split()) >= 2:
 		hugUser = curItem[1:].split()[1]
@@ -458,8 +468,7 @@ def hug(user_name, curItem, is_mod, is_owner):
 def give(user_name, curItem, is_mod, is_owner):
 	cmd = 'give'
 
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	split = curItem[1:].split()
@@ -525,8 +534,7 @@ def give(user_name, curItem, is_mod, is_owner):
 
 def dimes(user_name, curItem, is_mod, is_owner):
 	cmd = 'dimes'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	split = curItem[1:].split()
@@ -556,9 +564,9 @@ def dimes(user_name, curItem, is_mod, is_owner):
 
 def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
+
 	return "Saluton Mondo {}!".format(user_name)
 
 def raid(user_name, curItem, is_mod, is_owner):
@@ -610,8 +618,7 @@ def commands(user_name, is_mod, is_owner):
 
 def uptime(user_name, initTime, is_mod, is_owner):
 	cmd = 'uptime'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	initTime = initTime.split('.')
@@ -624,8 +631,7 @@ def uptime(user_name, initTime, is_mod, is_owner):
 
 def whoami(user_name, is_mod, is_owner):
 	cmd = 'whoami'
-	if _checkTime(cmd, user_name):
-		if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
 	return "Uh...you're {}. Are you all right? :)".format(user_name)

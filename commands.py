@@ -6,15 +6,24 @@ new code instead of having to figure out how to create the correct packet.
 """
 
 from datetime import datetime
-import responses
-import callbacks
-import os.path
+import os
 import pickle
 import json
+
+# PyBot modules
+import responses
 import control
+import usage
 
 initTime = datetime.now().strftime('%H.%M.%S')
-config = json.load(open('data/config.json', 'r'))
+
+if os.path.exists('data/config.json'):
+	config = json.load(open('data/config.json', 'r'))
+else:
+	print ('\033[1;31mConfig file (data/config.json) missing!\033[0m\n')
+	print ('Please run setup before launching the bot.')
+	print ('To do so run:\tpython3 setup.py')
+	quit()
 
 if os.path.exists('data/bannedUsers{}.p'.format(config['CHANNEL'])):
 	bannedUsers = pickle.load(open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'rb'))
@@ -159,13 +168,24 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		response = responses.command(user_name, cur_item, is_mod, is_owner)
+		if cmd[1] == "add":
+			response = responses.command(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "remove":
+			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+		else:					# Not add or remove, return usage
+			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
-		response = responses.commandMod(user_name, cur_item, is_mod, is_owner)
+		if cmd[1] == "add":
+			response = responses.commandMod(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "remove":
+			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+		else:					# Not add or remove, return usage
+			response = usage.prepCmd(user_name, "command+", is_mod, is_owner)
 
-	elif cmd[0] == "command-":	# Remove a command
-		response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+	# Removed while I update the command creation system
+	# elif cmd[0] == "command-":	# Remove a command
+	# 	response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 

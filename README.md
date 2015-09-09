@@ -1,6 +1,6 @@
 #BeamBot Repository
 
-This is my repository for my beambot project, a Beam.pro chat bot. I need a better name than beambot or pybot, but those are what I'm working with currently.
+This is my repository for my PyBot project, a Beam.pro chat bot.
 
 ##Setup
 
@@ -25,21 +25,9 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.7
+## Features in 3.2.8
 
-**NOTE**: With the 3.2.6 release, I removed the new features listed for all old versions up to version 3.2.2. They are still accessible in the repository history.
-
-###### **(3.2.2)** - Fixed code where including @ symbol in user-referencing command would mess it up
-
-###### **(3.2.2)** - General progress towards 3.3.0 (a stability & quality release)
-
-###### **(3.2.3)** - General progress towards 3.3.0 (a stability & quality release)
-
-###### **(3.2.3)** - Updated bot to use per-channel ban lists, custom command lists, & whitelists
-
-###### **(3.2.3)** - Bot now will recognize the streamer/channel mods & will automatically act as if they are whitelisted (Fixes #5)
-
-###### **(3.2.3)** - Bot now recognizes the streamer/channel owner separately from the stream mods. Not used currently, but definitely eventually.
+**NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.4. They are still accessible in the repository history.
 
 ###### **(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
 
@@ -57,13 +45,19 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.6)** - Updated bot to create lock file on startup and remove it on proper shutdown
 
-**(3.2.7)** - Removed auto_start.py because it wasn't useful
+###### **(3.2.7)** - Removed auto_start.py because it wasn't useful
 
-**(3.2.7)** - Removed lock file because it's not needed anymore (no autostart)
+###### **(3.2.7)** - Removed lock file because it's not needed anymore (no autostart)
 
-**(3.2.7)** - Removed whitelist entirely, it was only in place because of me being lazy and not wanting to implement a simple feature
+###### **(3.2.7)** - Removed whitelist entirely, it was only in place because of me being lazy and not wanting to implement a simple feature
 
-**(3.2.7)** - Yes, I just essentially undid the entire previous release. But there were broken things I had to fix and in the process of doing that I realized that those "features" were useless and annoying :P
+###### **(3.2.7)** - Yes, I just essentially undid the entire previous release. But there were broken things I had to fix and in the process of doing that I realized that those "features" were useless and annoying :P
+
+**(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
+
+**(3.2.8)** - Updated custom command creation syntax to use `command **add**` and `command remove` instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
+
+**(3.2.8)** - Added usage response if command arguments incorrect
 
 ### Info on future 3.3.0 release
 
