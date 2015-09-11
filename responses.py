@@ -10,19 +10,23 @@ import json
 # PyBot Modules
 import usage
 
-global prevTime, custCommands, commandList
+global prevTime, cust_commands, commandList
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
 
 config = json.load(open('data/config.json', 'r'))
 
 if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
-	custCommands = json.load(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
-	print ('Custom commands loaded:\n' + str(custCommands))
+	cust_commands = json.load(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
+	print ('Custom commands loaded:\n' + str(cust_commands))
+	count_vars = {}
+	for e in cust_commands:
+		count_vars[e['cmd']] = 0
+
 else:
-	custCommands = []
+	cust_commands = []
 	with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-		f.write(str(custCommands))
+		f.write(str(cust_commands))
 
 if os.path.exists('data/commandList.json'):
 	commandList = json.load(open('data/commandList.json', 'r'))
@@ -116,31 +120,41 @@ def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 		return None					# If execution gets here, then we've got no matches
 
 def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might be custom one
-	global custCommands
+	global cust_commands
 
 	split = curItem[1:].split()
 	cmd = split[0]
 	response = ""
 
 	if is_mod or is_owner:	# Is the user mod/owner? If so, ignore timeout
-		for e in custCommands:	# Loop through the custom commands
+		for e in cust_commands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
 				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
 
 				for i in range(0, len(eArgs)):
 
-					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+					string_cur = eArgs[i]  # 2 - String we're going to be editing, make it separate
 
-					# 3 - Compare stringCur to real response variables
-					if stringCur == 'args':	 # Replace with remainder of arguments
+					# 3 - Compare string_cur to real response variables
+					if string_cur[0:4] == 'args':	 # Replace with remainder of arguments
 						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
 						if len(split[1:]) >= 1:
 							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
 						else:
 							response += eArgs[i][4:].strip(']')
-					elif stringCur == 'user':   # Replace with sending user
+
+					elif string_cur[0:4] == 'user':   # Replace with sending user
 						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
 						response += (user_name + eArgs[i][4:].strip(']'))
+
+					elif string_cur[0:5] == "count":	# Replace with a incremental variable
+						if cmd in count_vars:
+							count_vars[cmd] += 1
+							response += str(count_vars[cmd])
+						else:
+							count_vars[cmd] = 0
+							response += str(count_vars[cmd])
+
 					else:
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
@@ -148,6 +162,7 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 		if response != "":
 			print ('customRespW:\t',response)
 			return response
+
 		else:
 			return None
 
@@ -155,30 +170,39 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 		return None				# Too soon
 
 	else:		# Not mod or owner, but not time-out, so let it run
-		for e in custCommands:	# Loop through the custom commands
+		for e in cust_commands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
 				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
 
 				for i in range(0, len(eArgs)):
 
-					stringCur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+					string_cur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
 
-					# 3 - Compare stringCur to real response variables
-					if stringCur == 'args':	 # Replace with remainder of arguments
+					# 3 - Compare string_cur to real response variables
+					if string_cur == 'args':	 # Replace with remainder of arguments
 						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
 						if len(split[1:]) >= 1:
 							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
 						else:
 							response += eArgs[i][4:].strip(']')
-					elif stringCur == 'user':   # Replace with sending user
+
+					elif string_cur == 'user':   # Replace with sending user
 						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
 						response += (user_name + eArgs[i][4:].strip(']'))
+
+					elif string_cur[0:5] == "count":	# Replace with a incremental variable
+						string_cur_var_list = string_cur.split(':')
+
+						if string_cur_var_list[2] in count_vars:	# Does this variable exist?
+							count_vars[string_cur_var_list[2]] += 1
+							response += count_vars[string_cur_var_list[2]]
+
 					else:
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
 
 def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
-	global custCommands
+	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
@@ -190,14 +214,14 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 
 			print ('response:\t',response)
 
-			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+			for cmd in cust_commands:			# Loop through the list of custom commands JSON objects
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
 					cmd['op'] = 'False'			# Update the OP-only value to False
 					cmd['response'] = response 	# Update the response
 
 					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 						cmd['cmd'] = cmd['cmd']
-						f.write(json.dumps(custCommands, sort_keys=True))
+						f.write(json.dumps(cust_commands, sort_keys=True))
 
 					# Command exists, so it has been updated
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
@@ -209,12 +233,12 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 				'response':response
 			}
 
-			custCommands.append(newCMD)
+			cust_commands.append(newCMD)
 
-			print ('custCommands:\t',json.dumps(custCommands))
+			print ('cust_commands:\t',json.dumps(cust_commands))
 
 			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-				f.write(json.dumps(custCommands))		# Update the stored JSON file
+				f.write(json.dumps(cust_commands))		# Update the stored JSON file
 
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
 
@@ -225,7 +249,7 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 
 def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
 
-	global custCommands
+	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
@@ -235,13 +259,13 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 
 			print ('response:\t',response)
 
-			for cmd in custCommands:			# Loop through the list of custom commands JSON objects
+			for cmd in cust_commands:			# Loop through the list of custom commands JSON objects
 				print ('cmd[\'cmd\']:\t',cmd['cmd'])
 				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
 					cmd['response'] = response 	# Update the response
 					cmd['op'] = 'True'			# Update the OP-only value to True
 					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-						f.write(json.dumps(custCommands, sort_keys=cmd))
+						f.write(json.dumps(cust_commands, sort_keys=cmd))
 
 					# Command exists, so it has been updated
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
@@ -254,12 +278,12 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 				'response':response
 			}
 
-			custCommands.append(newCMD)
+			cust_commands.append(newCMD)
 
-			print ('custCommands:\t',json.dumps(custCommands))
+			print ('cust_commands:\t',json.dumps(cust_commands))
 
 			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-				f.write(json.dumps(custCommands))		# Update the stored JSON file
+				f.write(json.dumps(cust_commands))		# Update the stored JSON file
 
 			return 'Command \'' + newCMD['cmd'] + '\' created! ' + newCMD['response']
 
@@ -270,21 +294,21 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 		return None		# Not whitelisted
 
 def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
-	global custCommands
+	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
 		split = curItem[1:].split()
 		if len(split) >= 2:
 			cmd = split[2]
-			for e in range(len(custCommands)):
-				if custCommands[e]['cmd'] == cmd:
-					print ('e:\t\t',custCommands[e]['cmd'])
-					del custCommands[e]
+			for e in range(len(cust_commands)):
+				if cust_commands[e]['cmd'] == cmd:
+					print ('e:\t\t',cust_commands[e]['cmd'])
+					del cust_commands[e]
 					break
 
 			with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-				print (custCommands)
-				f.write(json.dumps(custCommands))
+				print (cust_commands)
+				f.write(json.dumps(cust_commands))
 
 			return 'Command \'' + cmd + '\' removed!'
 

@@ -172,8 +172,9 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		print ('commands175:\t',cmd[1])
-		print ('commands176:\t',cmd)
+		if len(cmd) <= 3:	# It's not long enough to have a response
+			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
+
 		if cmd[1] == "add":
 			response = responses.command(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "remove":
@@ -188,10 +189,6 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
 		else:					# Not add or remove, return usage
 			response = usage.prepCmd(user_name, "command+", is_mod, is_owner)
-
-	# Removed while I update the command creation system
-	# elif cmd[0] == "command-":	# Remove a command
-	# 	response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
 

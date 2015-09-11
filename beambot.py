@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.7
+#	Version: 	3.2.9
 #	Author: 	RPiAwesomeness
-#	Date:		September 2, 2015
+#	Date:		September 11, 2015
 #
-#	Changelog:	Removed auto_start.py because it wasn't useful
-#				Removed whitelist entirely, it was only in place because of me
-#					being lazy and not wanting to implement a simple feature
-#				Removed lock file because it's not needed anymore (no autostart)
+#	Changelog:	Added [[count]] custom command variable - increments each time
+#				command is run
+#				Fixed bug where running the !command command with <= 3
+#				words/things in the command would crash the bot
 # -+=============================================================+
 
 import sys, os

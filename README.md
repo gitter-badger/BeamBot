@@ -25,7 +25,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.8
+## Features in 3.2.9
 
 **NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.4. They are still accessible in the repository history.
 
@@ -53,11 +53,15 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.7)** - Yes, I just essentially undid the entire previous release. But there were broken things I had to fix and in the process of doing that I realized that those "features" were useless and annoying :P
 
-**(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
+###### **(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
 
-**(3.2.8)** - Updated custom command creation syntax to use `command` **add** and `command` **remove** instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
+###### **(3.2.8)** - Updated custom command creation syntax to use `command` **add** and `command` **remove** instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
 
-**(3.2.8)** - Added usage response if command arguments incorrect
+###### **(3.2.8)** - Added usage response if command arguments incorrect
+
+**(3.2.9)** - Added [[count]] custom command variable - increments each time command is run
+
+**(3.2.9)** - Fixed bug where running the !command command with <= 3 words/things in the command would crash the bot. It will now return the usage
 
 ### Info on future 3.3.0 release
 
