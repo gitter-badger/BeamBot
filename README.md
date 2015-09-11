@@ -63,6 +63,8 @@ Simply run `python3 beambot.py`!
 
 **(3.2.9)** - Fixed bug where running the !command command with <= 3 words/things in the command would crash the bot. It will now return the usage
 
+**(3.2.9)** - Working on adding !set command for bot configuration abilities
+
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.

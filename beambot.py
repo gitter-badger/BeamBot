@@ -6,9 +6,12 @@
 #	Date:		September 11, 2015
 #
 #	Changelog:	Added [[count]] custom command variable - increments each time
-#				command is run
+#					command is run
 #				Fixed bug where running the !command command with <= 3
-#				words/things in the command would crash the bot
+#					words/things in the command would crash the bot
+#				Working on adding !set command for bot configuration abilities
+#				Updated setup.py to stop creating whitelist.p & added new
+#					values to config
 # -+=============================================================+
 
 import sys, os

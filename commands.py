@@ -95,11 +95,11 @@ def prepCMD(msg, msg_local_id):
 
 			if cur_item[0] == '!':	# It's a command! Pay attention!
 
-				response, goodbye = getResp(cur_item, user_name, msg_local_id, is_mod, is_owner)
+				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner)
 
 	return response, goodbye
 
-def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=False):
+def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False):
 
 	goodbye = False
 
@@ -120,7 +120,7 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 	elif cmd[0] == "ping":				# Ping Pong Command
 		response = responses.ping(user_name, is_mod, is_owner)
 
-	elif cmd[0] == "dimes" or cmd[0] == "currency":			# Get user balance
+	elif cmd[0] == config["currency_name"] or cmd[0] == "currency":			# Get user balance
 		response = responses.dimes(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "give":	# Give dimes to a user
@@ -152,6 +152,9 @@ def getResp(cur_item, user_name=None, msg_local_id=None, is_mod=False, is_owner=
 
 	elif cmd[0] == "slap":	# Slap someone
 		response = responses.slap(user_name, is_mod, is_owner)
+
+	elif cmd[0] == "set":	# Bot configuration - Uses cmd instead of cur_item
+		response = responses.set(user_name, user_id, cmd, is_mod, is_owner)
 
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime)

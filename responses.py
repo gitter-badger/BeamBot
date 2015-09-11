@@ -16,6 +16,8 @@ prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 
 
 config = json.load(open('data/config.json', 'r'))
 
+addr = config['BEAM_ADDR']
+
 if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
 	cust_commands = json.load(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
 	print ('Custom commands loaded:\n' + str(cust_commands))
@@ -47,9 +49,9 @@ def _checkTime(cmd, user, is_mod, is_owner, custom=False):
 
 	if cmd in prevTime:		# Make sure the command exists, so no KeyError exceptions
 		if user in prevTime[cmd]:	# Make sure the user exists in that command dictionary
-			if (curTime - prevTime[cmd][user]) <= 31:	# Only every 30 seconds per user
+			if (curTime - prevTime[cmd][user]) <= (config['cmd_timeout'] + 1):	# Only every 30 seconds per user
 				return True			# Too soon
-			elif (curTime - prevTime[cmd][user]) >= 30:	# Under 30 seconds
+			elif (curTime - prevTime[cmd][user]) >= config['cmd_timeout']:	# Under 30 seconds
 				prevTime[cmd][user] = curTime
 				return False
 
@@ -351,6 +353,43 @@ def slap(user_name, is_mod, is_owner):
 
 	return ":o Why on earth would I want to do that?"
 
+def set(user_name, user_id, cur_item, is_mod, is_owner):
+	
+	if len(cur_item) > 3:	# SET SETTINGNAME SETTING
+		if cur_item[1] == "currencyName":	# Set the currency name
+			config['currency_name'] = cur_item[2]
+
+		elif cur_item[2] == "commandTimeout":	# Set the command time-out
+			config['cmd_timeout'] == cur_item[2]
+
+		elif cur_item[2] == "announceEnter":	# Announce user entering
+			config['announce_enter'] == cur_item[2]
+
+		elif cur_item[2] == "announceLeave":	# Announce user leaving
+			config['announce_leave'] == cur_item[2]
+
+		elif cur_item[2] == "announceFollow":	# Announce user following Channel
+			config['announce_follow'] == cur_item[2]
+
+		else:
+			return usage.prepCmd(user_name, "set", is_mod, is_owner)
+
+		with open('data/config.json', 'w') as f:
+			json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
+
+	else:
+		return usage.prepCmd(user_name, "set", is_mod, is_owner)
+
+	session = requests.Session()
+
+	session.post(
+		addr + '/notifications',
+		data = {"user":user_id,
+				"user":"Test"}
+	)
+
+	return None
+
 def quote(user_name, curItem, is_mod, is_owner):
 	cmd = 'quote'
 	"""
@@ -519,7 +558,7 @@ def give(user_name, curItem, is_mod, is_owner):
 		if user[0] == '@':
 			user = user[1:]			# Remove the @ character
 		try:	# Try to convert argument to int type
-			numSend = int(split[2])	# Number of dimes being transferred
+			num_send = int(split[2])	# Number of dimes being transferred
 		except:	# Oops! User didn't provide an integer
 			return usage.prepCmd(user_name, "give", is_mod, is_owner)
 
@@ -537,7 +576,7 @@ def give(user_name, curItem, is_mod, is_owner):
 				userDimesOrig = results[0][0]
 
 				if user_name == "pybot":	# If it's bot, ignore removal of dimes & # check
-					userDimes = int(userDimesOrig) + int(numSend)
+					userDimes = int(userDimesOrig) + int(num_send)
 
 					command = '''UPDATE gears
 								SET gears={}
@@ -545,11 +584,11 @@ def give(user_name, curItem, is_mod, is_owner):
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userDimes) + " dimes!"
+					return "@" + user + " now has " + str(userDimes) + " " + config['currency_name'] + "!"
 
-				if numSend <= userGearsOrig:	# Make sure the sending user has enough dimes
+				if num_send <= userGearsOrig:	# Make sure the sending user has enough dimes
 
-					userDimes = int(userDimesOrig) + int(numSend)
+					userDimes = int(userDimesOrig) + int(num_send)
 
 					command = '''UPDATE gears
 								SET gears={}
@@ -557,7 +596,7 @@ def give(user_name, curItem, is_mod, is_owner):
 
 					cur.execute(command)
 
-					return "@" + user + " now has " + str(userDimes) + " dimes!"
+					return "@" + user + " now has " + str(userDimes) + " " + config['currency_name'] + "!"
 
 				else:
 					return None
@@ -565,11 +604,11 @@ def give(user_name, curItem, is_mod, is_owner):
 			else:		# User not in dimes database
 				command = '''INSERT INTO gears
 							(name, gears)
-							VALUES ("{}", {})'''.format(user, str(numSend))
+							VALUES ("{}", {})'''.format(user, str(num_send))
 
 				cur.execute(command)	# Soooo... add 'em!
 
-				return "@" + user + " now has " + str(numSend) + " dimes!"
+				return "@" + user + " now has " + str(num_send) + " " + config['currency_name'] + "!"
 
 	else:
 		return usage.prepCmd(user_name, "give", is_mod, is_owner)
@@ -602,9 +641,9 @@ def dimes(user_name, curItem, is_mod, is_owner):
 		results = cur.fetchall()
 
 		if len(results) >= 1:
-			return "@" + user + " has " + str(results[0][0]) + " dimes."
+			return "@" + user + " has " + str(results[0][0]) + " " + config['currency_name'] + "!"
 		else:
-			return "@" + user + " has no dimes! :o"
+			return "@" + user + " has no " + config['currency_name'] + "! :o"
 
 def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'

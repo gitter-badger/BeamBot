@@ -25,11 +25,11 @@ if autoConnect == '' or autoConnect.lower() == 'y':
 	while True:		# Loop until we have a working chat ID
 		CHANNEL = input ("What channel do you want to connect to? [Channel ID or Name] ")
 
-		if type(CHANNEL) == int:
-			config['CHANNEL'] = str(chan_ret.json()['id'])
-			break				# If we're this far, then it was a numeric ID
+		if CHANNEL == "":
+			print ("You must enter a valid channel ID or name")
+			next
 
-		else:		# Nope, gotta do it manually
+		else:
 			session = requests.Session()
 
 			chan_ret = session.get(
@@ -50,9 +50,52 @@ elif autoConnect.lower() == 'n':
 	config['CHANNEL'] = None
 	config['CONTROL'] = 22085
 
+currency_name = input ("What would you like your currency to be called? ")
+
+while True:		# Loop until we have a numeric # for the command timeout
+
+	cmd_timeout = input ("What would you like the command timeout to be? ")
+
+	try:
+		cmd_timeout = int(cmd_timeout)
+		if cmd_timeout >= 0:
+			config['cmd_timeout'] = cmd_timeout
+			break
+		else:
+			print ("The command timeout MUST be an integer greater than or equal to 0")
+	except:		# Not an integer
+		print ("Sorry! That's not an integer!")
+		print ("The command timeout MUST be an integer greater than or equal to 0")
+
+
+announce_enter = input ("Do you want entries to be announced? [y/N] ")
+if announce_enter == "" or announce_enter.lower() =="n":
+	config['announce_enter'] = False
+
+elif announce_enter.lower() == "y":
+	config['announce_enter'] = True
+
+
+announce_leave = input ("Do you want exits to be announced? [y/N] ")
+if announce_leave == "" or announce_leave.lower() =="n":
+	config['announce_leave'] = False
+
+elif announce_leave.lower() == "y":
+	config['announce_leave'] = True
+
+
+announce_follow = input ("Do you want follows to be announced? [Y/n] ")
+if announce_follow == "" or announce_follow.lower() =="n":
+	config['announce_follow'] = False
+
+elif announce_follow.lower() == "y":
+	config['announce_follow'] = True
+
+config['currency_name'] = currency_name
+
 # Store the config information
 with open('data/config.json', 'w') as f:
-	f.write(json.dumps(config))
+	json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
 
 # Create the sqlite database
 with sqlite3.connect('data/beambot.sqlite') as con:
@@ -79,15 +122,8 @@ with sqlite3.connect('data/beambot.sqlite') as con:
 bannedUsers = []
 pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
 
-WHITELIST = ['pybot']
-pickle.dump(WHITELIST, open('data/whitelist.p', 'wb'))
-
 custCommands = []
 with open('data/commands.json', 'w') as f:
-	f.write(str(custCommands))
-
-commandList = {}
-with open('data/commandList.json', 'w') as f:
-	f.write(str(commandList))
+	json.dump(custCommands, f)
 
 print ("All set! Just run \"python3 beambot.py\" and you're good to go!")

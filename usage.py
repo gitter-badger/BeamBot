@@ -20,10 +20,10 @@ def _checkTime(user, is_mod, is_owner):
 		curTime =  (int(datetime.now().strftime("%M")) * 60) + int(datetime.now().strftime("%S"))
 
 		if user in prevTime:	# Make sure the user exists
-			if (curTime - prevTime[user]) <= 31:	# Only every 30 seconds per user
+			if (curTime - prevTime[cmd][user]) <= int((config['cmd_timeout'] + 1)):	# Only every 30 seconds per user
 				return True			# Too soon
-			elif (curTime - prevTime[user]) >= 30:	# Under 30 seconds
-				prevTime[user] = curTime
+			elif (curTime - prevTime[cmd][user]) >= int(config['cmd_timeout']):	# Under 30 seconds
+				prevTime[cmd][user] = curTime
 				return False
 
 		# If execution gets to this point, then the user lacks an entry and we need to create a value for that
@@ -37,6 +37,9 @@ def prepCmd(user, cmd, is_mod, is_owner):
 
 	else:
 		if cmdList != None:	# It's not None, so there are custom commands
+			if cmd == "set":	# Special usage for !set Command
+				# Update commandList.json to include !set & specific usage
+				return "Bot configuration options: currencyName, commandTimeout, announceEnter, announceLeave, announceFollow"
 
 			if cmd in cmdList:	# We should never get any that aren't part of the list, but let's be safe
 				return "Usage " + cmdList[cmd]
