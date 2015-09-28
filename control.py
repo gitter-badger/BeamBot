@@ -84,8 +84,8 @@ def controlChannel():
 		"id":0
 	}
 
-	yield from websocket.send(json.dumps(packet))
-	ret = yield from websocket.recv()
+	ret = yield from messageControl.sendMsg(websocket, content, is_auth=True)
+	ret = ret.split('"id"')[0][:-1] + "}"
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
@@ -132,12 +132,6 @@ def restart(user_name, websocket):
 	print ('Restarting bot in 10 seconds...')
 	subprocess.Popen(['sh','restart.sh'])
 	closeSocket(websocket)
-
-@asyncio.coroutine
-def closeSocket(websocket):	# Properly closes all websockets
-
-	websocket.close()
-	return None
 
 """Used to send messages. Provide websocket to send via, message, & boolean main to tell which msg ID to use"""
 @asyncio.coroutine

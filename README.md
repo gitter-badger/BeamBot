@@ -17,27 +17,15 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 * If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number.
 
-* **NEW as of 3.2.6** - You can now just provide the stream owner's name. However, the numeric ID is still accepted.
-
 **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
 
 ###Running:
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.9
+## Features in 3.2.10
 
-**NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.4. They are still accessible in the repository history.
-
-###### **(3.2.4)** - Bot will now connect to & monitor beam.pro/pybot chat for bot control commands (!restart, !halt, !msg)
-
-###### **(3.2.5)** - Bot now prints nicely formatted information about the messages, instead of raw JSON
-
-######**(3.2.5)** - Removed extraneous message blacklisting code, since it is no longer needed since the bot uses websockets correctly.
-
-###### **(3.2.5)** - Fixed bug where only the first custom command would actually work
-
-###### **(3.2.5)** - Fixed bug where non-existent commands would elicit a blank message from the bot
+**NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.6. They are still accessible in the repository history.
 
 ###### **(3.2.6)** - Added auto_start.py to make the bot auto-launch if a channel goes live
 
@@ -59,11 +47,17 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.8)** - Added usage response if command arguments incorrect
 
-**(3.2.9)** - Added [[count]] custom command variable - increments each time command is run
+###### **(3.2.9)** - Added [[count]] custom command variable - increments each time command is run
 
-**(3.2.9)** - Fixed bug where running the !command command with <= 3 words/things in the command would crash the bot. It will now return the usage
+###### **(3.2.9)** - Fixed bug where running the !command command with <= 3 words/things in the command would crash the bot. It will now return the usage
 
-**(3.2.9)** - Working on adding !set command for bot configuration abilities
+###### **(3.2.9)** - Working on adding !set command for bot configuration abilities
+
+**(3.2.10)** - Fixed bug where bot wasn't connecting to the correct API endpoint & thus wasn't authenticating, crashing the bot
+
+**(3.2.10)** - You can now pass the -nsm/--nostartmsg argument when starting the bot to stop it from sending the startup greeting message
+
+**(3.2.10)** - Added messages.py to handle message sending and websocket closing - need to test to make sure it's totally working/finish implementing it
 
 ### Info on future 3.3.0 release
 
@@ -75,8 +69,6 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 **Plans for 3.3.0:**
 
-* Update `return None` statements to return usage from `data/commandList.json` if `None` is being returned for anything other than command timeout.
-
 * Clean up the codebase and stress-test/bug test the code with outside users, preferably in a production (live stream with active chat) environment.
 
 * This release will fix bugs ~~#2~~ (Not going to change the bot name, at least not for 3.3.0), #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
@@ -85,14 +77,12 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Need to add more commands and features - The never-ending bug!
 
-* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4)
+* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4) - Target release 3.2.11
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
 * Add settings & ability to change default command responses (^)
 
-* Add [[count]], [[currency]] custom response variable
-
-* Fix bug in the response-monitoring code where it won't show emoticons as text in terminal output (micro bug, lines 203-204 in beambot.py)
+* Add [[currency]] custom response variable
 
 * Anything else I can't think of at this time but is still applicable

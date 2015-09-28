@@ -157,7 +157,7 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 		response = responses.set(user_name, user_id, cmd, is_mod, is_owner)
 
 	elif cmd[0] == "uptime":# Bot uptime
-		response = responses.uptime(user_name, initTime)
+		response = responses.uptime(user_name, initTime, is_mod, is_owner)
 
 	elif cmd[0] == "hug":	# Give hugs!
 		response = responses.hug(user_name, cur_item, is_mod, is_owner)

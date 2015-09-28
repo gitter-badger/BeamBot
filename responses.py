@@ -10,7 +10,7 @@ import json
 # PyBot Modules
 import usage
 
-global prevTime, cust_commands, commandList
+global prevTime, cust_commands, commandList, count_vars
 
 prevTime = {'tackle':{}, 'slap':{}, 'quote':{}, 'ping':{}, 'hug':{}, 'give':{}, 'dimes':{}, 'hey':{}, 'uptime':{}, 'whoami':{}, 'cmdList':{}, 'blame':{}}
 
@@ -27,6 +27,7 @@ if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
 
 else:
 	cust_commands = []
+	count_vars = {}
 	with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
 		f.write(str(cust_commands))
 
@@ -152,10 +153,10 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 					elif string_cur[0:5] == "count":	# Replace with a incremental variable
 						if cmd in count_vars:
 							count_vars[cmd] += 1
-							response += str(count_vars[cmd])
+							response += str(count_vars[cmd]) + eArgs[i][5:].strip(']')
 						else:
 							count_vars[cmd] = 0
-							response += str(count_vars[cmd])
+							response += str(count_vars[cmd]) + eArgs[i][5:].strip(']')
 
 					else:
 						# Just append the curent string item, it's not a response variable
@@ -354,22 +355,51 @@ def slap(user_name, is_mod, is_owner):
 	return ":o Why on earth would I want to do that?"
 
 def set(user_name, user_id, cur_item, is_mod, is_owner):
-	
-	if len(cur_item) > 3:	# SET SETTINGNAME SETTING
+
+	if not is_owner:	# Don't want anyone other than the owner running this
+		return None
+
+	if len(cur_item) > 2:	# SET SETTINGNAME SETTING
+
 		if cur_item[1] == "currencyName":	# Set the currency name
 			config['currency_name'] = cur_item[2]
+			return "Currency name is now " + config['currency_name']
 
-		elif cur_item[2] == "commandTimeout":	# Set the command time-out
+		elif cur_item[1] == "commandTimeout":	# Set the command time-out
+			try:
+				timeout = int(cur_item[2])
+			except:		# If that conversion failed, it's not a clean integer
+				return "The command timeout must be an integer (Usage: !set commandTimeout [integer])"
+
 			config['cmd_timeout'] == cur_item[2]
 
-		elif cur_item[2] == "announceEnter":	# Announce user entering
-			config['announce_enter'] == cur_item[2]
+			return "Command timeout is now " + config['cmd_timeout']
 
-		elif cur_item[2] == "announceLeave":	# Announce user leaving
-			config['announce_leave'] == cur_item[2]
+		elif cur_item[1] == "announceEnter":	# Announce user entering
+			if cur_item[2].lower() == "true":
+				config['announce_enter'] = True
+				return "Users joining the stream will now be announced"
+			elif cur_item[2].lower() == "false":
+				config['announce_enter'] = False
+				return "Users joining the stream will not be announced"
+			else:
+				return "Usage: !set announceEnter [true/false]"
 
-		elif cur_item[2] == "announceFollow":	# Announce user following Channel
-			config['announce_follow'] == cur_item[2]
+
+		elif cur_item[1] == "announceLeave":	# Announce user leaving
+			if cur_item[2].lower() == "true":
+				config['announce_leave'] = True
+				return "Users leaving the stream will now be announced"
+			elif cur_item[2].lower() == "false":
+				config['announce_leave'] = False
+				return "Users leaving the stream will not be announced"
+			else:
+				return "Usage: !set announceLeave [true/false]"
+
+		elif cur_item[2] == "updateResponse":	# Allow the user to update a command response
+			# Eventually we will have code here that will allow the user to
+			# customize the response that every default command has
+			return None
 
 		else:
 			return usage.prepCmd(user_name, "set", is_mod, is_owner)
@@ -379,16 +409,6 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 
 	else:
 		return usage.prepCmd(user_name, "set", is_mod, is_owner)
-
-	session = requests.Session()
-
-	session.post(
-		addr + '/notifications',
-		data = {"user":user_id,
-				"user":"Test"}
-	)
-
-	return None
 
 def quote(user_name, curItem, is_mod, is_owner):
 	cmd = 'quote'
@@ -533,15 +553,15 @@ def ping(user_name, is_mod, is_owner):
 def hug(user_name, curItem, is_mod, is_owner):
 	cmd = 'hug'
 
-	if not is_mod or not is_owner:		# if _checkTime() returns True then the command is on timeout, return nothing
+	if _checkTime(cmd, user_name, is_mod, is_owner):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 
 	if len(curItem[1:].split()) >= 2:
+
 		hugUser = curItem[1:].split()[1]
-		if hugUser[0] == "@":
-			return "{} gives a great big hug to {}! <3".format(user_name, hugUser)
-		else:	# Difference adds @ symbol if not included in the argument
-			return "{} gives a great big hug to @{}! <3".format(user_name, hugUser)
+
+		return "{} gives a great big hug to {}! <3".format(user_name, hugUser)
+
 	else:	# Wrong # of args
 		return usage.prepCmd(user_name, "hug", is_mod, is_owner)
 
@@ -549,7 +569,7 @@ def give(user_name, curItem, is_mod, is_owner):
 	cmd = 'give'
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
-			return None
+		return None
 
 	split = curItem[1:].split()
 

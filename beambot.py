@@ -1,17 +1,19 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.9
+#	Version: 	3.2.10(pre1)
 #	Author: 	RPiAwesomeness
-#	Date:		September 11, 2015
+#	Date:		September 26, 2015
 #
-#	Changelog:	Added [[count]] custom command variable - increments each time
-#					command is run
-#				Fixed bug where running the !command command with <= 3
-#					words/things in the command would crash the bot
-#				Working on adding !set command for bot configuration abilities
-#				Updated setup.py to stop creating whitelist.p & added new
-#					values to config
+#	Changelog:	Fixed bug where bot wasn't connecting to the correct API
+#					endpoint & thus wasn't authenticating, crashing the bot
+#				You can now pass the -nsm/--nostartmsg argument when starting
+#					the bot to stop it from sending the startup greeting message
+#				Fixed micro bug where Terminal output would only show the URL or
+#					emoticon if either were included, not the full message
+#				Added messages.py to handle message sending and websocket
+#					closing - need to test to make sure it's totally
+#					working/finish implementing it
 # -+=============================================================+
 
 import sys, os
@@ -19,7 +21,9 @@ import json
 import asyncio, websockets, requests
 import time, random
 import pickle
-import responses, commands
+import argparse
+import ast
+import responses, commands, messages
 from datetime import datetime
 from control import goodbye
 from control import controlChannel
@@ -69,16 +73,11 @@ def connect():
 	global initTime, authkey_control, endpoint_control, user_id
 
 	websocket = yield from websockets.connect(endpoint_control)
+	content = [22085, user_id, authkey_control]
 
-	packet = {
-	    "type":"method",
-	    "method":"auth",
-	    "arguments":[22085, user_id, authkey_control],
-	    "id":0
-	}
+	ret = yield from messages.sendMsg(websocket, content, is_auth=True)
+	ret = ret.split('"id"')[0][:-1] + "}"
 
-	yield from websocket.send(json.dumps(packet))
-	ret = yield from websocket.recv()
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
@@ -89,30 +88,17 @@ def connect():
 
 	curTime = str(datetime.now().strftime('%H.%M.%S')) + ' - ' + str(datetime.now().strftime('%D'))
 
-	packet = {
-	    "type":"method",
-	    "method":"msg",
-	    "arguments":['Bot online - Current Date/Time: {}'.format(str(curTime))],
-	    "id":1
-	}
-
-	yield from websocket.send(json.dumps(packet))
-	ret_msg = yield from websocket.recv()
+	msg_to_send = 'Bot online - Current Date/Time: {}'.format(str(curTime))
+	ret_msg = yield from messages.sendMsg(websocket, msg_to_send)
 	ret_msg = json.loads(ret_msg)
 
-	yield from websocket.close()
+	yield from messages.close(websocket)
 
 	websocket = yield from websockets.connect(endpoint)
+	content = [channel, user_id, authkey]
 
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[channel, user_id, authkey],
-		"id":1
-	}
-
-	yield from websocket.send(json.dumps(packet))
-	ret = yield from websocket.recv()
+	ret = yield from messages.sendMsg(websocket, content, is_auth=True)
+	ret = ret.split('"id"')[0][:-1] + "}"
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
@@ -121,26 +107,22 @@ def connect():
 		print ("Error - Non-None error returned!")
 		quit()
 
-	if int(datetime.now().strftime('%H')) < 12:		# It's before 12 PM - morning
-		timeStr = "mornin'"
-	elif int(datetime.now().strftime('%H')) >= 12 and int(datetime.now().strftime('%H')) < 17:		# It's afternoon
-		timeStr = "afternoon"
-	elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
-		timeStr = "evenin'"
+	if not args.nostartmsg:
+		if int(datetime.now().strftime('%H')) < 12:		# It's before 12 PM - morning
+			timeStr = "mornin'"
+		elif int(datetime.now().strftime('%H')) >= 12 and int(datetime.now().strftime('%H')) < 17:		# It's afternoon
+			timeStr = "afternoon"
+		elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
+			timeStr = "evenin'"
 
-	# If the message doesn't send initially, send it again. The bot just needs to wake up chat
-	packet = {
-		"type":"method",
-		"method":"msg",
-		"arguments":['Top o\' the {} to you!'.format(timeStr)],
-		"id":1
-	}
+		msg_to_send = 'Top o\' the {} to you!'.format(timeStr)
+		ret_msg = yield from messages.sendMsg(websocket, msg_to_send)
+		ret_msg = json.loads(ret_msg)
 
-	yield from websocket.send(json.dumps(packet))
-	ret_msg = yield from websocket.recv()
-	ret_msg = json.loads(ret_msg)
+		yield from messages.close(websocket)
 
-	yield from websocket.close()
+	else:
+		yield from messages.close(websocket)
 
 @asyncio.coroutine
 def readChat():
@@ -149,21 +131,15 @@ def readChat():
 
 	activeChat = []
 	msgLocalID = 0
+	goodbye = False
 
 	session = requests.Session()
 
 	activeChat = []
 
 	websocket = yield from websockets.connect(endpoint)
-
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[channel, user_id, authkey],
-		"id":msgLocalID
-	}
-
-	response = yield from websocket.send(json.dumps(packet))
+	content = [channel, user_id, authkey]
+	yield from messages.sendMsg(websocket, content, is_auth=True)
 
 	while True:
 
@@ -181,10 +157,18 @@ def readChat():
 						'-', result['data']['id'],
 						end='\n\n')
 
+				if result['data']['id'] != 25873:		# PyBot ID
+					if config['announce_enter'] and result['data']['username'] != None:
+						response = "Welcome " + result['data']['username'] + " to the stream!"
+
 			elif result['event'] == 'UserLeave':
 				print ('User left:\t', result['data']['username'],
 						'-', result['data']['id'],
 						end='\n\n')
+
+				if result['data']['id'] != 25873:		# PyBot ID
+					if config['announce_leave'] and result['data']['username'] != None:
+						response = "See you later " + result['data']['username'] + "!"
 
 			elif result['event'] == "ChatMessage":
 
@@ -200,9 +184,9 @@ def readChat():
 						'-', user_id)
 
 				if len(user_msg) > 1:	# There's an emoticon in there
-					for section in user_msg:
+					msg_text = ''
 
-						msg_text = ''
+					for section in user_msg:
 
 						if section['type'] == 'text' and section['data'] != '':
 							msg_text += section['data']
@@ -225,8 +209,8 @@ def readChat():
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
 
-					yield from websocket.send(json.dumps(response))	# Send the message
-					yield from websocket.close()
+					yield from messages.sendMsg(websocket, response)	# Send the message
+					yield from messages.close(websocket)
 					quit()
 
 				if response == None or response == "":	# Make sure response isn't nothing
@@ -235,18 +219,8 @@ def readChat():
 					#----------------------------------------------------------
 					# Send the message
 					#----------------------------------------------------------
-					# Create the packet
-					packet = {
-						"type":"method",
-						"method":"msg",
-						"arguments":[response],
-						"id":msgLocalID
-					}
 
-					msgLocalID += 1		# Increment the msg number variable
-
-					yield from websocket.send(json.dumps(packet))	# Send the message
-					ret_msg = yield from websocket.recv()			# Get the response
+					ret_msg = yield from messages.sendMsg(websocket, response)
 					ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
 					print ('ret_msg:\t', ret_msg)
@@ -358,4 +332,11 @@ def main():
 	loop.close()
 
 if __name__ == "__main__":
+	global args
+
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-nsm', '--nostartmsg', help="Start the bot without the startup greeting", action="store_true")
+
+	args = parser.parse_args()
+
 	main()

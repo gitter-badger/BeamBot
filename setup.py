@@ -85,11 +85,11 @@ elif announce_leave.lower() == "y":
 
 
 announce_follow = input ("Do you want follows to be announced? [Y/n] ")
-if announce_follow == "" or announce_follow.lower() =="n":
-	config['announce_follow'] = False
+if announce_follow == "" or announce_follow.lower() =="y":
+	config['announce_follow'] = True
 
 elif announce_follow.lower() == "y":
-	config['announce_follow'] = True
+	config['announce_follow'] = False
 
 config['currency_name'] = currency_name
 
@@ -116,14 +116,5 @@ with sqlite3.connect('data/beambot.sqlite') as con:
 		 game TEXT,
 		 quote TEXT)"""
 	)
-
-# Create various pickle files that are required for user bans, command whitelist, and custom commands
-
-bannedUsers = []
-pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
-
-custCommands = []
-with open('data/commands.json', 'w') as f:
-	json.dump(custCommands, f)
 
 print ("All set! Just run \"python3 beambot.py\" and you're good to go!")
