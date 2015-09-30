@@ -151,12 +151,13 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 						response += (user_name + eArgs[i][4:].strip(']'))
 
 					elif string_cur[0:5] == "count":	# Replace with a incremental variable
+
 						if cmd in count_vars:
 							count_vars[cmd] += 1
-							response += str(count_vars[cmd]) + eArgs[i][5:].strip(']')
+							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
 						else:
 							count_vars[cmd] = 0
-							response += str(count_vars[cmd]) + eArgs[i][5:].strip(']')
+							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
 
 					else:
 						# Just append the curent string item, it's not a response variable
@@ -169,7 +170,7 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 		else:
 			return None
 
-	elif _checkTime(cmd, user_name, True):
+	elif _checkTime(cmd, user_name, True, is_mod, is_owner):
 		return None				# Too soon
 
 	else:		# Not mod or owner, but not time-out, so let it run
@@ -179,30 +180,40 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 
 				for i in range(0, len(eArgs)):
 
-					string_cur = eArgs[i][0:4]  # 2 - String we're going to be editing, make it separate
+					string_cur = eArgs[i]  # 2 - String we're going to be editing, make it separate
 
 					# 3 - Compare string_cur to real response variables
-					if string_cur == 'args':	 # Replace with remainder of arguments
+					if string_cur[0:4] == 'args':	 # Replace with remainder of arguments
 						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
 						if len(split[1:]) >= 1:
 							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
 						else:
 							response += eArgs[i][4:].strip(']')
 
-					elif string_cur == 'user':   # Replace with sending user
+					elif string_cur[0:4] == 'user':   # Replace with sending user
 						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
 						response += (user_name + eArgs[i][4:].strip(']'))
 
 					elif string_cur[0:5] == "count":	# Replace with a incremental variable
-						string_cur_var_list = string_cur.split(':')
+						print ('here!198')
+						if cmd in count_vars:
+							count_vars[cmd] += 1
+							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
+						else:
+							count_vars[cmd] = 0
+							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
 
-						if string_cur_var_list[2] in count_vars:	# Does this variable exist?
-							count_vars[string_cur_var_list[2]] += 1
-							response += count_vars[string_cur_var_list[2]]
+					# elif string_cur[0:8] == "currency":
+					# 	string_cur_var_list = string_cur.split(':')
+
 
 					else:
 						# Just append the curent string item, it's not a response variable
 						response += eArgs[i]
+
+		if response != "":
+			print ('customRespW:\t',response)
+			return response
 
 def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
 	global cust_commands
@@ -412,12 +423,12 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 
 def quote(user_name, curItem, is_mod, is_owner):
 	cmd = 'quote'
+
 	"""
 	If _checkTime() returns True then the command is on timeout, return nothing
 	also, if the user is mod or streamer then just let them run it as much as
 	they want.
 	"""
-
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
@@ -587,16 +598,16 @@ def give(user_name, curItem, is_mod, is_owner):
 
 			command = '''SELECT gears
 						FROM gears
-						WHERE name=\"''' + user + '\"'
+						WHERE name=\"''' + user + '\"'''
 
 			cur.execute(command)
 			results = cur.fetchall()
 
 			if len(results) >= 1:
-				userDimesOrig = results[0][0]
+				user_currency_orig = results[0][0]
 
 				if user_name == "pybot":	# If it's bot, ignore removal of dimes & # check
-					userDimes = int(userDimesOrig) + int(num_send)
+					userDimes = int(user_currency_orig) + int(num_send)
 
 					command = '''UPDATE gears
 								SET gears={}
@@ -606,9 +617,9 @@ def give(user_name, curItem, is_mod, is_owner):
 
 					return "@" + user + " now has " + str(userDimes) + " " + config['currency_name'] + "!"
 
-				if num_send <= userGearsOrig:	# Make sure the sending user has enough dimes
+				if num_send <= user_currency_orig:	# Make sure the sending user has enough dimes
 
-					userDimes = int(userDimesOrig) + int(num_send)
+					userDimes = int(user_currency_orig) + int(num_send)
 
 					command = '''UPDATE gears
 								SET gears={}
@@ -660,10 +671,11 @@ def dimes(user_name, curItem, is_mod, is_owner):
 
 		results = cur.fetchall()
 
+		# Return number of currency
 		if len(results) >= 1:
-			return "@" + user + " has " + str(results[0][0]) + " " + config['currency_name'] + "!"
+			return str(results[0][0]), user
 		else:
-			return "@" + user + " has no " + config['currency_name'] + "! :o"
+			return False, user
 
 def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'

@@ -10,7 +10,7 @@ msg_id_control = 1
 """Used to send messages. Provide websocket to send via, message, & boolean main to tell which msg ID to use"""
 @asyncio.coroutine
 def sendMsg(websocket, content, is_auth=False, main=True):
-    global msg_id
+    global msg_id, msg_id_control
 
     if is_auth:
         channel = content[0]
@@ -20,6 +20,7 @@ def sendMsg(websocket, content, is_auth=False, main=True):
         if main:    # For the main chat
             msg_id_send = msg_id
             msg_id += 1
+
         else:       # For the control chat
             msg_id_send = msg_id_control
             msg_id_control += 1

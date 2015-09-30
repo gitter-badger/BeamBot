@@ -180,6 +180,10 @@ def readChat():
 				user_id = msg['user_id']
 				user_msg = msg['message']
 
+				if 'data' not in user_msg[0]:
+					print (user_msg[0])
+					user_msg[0]['data'] = user_msg[0]['text']
+
 				print ('User:\t\t', user_name,
 						'-', user_id)
 
@@ -199,8 +203,8 @@ def readChat():
 
 					print ('Message:\t', msg_text, end='\n\n')
 
-				else:		# Just plain chat text
-					print ('Message:\t',user_msg[0]['data'], end='\n\n')
+				elif 'data' not in user_msg[0]:		# Just plain chat text
+					print ('Message:\t',user_msg[0], end='\n\n')
 
 				if user_name not in activeChat:
 					activeChat.append(user_name)
@@ -226,9 +230,11 @@ def readChat():
 					print ('ret_msg:\t', ret_msg)
 					print ('Response:\t', ret_msg['data'])
 
-					if ret_msg['error'] != None:
-						print ('Error:\t',ret_msg['error'])
-						print ('Code:\t',ret_msg['id'])
+					if 'error' in ret_msg:
+						if ret_msg['error'] != None:
+							print ('Error:\t',ret_msg['error'])
+							print ('Code:\t',ret_msg['id'])
+
 
 # ----------------------------------------------------------------------
 # Main Code

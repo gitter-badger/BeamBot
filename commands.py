@@ -121,7 +121,12 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 		response = responses.ping(user_name, is_mod, is_owner)
 
 	elif cmd[0] == config["currency_name"] or cmd[0] == "currency":			# Get user balance
-		response = responses.dimes(user_name, cur_item, is_mod, is_owner)
+		response, user = responses.dimes(user_name, cur_item, is_mod, is_owner)
+
+		if response != False:
+			response = "@" + user + " has " + response + " " + config['currency_name'] + "!"
+		else:
+			response = "@" + user + " has no " + config['currency_name'] + "! :o"
 
 	elif cmd[0] == "give":	# Give dimes to a user
 		response = responses.give(user_name, cur_item, is_mod, is_owner)

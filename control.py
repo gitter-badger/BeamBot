@@ -8,8 +8,10 @@ from datetime import datetime
 import json
 import os
 import asyncio, websockets, requests
-import responses, commands
 import subprocess
+
+import responses, commands
+import messages
 
 global WHITELIST, config, loop
 global local_msg_id
@@ -77,14 +79,9 @@ def controlChannel():
 
 	websocket = yield from websockets.connect(endpoint_control)
 
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[22085, user_id, authkey_control],
-		"id":0
-	}
+	content = [22085, user_id, authkey_control]
 
-	ret = yield from messageControl.sendMsg(websocket, content, is_auth=True)
+	ret = yield from messages.sendMsg(websocket, content, is_auth=True)
 	ret = ret.split('"id"')[0][:-1] + "}"
 	ret = json.loads(ret)
 
