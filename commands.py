@@ -167,6 +167,9 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	elif cmd[0] == "set":	# Bot configuration - Uses cmd instead of cur_item
 		response = responses.set(user_name, user_id, cmd, is_mod, is_owner)
 
+	elif cmd[0] == "timeout":	# Run commands at set intervals
+		response = responses.timeout(user_name, cmd, is_mod, is_owner)
+
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime, is_mod, is_owner)
 

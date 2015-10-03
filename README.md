@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.10
+## Features in 3.2.11
 
 **NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.6. They are still accessible in the repository history.
 
@@ -53,15 +53,17 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.9)** - Working on adding !set command for bot configuration abilities
 
-**(3.2.10)** - Fixed bug where bot wasn't connecting to the correct API endpoint & thus wasn't authenticating, crashing the bot
+###### **(3.2.10)** - Fixed bug where bot wasn't connecting to the correct API endpoint & thus wasn't authenticating, crashing the bot
 
-**(3.2.10)** - You can now pass the -nsm/--nostartmsg argument when starting the bot to stop it from sending the startup greeting message
+###### **(3.2.10)** - You can now pass the -nsm/--nostartmsg argument when starting the bot to stop it from sending the startup greeting message
 
-**(3.2.10)** - Added messages.py to handle message sending and websocket closing
+###### **(3.2.10)** - Added messages.py to handle message sending and websocket closing
 
-**(3.2.10)** - Fixed bug where users sending /me messages would crash part of the bot
+###### **(3.2.10)** - Fixed bug where users sending /me messages would crash part of the bot
 
-**(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
+###### **(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
+
+**(3.2.11)** - Added scheduled commands, run at specified intervals (minimum 30 seconds)
 
 ### Info on future 3.3.0 release
 

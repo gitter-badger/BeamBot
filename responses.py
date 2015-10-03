@@ -64,29 +64,29 @@ def _checkTime(cmd, user, is_mod, is_owner, custom=False):
 # End of do responses-specific modules
 # ------------------------------------------------------------------------
 
-def blame(user_name, curItem, is_mod, is_owner):
+def blame(user_name, cur_item, is_mod, is_owner):
 	cmd = "blame"
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 	else:
-		if len(curItem[1:]) > 5:
-			if curItem[1:][5] == " ":		# Is it a space?
+		if len(cur_item[1:]) > 5:
+			if cur_item[1:][5] == " ":		# Is it a space?
 
-				if curItem[1:][6] == "@":	# Is it an @USERNAME?
-					return curItem[8:] + " has been duly blamed! " + curItem[7:] + \
+				if cur_item[1:][6] == "@":	# Is it an @USERNAME?
+					return cur_item[8:] + " has been duly blamed! " + cur_item[7:] + \
 							" you have been blamed!"
 				else:			# Nope, add the @ symbol
-					return curItem[7:] + " has been duly blamed! @" + curItem[7:] + \
+					return cur_item[7:] + " has been duly blamed! @" + cur_item[7:] + \
 							" you have been blamed!"
 			else:				# Nope, take the 6th character onward
-				return curItem[6:] + " has been duly blamed! @" + curItem[6:] + \
+				return cur_item[6:] + " has been duly blamed! @" + cur_item[6:] + \
 						" you have been blamed!"
 
 		else:	# It's too short to include anyone to blame, so return usage
 			return usage.prepCmd(user_name, cmd, is_mod, is_owner)
 
-def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
+def cmdList(user_name, cur_item, is_mod, is_owner):	# Returns list of commands
 
 	global commandList
 
@@ -101,8 +101,8 @@ def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 			cmdListUsage = commandList['usage']
 			cmdList = commandList['list']
 
-			if len(curItem.split()) >= 2:		# At least 2 items, so at least one arg
-				cmdSplit = curItem.split()[1:][0]		# Split the command up to see if there are args
+			if len(cur_item.split()) >= 2:		# At least 2 items, so at least one arg
+				cmdSplit = cur_item.split()[1:][0]		# Split the command up to see if there are args
 				if cmdSplit in cmdListUsage:	# Does a key exist with that argument's value?
 					response = "Command: " + cmdSplit + " Usage: " + cmdListUsage[cmdSplit] + " - " + cmdList[cmdSplit]
 					# In future, make this return Command & Usage in separate messages
@@ -122,10 +122,10 @@ def cmdList(user_name, curItem, is_mod, is_owner):	# Returns list of commands
 
 		return None					# If execution gets here, then we've got no matches
 
-def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might be custom one
+def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, might be custom one
 	global cust_commands
 
-	split = curItem[1:].split()
+	split = cur_item[1:].split()
 	cmd = split[0]
 	response = ""
 
@@ -191,11 +191,11 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 		else:
 			return None
 
-def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
+def command(user_name, cur_item, is_mod, is_owner):			# Command available to anyone
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
-		split = curItem[1:].split()
+		split = cur_item[1:].split()
 		print ('split:\t',split)
 
 		if len(split) >= 2:
@@ -237,12 +237,12 @@ def command(user_name, curItem, is_mod, is_owner):			# Command available to anyo
 	else:
 		return None		# Not whitelisted
 
-def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mods only
+def commandMod(user_name, cur_item, is_mod, is_owner):		# Command available to mods only
 
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
-		split = curItem[1:].split()
+		split = cur_item[1:].split()
 		if len(split) >= 2:
 			command = split[2]
 			response = " ".join(split[3:])
@@ -283,11 +283,11 @@ def commandMod(user_name, curItem, is_mod, is_owner):		# Command available to mo
 	else:
 		return None		# Not whitelisted
 
-def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
+def commandRM(user_name, cur_item, is_mod, is_owner):			# Remove a command
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
-		split = curItem[1:].split()
+		split = cur_item[1:].split()
 		if len(split) >= 2:
 			cmd = split[2]
 			for e in range(len(cust_commands)):
@@ -305,31 +305,31 @@ def commandRM(user_name, curItem, is_mod, is_owner):			# Remove a command
 	else:
 		return None						# Not whitelisted
 
-def tackle(user_name, curItem, is_mod, is_owner):
+def tackle(user_name, cur_item, is_mod, is_owner):
 	cmd = 'tackle'
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
-	if len(curItem[1:].split()) >= 2:
+	if len(cur_item[1:].split()) >= 2:
 		rand = random.randrange(0, 51)
 		if rand >= 45:	# Super rare response!
 			return "pybot decides to be a momentary pacifist."
 		else:			# Normal response
 			rand = random.randrange(0, 31)
 			if rand <= 5:
-				return "pybot {} {}.".format("tackles", curItem[1:].split()[1])
+				return "pybot {} {}.".format("tackles", cur_item[1:].split()[1])
 			elif rand >= 6 and rand <= 10:
-				return "pybot {} {}.".format("clobbers", curItem[1:].split()[1])
+				return "pybot {} {}.".format("clobbers", cur_item[1:].split()[1])
 			elif rand >= 11 and rand <= 15:
-				return "pybot {} {}.".format("creams", curItem[1:].split()[1])
+				return "pybot {} {}.".format("creams", cur_item[1:].split()[1])
 			elif rand >= 16 and rand <= 20:
-				return "pybot {} {}.".format("wallops", curItem[1:].split()[1])
+				return "pybot {} {}.".format("wallops", cur_item[1:].split()[1])
 			elif rand >= 21 and rand <= 25:
-				return "pybot {} {}.".format("bashes", curItem[1:].split()[1])
+				return "pybot {} {}.".format("bashes", cur_item[1:].split()[1])
 			elif rand >= 26 and rand <= 31:
-				return "pybot {} {}.".format("besets", curItem[1:].split()[1])
+				return "pybot {} {}.".format("besets", cur_item[1:].split()[1])
 			else:
-				return "pybot {} {}.".format("tackles", curItem[1:].split()[1])
+				return "pybot {} {}.".format("tackles", cur_item[1:].split()[1])
 
 	else:		# Too short, no user supplied
 		return usage.prepCmd(user_name, "tackle", is_mod, is_owner)
@@ -397,7 +397,27 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 	else:
 		return usage.prepCmd(user_name, "set", is_mod, is_owner)
 
-def quote(user_name, curItem, is_mod, is_owner):
+def timeout(user_name, cur_item, is_mod, is_owner):
+	cmd = "timeout"
+	print (cur_item)
+
+	if not is_mod or not is_owner:
+		return None 	# Mod/owner only
+
+	if len(cur_item) > 2:
+		timeout = cur_item[1]
+		command = cur_item[2:]
+
+		response = timeouts.register
+
+		print (timeout, ':', command)
+
+		return "Not implemented yet!"
+
+	else:
+		return usage.prepCMD(user_name, "timeout", is_mod, is_owner)
+
+def quote(user_name, cur_item, is_mod, is_owner):
 	cmd = 'quote'
 
 	"""
@@ -408,7 +428,7 @@ def quote(user_name, curItem, is_mod, is_owner):
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
-	split = curItem[1:].split()
+	split = cur_item[1:].split()
 
 	if len(split) == 1:		# It's just 1 string, get random quote
 		command = '''SELECT name
@@ -500,10 +520,10 @@ def quote(user_name, curItem, is_mod, is_owner):
 	else:		# No quotes in the database for user!
 		return None
 
-def ban(user_name, curItem, is_mod, is_owner):
+def ban(user_name, cur_item, is_mod, is_owner):
 	if is_mod or is_owner:		# Only want mods/owners to have ban control
-		if len(curItem[1:].split()) >= 2:	# Make sure we have username to ban
-			ban_user = curItem[1:].split()[1]
+		if len(cur_item[1:].split()) >= 2:	# Make sure we have username to ban
+			ban_user = cur_item[1:].split()[1]
 			if ban_user[0] == "@":
 				ban_user = ban_user[1:]	# Remove the @ character
 			return ban_user + " has been chatbanned!", ban_user
@@ -514,11 +534,11 @@ def ban(user_name, curItem, is_mod, is_owner):
 	else:			# Not mod/owner
 		return None
 
-def unban(user_name, curItem, is_mod, is_owner):
+def unban(user_name, cur_item, is_mod, is_owner):
 	if is_mod or is_owner:		# Only want mods/owners to have ban control
 
-		if len(curItem[1:].split()) >= 2:
-			uban_user = curItem[1:].split()[1]
+		if len(cur_item[1:].split()) >= 2:
+			uban_user = cur_item[1:].split()[1]
 			if uban_user[0] == "@":
 				uban_user = ban_user[1:]	# Remove the @ character
 
@@ -537,28 +557,28 @@ def ping(user_name, is_mod, is_owner):
 
 	return "Pong!"
 
-def hug(user_name, curItem, is_mod, is_owner):
+def hug(user_name, cur_item, is_mod, is_owner):
 	cmd = 'hug'
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):		# if _checkTime() returns True then the command is on timeout, return nothing
 		return None
 
-	if len(curItem[1:].split()) >= 2:
+	if len(cur_item[1:].split()) >= 2:
 
-		hugUser = curItem[1:].split()[1]
+		hugUser = cur_item[1:].split()[1]
 
 		return "{} gives a great big hug to {}! <3".format(user_name, hugUser)
 
 	else:	# Wrong # of args
 		return usage.prepCmd(user_name, "hug", is_mod, is_owner)
 
-def give(user_name, curItem, is_mod, is_owner):
+def give(user_name, cur_item, is_mod, is_owner):
 	cmd = 'give'
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 		return None
 
-	split = curItem[1:].split()
+	split = cur_item[1:].split()
 
 	if len(split) >= 3:
 		user = split[1]	# User recieving dimes
@@ -620,13 +640,13 @@ def give(user_name, curItem, is_mod, is_owner):
 	else:
 		return usage.prepCmd(user_name, "give", is_mod, is_owner)
 
-def dimes(user_name, curItem, is_mod, is_owner):
+def dimes(user_name, cur_item, is_mod, is_owner):
 	cmd = 'dimes'
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
-	split = curItem[1:].split()
+	split = cur_item[1:].split()
 
 	print ('split:\t',split)
 
@@ -664,11 +684,11 @@ def hey(user_name, is_mod, is_owner):
 
 	return "Saluton Mondo {}!".format(user_name)
 
-def raid(user_name, curItem, is_mod, is_owner):
+def raid(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raid'
 
 	if is_mod or is_owner:	# Check if mod or owner
-		split = curItem[1:].split()
+		split = cur_item[1:].split()
 		if len(split) >= 2:
 			raid = split[1]
 			if raid[0] == "@":
@@ -682,12 +702,12 @@ def raid(user_name, curItem, is_mod, is_owner):
 	else:
 		return None
 
-def twitch(user_name, curItem, is_mod, is_owner):
+def twitch(user_name, cur_item, is_mod, is_owner):
 	cmd = 'twitch'
 
 	if is_mod or is_owner:	# Check if user is owner/mod
 
-		split = curItem[1:].split()
+		split = cur_item[1:].split()
 		if len(split) >= 2:
 			raid = split[1]
 			if raid[0] == "@":
@@ -701,13 +721,13 @@ def twitch(user_name, curItem, is_mod, is_owner):
 	else:
 		return None
 
-def raided(user_name, curItem, is_mod, is_owner):
+def raided(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raided'
 
 	if not is_mod or not is_owner:	# Check if user is owner/mod
 		return None
 
-	split = curItem[1:].split()
+	split = cur_item[1:].split()
 	print ("responses637:\t",split)
 	if len(split) >= 2:
 		raid = split[1]

@@ -1,3 +1,5 @@
+"""Module used for various message sending/websocket control functions"""
+
 import asyncio
 import websockets
 import json
