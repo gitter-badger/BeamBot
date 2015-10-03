@@ -1,19 +1,13 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.10(pre1)
+#	Version: 	3.2.10
 #	Author: 	RPiAwesomeness
-#	Date:		September 26, 2015
+#	Date:		October 1, 2015
 #
-#	Changelog:	Fixed bug where bot wasn't connecting to the correct API
-#					endpoint & thus wasn't authenticating, crashing the bot
-#				You can now pass the -nsm/--nostartmsg argument when starting
-#					the bot to stop it from sending the startup greeting message
-#				Fixed micro bug where Terminal output would only show the URL or
-#					emoticon if either were included, not the full message
-#				Added messages.py to handle message sending and websocket
-#					closing - need to test to make sure it's totally
-#					working/finish implementing it
+#	Changelog:	Fixed bug where users sending /me messages would crash part of
+#					the bot
+#				Added [[currency]] custom command variable
 # -+=============================================================+
 
 import sys, os
@@ -180,16 +174,12 @@ def readChat():
 				user_id = msg['user_id']
 				user_msg = msg['message']
 
-				if 'data' not in user_msg[0]:
-					print (user_msg[0])
-					user_msg[0]['data'] = user_msg[0]['text']
-
 				print ('User:\t\t', user_name,
 						'-', user_id)
 
-				if len(user_msg) > 1:	# There's an emoticon in there
-					msg_text = ''
+				msg_text = ''
 
+				if len(user_msg) > 1:	# There's an emoticon in there
 					for section in user_msg:
 
 						if section['type'] == 'text' and section['data'] != '':
@@ -201,10 +191,14 @@ def readChat():
 						elif section['type'] == 'link':			# Link/URL
 							msg_text += section['text']
 
-					print ('Message:\t', msg_text, end='\n\n')
+				else:
+					if user_msg[0]['type'] == 'me':			# /me message
+						msg_text += user_msg[0]['text']
 
-				elif 'data' not in user_msg[0]:		# Just plain chat text
-					print ('Message:\t',user_msg[0], end='\n\n')
+					elif user_msg[0]['type'] == 'text' and user_msg[0]['data'] != '':
+						msg_text += user_msg[0]['data']
+
+				print ('Message:\t', msg_text, end='\n\n')
 
 				if user_name not in activeChat:
 					activeChat.append(user_name)

@@ -129,9 +129,3 @@ def restart(user_name, websocket):
 	print ('Restarting bot in 10 seconds...')
 	subprocess.Popen(['sh','restart.sh'])
 	closeSocket(websocket)
-
-"""Used to send messages. Provide websocket to send via, message, & boolean main to tell which msg ID to use"""
-@asyncio.coroutine
-def sendMsg(websocket, message, main=True):
-	yield from websocket.send()
-	pass

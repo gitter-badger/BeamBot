@@ -84,10 +84,16 @@ def prepCMD(msg, msg_local_id):
 	"""
 
 	for i in range(0, len(msg['message'])):
+		msg_cur = msg['message'][i]
+
 		if i % 2:		# Every 2 messages
-			cur_item += msg['message'][i]['text']
+			cur_item += msg_cur['text']
 		else:
-			cur_item += msg['message'][i]['data']
+			if 'data' in msg_cur:
+				cur_item += msg_cur['data']
+
+			elif 'me' in msg_cur:
+				cur_item += msg_cur['text']
 
 	for item in msg['message']:	# Iterate through the message
 
@@ -121,10 +127,10 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 		response = responses.ping(user_name, is_mod, is_owner)
 
 	elif cmd[0] == config["currency_name"] or cmd[0] == "currency":			# Get user balance
-		response, user = responses.dimes(user_name, cur_item, is_mod, is_owner)
+		currency_ret, user = responses.dimes(user_name, cur_item, is_mod, is_owner)
 
-		if response != False:
-			response = "@" + user + " has " + response + " " + config['currency_name'] + "!"
+		if currency_ret != False:
+			response = "@" + user + " has " + currency_ret + " " + config['currency_name'] + "!"
 		else:
 			response = "@" + user + " has no " + config['currency_name'] + "! :o"
 

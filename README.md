@@ -57,7 +57,11 @@ Simply run `python3 beambot.py`!
 
 **(3.2.10)** - You can now pass the -nsm/--nostartmsg argument when starting the bot to stop it from sending the startup greeting message
 
-**(3.2.10)** - Added messages.py to handle message sending and websocket closing - need to test to make sure it's totally working/finish implementing it
+**(3.2.10)** - Added messages.py to handle message sending and websocket closing
+
+**(3.2.10)** - Fixed bug where users sending /me messages would crash part of the bot
+
+**(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
 
 ### Info on future 3.3.0 release
 
@@ -83,6 +87,6 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Add settings & ability to change default command responses (^)
 
-* Add [[currency]] custom response variable
+* Fix websocket breaking bug?
 
 * Anything else I can't think of at this time but is still applicable

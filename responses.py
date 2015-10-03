@@ -129,10 +129,25 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 	cmd = split[0]
 	response = ""
 
-	if is_mod or is_owner:	# Is the user mod/owner? If so, ignore timeout
+	if _checkTime(cmd, user_name, True, is_mod, is_owner):
+		print ('checkTime')
+		return None				# Too soon
+
+	else:		# Not mod or owner, but not time-out, so let it run
 		for e in cust_commands:	# Loop through the custom commands
 			if e['cmd'] == cmd:		# Does the current entry equal the command?
 				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
+
+				toDel = []
+
+				for i in range(0, len(eArgs)):
+					if eArgs[i] == "":
+						toDel.append(i)
+
+				for i in toDel:
+					del eArgs[i]
+
+				print ('eArgs:\t', eArgs)
 
 				for i in range(0, len(eArgs)):
 
@@ -140,24 +155,30 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 
 					# 3 - Compare string_cur to real response variables
 					if string_cur[0:4] == 'args':	 # Replace with remainder of arguments
-						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
+						# 3a - Join the arguments + rest of response (sans ]])
 						if len(split[1:]) >= 1:
 							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
 						else:
 							response += eArgs[i][4:].strip(']')
 
 					elif string_cur[0:4] == 'user':   # Replace with sending user
-						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
+						# 3b - Return the sending user + rest of response (sans ]])
 						response += (user_name + eArgs[i][4:].strip(']'))
 
 					elif string_cur[0:5] == "count":	# Replace with a incremental variable
-
+						# 3c - Return that counter + iterate it or create it if it doesn't exist
 						if cmd in count_vars:
 							count_vars[cmd] += 1
 							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
 						else:
 							count_vars[cmd] = 0
 							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
+
+					elif string_cur[0:8] == "currency":
+						# 3d - Return the users' currency total and possibly change the total
+						currency_ret, user = dimes(user_name, user_name, is_mod, is_owner)		# Username, username for currency, is_mod, is_owner
+
+						response += currency_ret
 
 					else:
 						# Just append the curent string item, it's not a response variable
@@ -169,51 +190,6 @@ def custom(user_name, curItem, is_mod, is_owner):	# Check unknown command, might
 
 		else:
 			return None
-
-	elif _checkTime(cmd, user_name, True, is_mod, is_owner):
-		return None				# Too soon
-
-	else:		# Not mod or owner, but not time-out, so let it run
-		for e in cust_commands:	# Loop through the custom commands
-			if e['cmd'] == cmd:		# Does the current entry equal the command?
-				eArgs = e['response'].split('[[')	 # 1 - Split on occurrences of [[
-
-				for i in range(0, len(eArgs)):
-
-					string_cur = eArgs[i]  # 2 - String we're going to be editing, make it separate
-
-					# 3 - Compare string_cur to real response variables
-					if string_cur[0:4] == 'args':	 # Replace with remainder of arguments
-						# 3a - It's the args variable so join the arguments + rest of response (sans ]])
-						if len(split[1:]) >= 1:
-							response += (" ".join(split[1:]) + eArgs[i][4:].strip(']'))
-						else:
-							response += eArgs[i][4:].strip(']')
-
-					elif string_cur[0:4] == 'user':   # Replace with sending user
-						# 3b - It's the user variable, so return the sending user + rest of response (sans ]])
-						response += (user_name + eArgs[i][4:].strip(']'))
-
-					elif string_cur[0:5] == "count":	# Replace with a incremental variable
-						print ('here!198')
-						if cmd in count_vars:
-							count_vars[cmd] += 1
-							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
-						else:
-							count_vars[cmd] = 0
-							response += str(count_vars[cmd]) + " ".join(eArgs[i][5:].split(']')[1:])
-
-					# elif string_cur[0:8] == "currency":
-					# 	string_cur_var_list = string_cur.split(':')
-
-
-					else:
-						# Just append the curent string item, it's not a response variable
-						response += eArgs[i]
-
-		if response != "":
-			print ('customRespW:\t',response)
-			return response
 
 def command(user_name, curItem, is_mod, is_owner):			# Command available to anyone
 	global cust_commands
@@ -652,6 +628,8 @@ def dimes(user_name, curItem, is_mod, is_owner):
 
 	split = curItem[1:].split()
 
+	print ('split:\t',split)
+
 	if len(split) >= 2:
 		if split[1][0] == "@":
 			user = split[1][1:]		# Remove @ character
@@ -673,6 +651,7 @@ def dimes(user_name, curItem, is_mod, is_owner):
 
 		# Return number of currency
 		if len(results) >= 1:
+			print ('results[0][0]:\t', str(results[0][0]))
 			return str(results[0][0]), user
 		else:
 			return False, user
