@@ -16,7 +16,6 @@ import asyncio, websockets, requests
 import time, random
 import pickle
 import argparse
-import ast
 import responses, commands, messages
 from datetime import datetime
 from control import goodbye

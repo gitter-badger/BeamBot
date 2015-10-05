@@ -65,6 +65,8 @@ Simply run `python3 beambot.py`!
 
 **(3.2.11)** - Added scheduled commands, run at specified intervals (minimum 30 seconds)
 
+**(3.2.11)** - Fixed the quote system to be less confusing & actually work
+
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.

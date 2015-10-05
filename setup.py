@@ -113,7 +113,6 @@ with sqlite3.connect('data/beambot.sqlite') as con:
 		CREATE TABLE quotes
 		(id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL UNIQUE,
 		 name TEXT,
-		 game TEXT,
 		 quote TEXT)"""
 	)
 

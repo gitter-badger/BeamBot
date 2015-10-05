@@ -8,7 +8,7 @@ import os
 import json
 
 # PyBot Modules
-import usage
+import usage, timeouts
 
 global prevTime, cust_commands, commandList, count_vars
 
@@ -399,8 +399,7 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 
 def timeout(user_name, cur_item, is_mod, is_owner):
 	cmd = "timeout"
-	print (cur_item)
-
+	
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
@@ -408,11 +407,9 @@ def timeout(user_name, cur_item, is_mod, is_owner):
 		timeout = cur_item[1]
 		command = cur_item[2:]
 
-		response = timeouts.register
+		response = timeouts.register(timeout, command)
 
-		print (timeout, ':', command)
-
-		return "Not implemented yet!"
+		return response
 
 	else:
 		return usage.prepCMD(user_name, "timeout", is_mod, is_owner)
@@ -460,7 +457,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		if cmd == "add":
 
 			# Joins together with spaces all the items in the split list, then split it on the " marks
-			split = " ".join(split[2:]).split('"')
+			split = split[2:]
 
 			user = split[0]
 
@@ -468,18 +465,20 @@ def quote(user_name, cur_item, is_mod, is_owner):
 				user = user[1:]	# Remove the @ sign, we work without them
 
 			# The user is the first item after !quote add
-			if len(user.split()) != 1:	# It's just a username, anything more indicates an incorrect command
+			if len(split) == 1:	# It's just a username, anything more indicates an incorrect command
 				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
-			elif len(user.split()) >= 2:
+			elif len(split) >= 2:
 				# The quote is the second item(s) in the list
-				quote = split[1]
+				quote = " ".join(split[1:]).replace('"', "''")
+
+				print (quote)
+
 				# The game is the third item in the list, but may have spaces on either side
-				game = split[2].lstrip().rstrip()
 
 				command = '''INSERT INTO quotes
-							(name, game, quote)
-							VALUES ("{}", "{}", "{}")'''.format(user, game, quote)
+							(name, quote)
+							VALUES ("{}", "{}")'''.format(user, quote)
 
 				with sqlite3.connect('data/beambot.sqlite') as con:
 					cur = con.cursor()
@@ -494,7 +493,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
-		command = '''SELECT quote, game
+		command = '''SELECT quote
 					FROM quotes
 					WHERE name LIKE \"%''' + user + '%\"'''
 
@@ -511,9 +510,8 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		rand = random.randrange(len(results))
 
 		quote = results[rand][0]
-		game = results[rand][1]
 
-		response = "\"" + quote + "\" - " + game + " - " + user
+		response = quote + " - " + user
 
 		return response
 
