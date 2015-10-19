@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.10
+#	Version: 	3.2.11
 #	Author: 	RPiAwesomeness
-#	Date:		October 1, 2015
+#	Date:		October 18, 2015
 #
-#	Changelog:	Fixed bug where users sending /me messages would crash part of
-#					the bot
-#				Added [[currency]] custom command variable
+#	Changelog:	Added scheduled messages via the !schedule command
+#				Fixed the quote system to have a less esoteric syntax
+#					be easier to use
 # -+=============================================================+
 
 import sys, os
@@ -16,7 +16,8 @@ import asyncio, websockets, requests
 import time, random
 import pickle
 import argparse
-import responses, commands, messages
+import responses, commands, messages, schedule
+
 from datetime import datetime
 from control import goodbye
 from control import controlChannel
@@ -120,7 +121,7 @@ def connect():
 @asyncio.coroutine
 def readChat():
 
-	global initTime, activeChat, user_id
+	global initTime, activeChat, user_id, websocket, chat_socket
 
 	activeChat = []
 	msgLocalID = 0
@@ -129,8 +130,8 @@ def readChat():
 	session = requests.Session()
 
 	activeChat = []
-
 	websocket = yield from websockets.connect(endpoint)
+
 	content = [channel, user_id, authkey]
 	yield from messages.sendMsg(websocket, content, is_auth=True)
 
@@ -139,6 +140,8 @@ def readChat():
 		time_pre_recv = (datetime.now().strftime("%M"))
 
 		result = yield from websocket.recv()
+
+		schedule.registerWebsocket(websocket)
 
 		if result != None:
 			result = json.loads(result)
@@ -194,6 +197,11 @@ def readChat():
 					if user_msg[0]['type'] == 'me':			# /me message
 						msg_text += user_msg[0]['text']
 
+					# Updated form /me handling - to be released Oct 18-19 by Beam
+					# if 'meta' in user_msg[0]:			# /me message
+					# 	if 'me' in user_msg[0]['meta']:
+					# 		msg_text += user_msg[0]['message']
+
 					elif user_msg[0]['type'] == 'text' and user_msg[0]['data'] != '':
 						msg_text += user_msg[0]['data']
 
@@ -202,7 +210,7 @@ def readChat():
 				if user_name not in activeChat:
 					activeChat.append(user_name)
 
-				response, goodbye = commands.prepCMD(msg, msgLocalID)
+				response, goodbye = commands.prepCMD(msg, msgLocalID, websocket)
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
 
@@ -228,6 +236,10 @@ def readChat():
 							print ('Error:\t',ret_msg['error'])
 							print ('Code:\t',ret_msg['id'])
 
+# def returnWebsocket():
+# 	global websocket
+#
+# 	return websocket
 
 # ----------------------------------------------------------------------
 # Main Code
@@ -319,11 +331,14 @@ def main():
 	print ('endpoint:\t',endpoint, end='\n\n')
 
 	loop = asyncio.get_event_loop()
+
 	tasks = [
 		asyncio.async(readChat()),
 		asyncio.async(autoCurrency()),
-		asyncio.async(controlChannel())
+		asyncio.async(controlChannel()),
+		asyncio.async(schedule.timeoutsHandler())
 	]
+
 	loop.run_until_complete(connect())		# Announce your presence!
 
 	loop.run_until_complete(asyncio.wait(tasks))

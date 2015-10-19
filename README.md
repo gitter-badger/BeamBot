@@ -63,7 +63,7 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
 
-**(3.2.11)** - Added scheduled commands, run at specified intervals (minimum 30 seconds)
+**(3.2.11)** - Added scheduled commands, run at specified intervals (!schedule command)
 
 **(3.2.11)** - Fixed the quote system to be less confusing & actually work
 
@@ -85,7 +85,7 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Need to add more commands and features - The never-ending bug!
 
-* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4) - Target release 3.2.11
+* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4) - Target release ~~3.2.11~~ (now 3.2.12, 3.2.11 was focused on scheduled messages)
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 

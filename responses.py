@@ -8,7 +8,7 @@ import os
 import json
 
 # PyBot Modules
-import usage, timeouts
+import usage, schedule
 
 global prevTime, cust_commands, commandList, count_vars
 
@@ -397,22 +397,22 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 	else:
 		return usage.prepCmd(user_name, "set", is_mod, is_owner)
 
-def timeout(user_name, cur_item, is_mod, is_owner):
-	cmd = "timeout"
-	
+def schedule(user_name, cur_item, is_mod, is_owner, websocket):
+	cmd = "schedule"
+
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
 	if len(cur_item) > 2:
 		timeout = cur_item[1]
-		command = cur_item[2:]
+		text = cur_item[2:]
 
-		response = timeouts.register(timeout, command)
+		response = schedule.register(timeout, text, websocket)
 
 		return response
 
 	else:
-		return usage.prepCMD(user_name, "timeout", is_mod, is_owner)
+		return usage.prepCMD(user_name, "schedule", is_mod, is_owner)
 
 def quote(user_name, cur_item, is_mod, is_owner):
 	cmd = 'quote'

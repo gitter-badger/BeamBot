@@ -31,7 +31,7 @@ else:
 	bannedUsers = []
 	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
-def prepCMD(msg, msg_local_id):
+def prepCMD(msg, msg_local_id, websocket):
 
 	global is_owner
 
@@ -101,11 +101,11 @@ def prepCMD(msg, msg_local_id):
 
 			if cur_item[0] == '!':	# It's a command! Pay attention!
 
-				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner)
+				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner, websocket)
 
 	return response, goodbye
 
-def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False):
+def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None):
 
 	goodbye = False
 
@@ -167,8 +167,8 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	elif cmd[0] == "set":	# Bot configuration - Uses cmd instead of cur_item
 		response = responses.set(user_name, user_id, cmd, is_mod, is_owner)
 
-	elif cmd[0] == "timeout":	# Run commands at set intervals
-		response = responses.timeout(user_name, cmd, is_mod, is_owner)
+	elif cmd[0] == "schedule":	# Run commands at set intervals
+		response = responses.schedule(user_name, cmd, is_mod, is_owner, websocket)
 
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime, is_mod, is_owner)

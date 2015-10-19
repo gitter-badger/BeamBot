@@ -97,6 +97,9 @@ config['currency_name'] = currency_name
 with open('data/config.json', 'w') as f:
 	json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
 
+scheduled_cmds = []
+pickle.dump(scheduled_cmds, open('data/scheduled.p', 'w'))
+
 # Create the sqlite database
 with sqlite3.connect('data/beambot.sqlite') as con:
 
