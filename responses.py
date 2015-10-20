@@ -8,7 +8,8 @@ import os
 import json
 
 # PyBot Modules
-import usage, schedule
+import usage
+import schedule as schedule_mod
 
 global prevTime, cust_commands, commandList, count_vars
 
@@ -407,7 +408,7 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 		timeout = cur_item[1]
 		text = cur_item[2:]
 
-		response = schedule.register(timeout, text, websocket)
+		response = schedule_mod.register(timeout, text, websocket)
 
 		return response
 

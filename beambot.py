@@ -3,11 +3,14 @@
 # -+=============================================================+-
 #	Version: 	3.2.11
 #	Author: 	RPiAwesomeness
-#	Date:		October 18, 2015
+#	Date:		October 19, 2015
 #
 #	Changelog:	Added scheduled messages via the !schedule command
 #				Fixed the quote system to have a less esoteric syntax
 #					be easier to use
+#				Updated code to work with Beam's chat API 10/9/15 changes
+#				Fixed schedule command not working because of conflicting
+#					module & function names
 # -+=============================================================+
 
 import sys, os
@@ -111,7 +114,6 @@ def connect():
 
 		msg_to_send = 'Top o\' the {} to you!'.format(timeStr)
 		ret_msg = yield from messages.sendMsg(websocket, msg_to_send)
-		ret_msg = json.loads(ret_msg)
 
 		yield from messages.close(websocket)
 
@@ -174,7 +176,8 @@ def readChat():
 				user_roles = msg['user_roles']
 				user_name = msg['user_name']
 				user_id = msg['user_id']
-				user_msg = msg['message']
+				user_msg = msg['message']['message']
+				meta = msg['message']['meta']
 
 				print ('User:\t\t', user_name,
 						'-', user_id)
@@ -183,7 +186,6 @@ def readChat():
 
 				if len(user_msg) > 1:	# There's an emoticon in there
 					for section in user_msg:
-
 						if section['type'] == 'text' and section['data'] != '':
 							msg_text += section['data']
 
@@ -194,13 +196,10 @@ def readChat():
 							msg_text += section['text']
 
 				else:
-					if user_msg[0]['type'] == 'me':			# /me message
-						msg_text += user_msg[0]['text']
-
 					# Updated form /me handling - to be released Oct 18-19 by Beam
-					# if 'meta' in user_msg[0]:			# /me message
-					# 	if 'me' in user_msg[0]['meta']:
-					# 		msg_text += user_msg[0]['message']
+					if 'meta' in user_msg[0]:			# /me message
+						if 'me' in user_msg[0]['meta']:
+							msg_text += user_msg[0]['message']
 
 					elif user_msg[0]['type'] == 'text' and user_msg[0]['data'] != '':
 						msg_text += user_msg[0]['data']

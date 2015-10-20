@@ -99,7 +99,7 @@ def controlChannel():
 			print ('Control channel:')
 
 			result = result['data']
-			msg = result['message'][0]
+			msg = result['message']['message'][0]
 
 			print ('User:\t\t',result['user_name'],
 					'-', result['user_id'])

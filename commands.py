@@ -40,6 +40,8 @@ def prepCMD(msg, msg_local_id, websocket):
 	msg_id = msg['id']
 	user_roles = msg['user_roles']
 
+	msg = msg['message']
+
 	is_mod = False
 	is_owner = False
 

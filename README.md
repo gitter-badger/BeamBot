@@ -67,6 +67,10 @@ Simply run `python3 beambot.py`!
 
 **(3.2.11)** - Fixed the quote system to be less confusing & actually work
 
+**(3.2.11)** - Updated code to work with Beam's chat API 10/9/15 changes
+
+**(3.2.11)** - Fixed schedule command not working because of conflicting module & function names
+
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.
