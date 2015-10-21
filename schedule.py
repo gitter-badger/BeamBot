@@ -4,55 +4,42 @@ import responses
 import messages
 import asyncio
 import os
+import random
 import pickle
 
-timeouts = []
+messages = []
 
-class Timeout:
-	def __init__(self, timeout, text):
-		self.timeout = timeout
-		self.text = text
-
-	def __str__(self):
-		return str(self.timeout) + ':' + self.text
-
-def register(timeout, text, websocket):
+def register(text, websocket):
 
 	text = " ".join(text)
+	messages.append(text)
 
-	try:
-		timeout = int(timeout)
+	if os.path.exists('data/scheduled.p'):
+		pickle.dump(messages, open('data/scheduled.p', 'wb'))
 
-	except ValueError as e:
-		print (e)
-		return "Error: The timout must be an integer greater than 1"
-
-	if timeout > 0:
-		scheduled = Timeout(timeout, text)
-		timeouts.append(scheduled)
-
-		if os.path.exists('data/scheduled.p'):
-			pickle.dump(timeouts, open('data/scheduled.p', 'wb'))
-
-	return text + " registered. It will run every " + str(timeout) + " seconds"
+	return text + " registered! It will be randomly selected to appear every 5 minutes"
 
 @asyncio.coroutine
 def timeoutsHandler():
 	global websocket
 
-	initial = True	# Set to True initially to keep messages from being sent on startup
-	seconds = 0
+	prev_message = ""
 
 	while True:
-		for i in timeouts:
-			if seconds % i.timeout == 0 and not initial:
-				# print ('i:\t\t',i)
-				# print (seconds % i.timeout)
-				yield from messages.sendMsg(websocket, i.text)
+		while True:
+			if len(messages) == 0:
+				break
 
-		yield from asyncio.sleep(1)
-		seconds += 1
-		initial = False	# Not initial run
+			message = random.randrange(len(messages))
+			text = messages[message]
+
+			if text != prev_message:
+				yield from messages.sendMsg(websocket, text)
+				prev_message = text
+				break
+
+
+		yield from asyncio.sleep(300)
 
 def registerWebsocket(chat_socket):
 	global websocket
@@ -60,4 +47,4 @@ def registerWebsocket(chat_socket):
 	websocket = chat_socket
 
 if os.path.exists('data/scheduled.p'):
-	timeouts = pickle.load(open('data/scheduled.p', 'rb'))
+	messages = pickle.load(open('data/scheduled.p', 'rb'))

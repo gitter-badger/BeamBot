@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.11
+#	Version: 	3.2.12
 #	Author: 	RPiAwesomeness
-#	Date:		October 19, 2015
+#	Date:		October 20, 2015
 #
-#	Changelog:	Added scheduled messages via the !schedule command
-#				Fixed the quote system to have a less esoteric syntax
-#					be easier to use
-#				Updated code to work with Beam's chat API 10/9/15 changes
-#				Fixed schedule command not working because of conflicting
-#					module & function names
+#	Changelog: 	Updated !schedule command to select randomly from
+#					the list of registered messages every 5 minutes
+#				Added code to send a ping over the websocket every
+#					3 minutes to help keep the bot's connection alive
 # -+=============================================================+
 
 import sys, os
@@ -24,6 +22,7 @@ import responses, commands, messages, schedule
 from datetime import datetime
 from control import goodbye
 from control import controlChannel
+from control import keepAlive
 
 @asyncio.coroutine
 def autoCurrency():
@@ -335,7 +334,8 @@ def main():
 		asyncio.async(readChat()),
 		asyncio.async(autoCurrency()),
 		asyncio.async(controlChannel()),
-		asyncio.async(schedule.timeoutsHandler())
+		asyncio.async(schedule.timeoutsHandler()),
+		asyncio.async(keepAlive())
 	]
 
 	loop.run_until_complete(connect())		# Announce your presence!

@@ -3,8 +3,8 @@
 import os
 import sqlite3
 import json
-import pickle
 import requests
+import pickle
 
 # This script just sets up the various files/variables that BeamBot needs to run
 
@@ -97,8 +97,8 @@ config['currency_name'] = currency_name
 with open('data/config.json', 'w') as f:
 	json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
 
-scheduled_cmds = []
-pickle.dump(scheduled_cmds, open('data/scheduled.p', 'w'))
+messages = []
+pickle.dump(messages, open('data/scheduled.p', 'wb'))
 
 # Create the sqlite database
 with sqlite3.connect('data/beambot.sqlite') as con:

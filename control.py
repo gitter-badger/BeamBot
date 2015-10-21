@@ -124,8 +124,15 @@ def goodbye(user_name, is_owner, msgLocalID):
 	else:		# Don't want anyone but owner killing the bot
 		return None, False
 
-def restart(user_name, websocket):
+@asyncio.coroutine
+def keepAlive():
+	global websocket
 
+	while True:
+		yield from websocket.ping()
+		yield from asyncio.sleep(180)
+
+def restart(user_name, websocket):
 	print ('Restarting bot in 10 seconds...')
 	subprocess.Popen(['sh','restart.sh'])
 	closeSocket(websocket)

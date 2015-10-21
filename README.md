@@ -23,23 +23,9 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.11
+## Features in 3.2.12
 
-**NOTE**: With the 3.2.8 release, I removed the new features listed for all old versions up to version 3.2.6. They are still accessible in the repository history.
-
-###### **(3.2.6)** - Added auto_start.py to make the bot auto-launch if a channel goes live
-
-###### **(3.2.6)** - Updated setup script to either take numeric ID or channel name
-
-###### **(3.2.6)** - Updated bot to create lock file on startup and remove it on proper shutdown
-
-###### **(3.2.7)** - Removed auto_start.py because it wasn't useful
-
-###### **(3.2.7)** - Removed lock file because it's not needed anymore (no autostart)
-
-###### **(3.2.7)** - Removed whitelist entirely, it was only in place because of me being lazy and not wanting to implement a simple feature
-
-###### **(3.2.7)** - Yes, I just essentially undid the entire previous release. But there were broken things I had to fix and in the process of doing that I realized that those "features" were useless and annoying :P
+**NOTE**: With the 3.2.12 release, I removed the new features listed for all old versions up to version 3.2.8. They are still accessible in the repository history.
 
 ###### **(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
 
@@ -63,13 +49,19 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
 
-**(3.2.11)** - Added scheduled commands, run at specified intervals (!schedule command)
+###### **(3.2.11)** - Added scheduled commands, run at specified intervals (!schedule command)
 
-**(3.2.11)** - Fixed the quote system to be less confusing & actually work
+###### **(3.2.11)** - Fixed the quote system to be less confusing & actually work
 
-**(3.2.11)** - Updated code to work with Beam's chat API 10/9/15 changes
+###### **(3.2.11)** - Updated code to work with Beam's chat API 10/9/15 changes
 
-**(3.2.11)** - Fixed schedule command not working because of conflicting module & function names
+###### **(3.2.11)** - Fixed schedule command not working because of conflicting module & function names
+
+**(3.2.12)** - 	Updated !schedule command to select randomly from the list of all registered messages every 5 minutes
+
+**(3.2.12)** - Updated !schedule command syntax to only require the message
+
+**(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
 
 ### Info on future 3.3.0 release
 
@@ -89,12 +81,8 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * Need to add more commands and features - The never-ending bug!
 
-* Make bot watch beam.pro/pybot for commands (Groundworks laid as of 3.2.4) - Target release ~~3.2.11~~ (now 3.2.12, 3.2.11 was focused on scheduled messages)
-
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
 * Add settings & ability to change default command responses (^)
-
-* Fix websocket breaking bug?
 
 * Anything else I can't think of at this time but is still applicable

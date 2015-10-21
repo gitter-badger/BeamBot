@@ -404,16 +404,11 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
-	if len(cur_item) > 2:
-		timeout = cur_item[1]
-		text = cur_item[2:]
+	text = cur_item[1:]
 
-		response = schedule_mod.register(timeout, text, websocket)
+	response = schedule_mod.register(text, websocket)
 
-		return response
-
-	else:
-		return usage.prepCMD(user_name, "schedule", is_mod, is_owner)
+	return response
 
 def quote(user_name, cur_item, is_mod, is_owner):
 	cmd = 'quote'
