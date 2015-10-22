@@ -59,7 +59,7 @@ Simply run `python3 beambot.py`!
 
 **(3.2.12)** - 	Updated !schedule command to select randomly from the list of all registered messages every 5 minutes
 
-**(3.2.12)** - Updated !schedule command syntax to only require the message
+**(3.2.12)** - Updated !schedule command syntax to only require the message text
 
 **(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
 

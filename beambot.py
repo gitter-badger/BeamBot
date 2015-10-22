@@ -1,14 +1,11 @@
 #!/usr/bin/env python3
 
 # -+=============================================================+-
-#	Version: 	3.2.12
+#	Version: 	3.2.12a
 #	Author: 	RPiAwesomeness
 #	Date:		October 20, 2015
 #
-#	Changelog: 	Updated !schedule command to select randomly from
-#					the list of registered messages every 5 minutes
-#				Added code to send a ping over the websocket every
-#					3 minutes to help keep the bot's connection alive
+#	Changelog: 	Fixed scheduled message variable name conflict
 # -+=============================================================+
 
 import sys, os

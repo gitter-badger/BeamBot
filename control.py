@@ -128,10 +128,15 @@ def goodbye(user_name, is_owner, msgLocalID):
 def keepAlive():
 	global websocket
 
-	while True:
-		yield from websocket.ping()
-		yield from asyncio.sleep(180)
+	initial = True
 
+	while True:
+		if not initial:
+			yield from websocket.ping()
+
+		yield from asyncio.sleep(180)
+		initial = False
+		
 def restart(user_name, websocket):
 	print ('Restarting bot in 10 seconds...')
 	subprocess.Popen(['sh','restart.sh'])
