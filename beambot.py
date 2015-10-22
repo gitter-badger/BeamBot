@@ -3,9 +3,10 @@
 # -+=============================================================+-
 #	Version: 	3.2.12a
 #	Author: 	RPiAwesomeness
-#	Date:		October 20, 2015
+#	Date:		October 22, 2015
 #
 #	Changelog: 	Fixed scheduled message variable name conflict
+#				Fixed bug where scheduled messages weren't being sent
 # -+=============================================================+
 
 import sys, os

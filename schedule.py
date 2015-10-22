@@ -17,27 +17,26 @@ def register(text, websocket):
 	if os.path.exists('data/scheduled.p'):
 		pickle.dump(scheduled_list, open('data/scheduled.p', 'wb'))
 
-	return text + " registered! It will be randomly selected to appear every 5 minutes"
+	return "Message #" + len(scheduled_list) + "registered! It will be randomly selected to appear every 5 minutes"
 
 @asyncio.coroutine
 def timeoutsHandler():
 	global websocket
 
-	prev_message = ""
+	prev_messages = []
 	initial = True
 
 	while True:
 		if len(scheduled_list) != 0:
-			message = random.randrange(len(scheduled_list))
+			message = random.randrange(0, len(scheduled_list))
 			text = scheduled_list[message]
 
-			if text != prev_message and not initial:
+			if not initial:
 				yield from messages.sendMsg(websocket, text)
-				prev_message = text
-				break
+				print ('Scheduled message:\t', text)
+				prev_messages.append(text)
 
-
-		yield from asyncio.sleep(3)
+		yield from asyncio.sleep(300)
 		initial = False
 
 def registerWebsocket(chat_socket):

@@ -23,7 +23,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.12
+## Features in 3.2.12a
 
 **NOTE**: With the 3.2.12 release, I removed the new features listed for all old versions up to version 3.2.8. They are still accessible in the repository history.
 
@@ -57,11 +57,13 @@ Simply run `python3 beambot.py`!
 
 ###### **(3.2.11)** - Fixed schedule command not working because of conflicting module & function names
 
-**(3.2.12)** - 	Updated !schedule command to select randomly from the list of all registered messages every 5 minutes
+##### **(3.2.12)** - 	Updated !schedule command to select randomly from the list of all registered messages every 5 minutes
 
-**(3.2.12)** - Updated !schedule command syntax to only require the message text
+##### **(3.2.12)** - Updated !schedule command syntax to only require the message text
 
-**(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
+##### **(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
+
+**(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
 
 ### Info on future 3.3.0 release
 
