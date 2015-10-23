@@ -204,6 +204,9 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
+		if len(cmd) <= 3:	# It's not long enough to have a response
+			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
+			
 		if cmd[1] == "add":
 			response = responses.commandMod(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "remove":

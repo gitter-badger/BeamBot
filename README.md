@@ -65,7 +65,7 @@ Simply run `python3 beambot.py`!
 
 ##### **(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
 
-**(3.2.13)** - Added scheduled message removal abilities
+**(3.2.13)** - Added scheduled message removal capabilities
 
 **(3.2.13)** - Fixed users not actually being announced when they enter or leave (and related crash)
 
