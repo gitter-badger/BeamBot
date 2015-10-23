@@ -106,7 +106,7 @@ def cmdList(user_name, cur_item, is_mod, is_owner):	# Returns list of commands
 			if len(cur_item.split()) >= 2:		# At least 2 items, so at least one arg
 				cmdSplit = cur_item.split()[1:][0]		# Split the command up to see if there are args
 				if cmdSplit in cmdListUsage:	# Does a key exist with that argument's value?
-					response = "Command: " + cmdSplit + " Usage: " + cmdListUsage[cmdSplit] + " - " + cmdList[cmdSplit]
+					response = "Usage: " + cmdListUsage[cmdSplit] + " - " + cmdList[cmdSplit]
 					# In future, make this return Command & Usage in separate messages
 					return response # Return command + usage
 
@@ -190,7 +190,7 @@ def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, migh
 		else:
 			return None
 
-def editCommand(user_name, cur_item, is_mod, is_owner):
+def editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only):
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
@@ -205,7 +205,12 @@ def editCommand(user_name, cur_item, is_mod, is_owner):
 
 			for cmd in cust_commands:			# Loop through the list of custom commands JSON objects
 				if cmd['cmd'] == command:		# Does the JSON object's command match the command we're making/updating?
-					cmd['op'] = 'False'			# Update the OP-only value to False
+
+					if is_mod_only:				# Checks if it's OP-only
+						cmd['op'] = 'True'		# Update the OP-only value to True
+					else:
+						cmd['op'] = 'False'		# Update the OP-only value to False
+
 					cmd['response'] = response 	# Update the response
 
 					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
@@ -417,6 +422,9 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
+	if length(cur_item) < 3:
+		return usage.prepCmd(user_name, "schedule", is_mod, is_owner)
+
 	cmd_cmd = cur_item[1]
 
 	if cmd_cmd.lower() == "add":
@@ -526,6 +534,9 @@ def quote(user_name, cur_item, is_mod, is_owner):
 			else:
 				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
+	else:
+		return usage.prepCmd(user_name, "quote", is_mod, is_owner)
+
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
@@ -533,14 +544,11 @@ def quote(user_name, cur_item, is_mod, is_owner):
 					FROM quotes
 					WHERE name LIKE \"%''' + user + '%\"'''
 
-		print ('command:\t',command)
-
 		cur.execute(command)
 
 		results = cur.fetchall()
 
 		print ("results:\t\t",results)
-		print ("len(results):\t\t",len(results))
 
 	if len(results) >= 1:	# Make sure there's at least 1 quote
 		rand = random.randrange(len(results))

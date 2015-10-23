@@ -23,21 +23,9 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.12a
+## Features in 3.2.14
 
-**NOTE**: With the 3.2.12 release, I removed the new features listed for all old versions up to version 3.2.8. They are still accessible in the repository history.
-
-###### **(3.2.8)** - Updated command timeout code to check for mod/owner in the \_checkTime() function - thus cleaning up the codebase
-
-###### **(3.2.8)** - Updated custom command creation syntax to use `command` **add** and `command` **remove** instead of just `command` and `command-`. `command+` will remain for creating mod-only commands.
-
-###### **(3.2.8)** - Added usage response if command arguments incorrect
-
-###### **(3.2.9)** - Added [[count]] custom command variable - increments each time command is run
-
-###### **(3.2.9)** - Fixed bug where running the !command command with <= 3 words/things in the command would crash the bot. It will now return the usage
-
-###### **(3.2.9)** - Working on adding !set command for bot configuration abilities
+**NOTE**: With the 3.2.14 release, I removed the new features listed for all old versions up to version 3.2.10. They are still accessible in the repository history.
 
 ###### **(3.2.10)** - Fixed bug where bot wasn't connecting to the correct API endpoint & thus wasn't authenticating, crashing the bot
 
@@ -65,19 +53,23 @@ Simply run `python3 beambot.py`!
 
 ##### **(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
 
-**(3.2.13)** - Added scheduled message removal capabilities
+##### **(3.2.13)** - Added scheduled message removal capabilities
 
-**(3.2.13)** - Fixed users not actually being announced when they enter or leave (and related crash)
+##### **(3.2.13)** - Fixed users not actually being announced when they enter or leave (and related crash)
 
-**(3.2.13)** - Fixed crash caused by enter/leave announce fix
+##### **(3.2.13)** - Fixed crash caused by enter/leave announce fix
 
-**(3.2.13)** - Related to ^: Fixed commands not being recognized
+##### **(3.2.13)** - Related to ^: Fixed commands not being recognized
 
-**(3.2.13)** - Fixed blame command not working properly
+##### **(3.2.13)** - Fixed blame command not working properly
 
-**(3.2.13)** - Added update capabilities to scheduled messages (via !schedule **update** MESSAGETEXTHERE) and also to custom commands (via !command **update** COMMANDHERE COMMANDTEXTHERE)
+##### **(3.2.13)** - Added update capabilities to scheduled messages (via !schedule **update** MESSAGETEXTHERE) and also to custom commands (via !command **update** COMMANDHERE COMMANDTEXTHERE)
 
-**(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
+##### **(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
+
+**(3.2.14)** - Added !store command, allows users to spend their currency
+
+**(3.2.14)** - Added ability to remove quotes
 
 ### Info on future 3.3.0 release
 
