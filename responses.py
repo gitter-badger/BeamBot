@@ -422,7 +422,7 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
-	if length(cur_item) < 3:
+	if len(cur_item) < 3:
 		return usage.prepCmd(user_name, "schedule", is_mod, is_owner)
 
 	cmd_cmd = cur_item[1]
