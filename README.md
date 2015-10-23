@@ -67,8 +67,6 @@ Simply run `python3 beambot.py`!
 
 ##### **(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
 
-**(3.2.14)** - Added !store command, allows users to spend their currency
-
 **(3.2.14)** - Added ability to remove quotes
 
 **(3.2.14)** - Fixed a lot of minor bugs discovered by stress-testing the bot

@@ -540,7 +540,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		quote = results[rand][0]
 		quote_id = results[rand][1]
 
-		response = "Quote #" + str(quote_id) + " " + quote + " - " + user
+		response = quote + " - " + user
 
 		return response
 

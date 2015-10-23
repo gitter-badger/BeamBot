@@ -1,16 +1,13 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.2.13
+	Version: 	3.2.14
 	Author: 	RPiAwesomeness
-	Date:		October 22, 2015
+	Date:		October 23, 2015
 
-	Changelog: 	Added scheduled message removal & edit capabilities
-				Fixed users not actually being announced when they
-					enter or leave (and related crash)
-				Fixed crash caused by enter/leave announce fix
-				Related to ^: Fixed commands not being recognized
-				Fixed blame command not working properly
+	Changelog:	Added ability to remove quotes
+				Fixed a lot of minor bugs discovered by
+					stress-testing the bot
 -+=============================================================+
 """
 
