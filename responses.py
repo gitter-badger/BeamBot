@@ -507,8 +507,8 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 			quote_user = split[0]
 
-			if user[0] == '@':
-				user = user[1:]	# Remove the @ sign, we work without them
+			if quote_user[0] == '@':
+				quote_user = quote_user[1:]	# Remove the @ sign, we work without them
 
 			if cmd_cmd == "add":
 				response = quotes.addQuote(user_name, quote_user, split, is_mod, is_owner)
