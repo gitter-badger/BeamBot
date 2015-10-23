@@ -19,7 +19,6 @@
             "slap":"Slap another user",
             "tackle":"Tackle another user",
             "twitch":"Raid another streamer on Twitch.tv",
-            "whitelist":"Whitelist a user - Owner only",
             "whoami":"Classic whoami command",
             "uptime":"Display how long the bot's been activated"
         },
@@ -44,7 +43,6 @@
             "slap":"!slap <user>",
             "tackle":"!tackle <user>",
             "twitch":"!twitch <user>",
-            "whitelist":"!whitelist <user>",
             "whoami":"!whoami",
             "uptime":"!uptime"
         }
