@@ -31,7 +31,6 @@ def addQuote(user, split, is_mod, is_owner):
 def removeQuote(user, split, is_mod, is_owner):
 
     # split is set to equal everything after the !quote add/remove
-    split = split[2:]
     user = split[0]
 
     if user[0] == '@':
