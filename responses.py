@@ -512,12 +512,10 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 			if cmd_cmd == "add":
 				response = quotes.addQuote(user_name, quote_user, split, is_mod, is_owner)
-				print (response)
 				return response
 
 			elif cmd_cmd == "remove":
 				response = quotes.removeQuote(user_name, split, is_mod, is_owner)
-				print (response)
 				return response
 
 	else:
@@ -547,7 +545,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		return response
 
 	else:		# No quotes in the database for user!
-		return None
+		return "Oh noes! There are no quotes :( Try adding some via !quote add!"
 
 def ban(user_name, cur_item, is_mod, is_owner):
 	if is_mod or is_owner:		# Only want mods/owners to have ban control
