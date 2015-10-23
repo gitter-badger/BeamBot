@@ -35,7 +35,7 @@ def removeQuote(user, split, is_mod, is_owner):
         return usage.prepCmd(user, "quote", is_mod, is_owner)
 
     elif len(split) >= 2:
-        quote_id = split[3]
+        quote_id = split[2]
 
         command = """DELETE FROM quotes
                         WHERE id LIKE {}""".format(quote_id)
