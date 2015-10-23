@@ -11,9 +11,7 @@ def addQuote(user, split, is_mod, is_owner):
     elif len(split) >= 2:
         # The quote is the second item(s) in the list
         quote = " ".join(split[1:]).replace('"', "''")
-
-        print (quote)
-
+        
         command = '''INSERT INTO quotes
                     (name, quote)
                     VALUES ("{}", "{}")'''.format(user, quote)

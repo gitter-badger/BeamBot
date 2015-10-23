@@ -524,7 +524,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 	with sqlite3.connect('data/beambot.sqlite') as con:
 		cur = con.cursor()
 
-		command = '''SELECT quote
+		command = '''SELECT quote, id
 					FROM quotes
 					WHERE name LIKE \"%''' + user + '%\"'''
 
