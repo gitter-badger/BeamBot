@@ -495,6 +495,10 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		if user[0] == "@":	# The first character is the @ character - remove that
 			user = user[1:]
 
+		# This code checks if it's someone failing at the !quote command
+		elif user == "add" or user == "remove" or user == "update":
+			return usage.prepCmd(user_name, "quote", is_mod, is_owner)
+
 	elif len(split) >= 3:		# It's add quote
 		cmd_cmd = split[1]
 

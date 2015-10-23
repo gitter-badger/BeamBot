@@ -71,6 +71,8 @@ Simply run `python3 beambot.py`!
 
 **(3.2.14)** - Added ability to remove quotes
 
+**(3.2.14)** - Fixed a lot of minor bugs discovered by stress-testing the bot
+
 ### Info on future 3.3.0 release
 
 The code has, as I've been adding to it, slowly been getting less tidy and well-written.
