@@ -514,9 +514,11 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 			if cmd_cmd == "add":
 				response = quotes.addQuote(user, split, is_mod, is_owner)
+				return response
 
 			elif cmd_cmd == "remove":
 				response = quotes.removeQuote(user, split, is_mod, is_owner)
+				return response
 
 	else:
 		return usage.prepCmd(user_name, "quote", is_mod, is_owner)

@@ -11,7 +11,7 @@ def addQuote(user, split, is_mod, is_owner):
     elif len(split) >= 2:
         # The quote is the second item(s) in the list
         quote = " ".join(split[1:]).replace('"', "''")
-        
+
         command = '''INSERT INTO quotes
                     (name, quote)
                     VALUES ("{}", "{}")'''.format(user, quote)
@@ -20,6 +20,7 @@ def addQuote(user, split, is_mod, is_owner):
             with sqlite3.connect('data/beambot.sqlite') as con:
                 cur = con.cursor()
                 cur.execute(command)
+                return "Quote #" + str(cursor.lastrowid) + " added! " + quote + " - " + user
         else:
             return None
 
@@ -47,6 +48,9 @@ def removeQuote(user, split, is_mod, is_owner):
             with sqlite3.connect('data/beambot.sqlite') as con:
                 cur = con.cursor()
                 cur.execute(command)
+
+                if cur.rowcount >= 1:
+                    return "Quote #" + str(quote_id) + "removed " + quote + " - " + user
         else:
             return None
 
