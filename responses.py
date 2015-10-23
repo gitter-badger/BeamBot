@@ -472,6 +472,9 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 	split = cur_item[1:].split()
 
+	print (split)
+	print (len(split))
+
 	if len(split) == 1:		# It's just 1 string, get random quote
 		command = '''SELECT name
 					FROM quotes'''
@@ -500,7 +503,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		elif user == "add" or user == "remove" or user == "update":
 			return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
-	elif len(split) >= 3:		# It's add quote
+	elif len(split) >= 3:		# It's add/remove quote
 		cmd_cmd = split[1]
 
 		if cmd_cmd == "add" or cmd_cmd == "remove":
