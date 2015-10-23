@@ -63,7 +63,21 @@ Simply run `python3 beambot.py`!
 
 ##### **(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
 
-**(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
+##### **(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
+
+**(3.2.13)** - Added scheduled message removal abilities
+
+**(3.2.13)** - Fixed users not actually being announced when they enter or leave (and related crash)
+
+**(3.2.13)** - Fixed crash caused by enter/leave announce fix
+
+**(3.2.13)** - Related to ^: Fixed commands not being recognized
+
+**(3.2.13)** - Fixed blame command not working properly
+
+**(3.2.13)** - Added update capabilities to scheduled messages (via !schedule **update** MESSAGETEXTHERE) and also to custom commands (via !command **update** COMMANDHERE COMMANDTEXTHERE)
+
+**(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
 
 ### Info on future 3.3.0 release
 
@@ -79,12 +93,16 @@ Thus, although I plan on adding a few new features and commands for 3.3.0, it's 
 
 * This release will fix bugs ~~#2~~ (Not going to change the bot name, at least not for 3.3.0), #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
 
+### Recognitions
+BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
+xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
+
 ###Current issues:
 
 * Need to add more commands and features - The never-ending bug!
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
-* Add settings & ability to change default command responses (^)
+* Add ability to change default command responses (^)
 
 * Anything else I can't think of at this time but is still applicable

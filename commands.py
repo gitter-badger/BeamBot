@@ -198,6 +198,8 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 			response = responses.command(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "remove":
 			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "update":
+			response = responses.editCommand(user_name, cur_item, is_mod, is_owner)
 		else:					# Not add or remove, return usage
 			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 

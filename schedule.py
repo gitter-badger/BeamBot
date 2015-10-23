@@ -17,7 +17,33 @@ def register(text, websocket):
 	if os.path.exists('data/scheduled.p'):
 		pickle.dump(scheduled_list, open('data/scheduled.p', 'wb'))
 
-	return "Message #" + len(scheduled_list) + "registered! It will be randomly selected to appear every 5 minutes"
+	return "Message #" + str(len(scheduled_list)) + " registered! It will be randomly selected to appear every 5 minutes"
+
+def msg_rm(schedule_id, websocket):
+
+	if schedule_id <= len(scheduled_list):
+		rm_cmd = scheduled_list[schedule_id]
+
+		del scheduled_list[schedule_id]
+
+		if os.path.exists('data/scheduled.p'):
+			pickle.dump(scheduled_list, open('data/scheduled.p', 'wb'))
+
+		return "Message #" + str(schedule_id) + ": " + rm_cmd + " removed! It will no longer be sent"
+	else:
+		return "There is no registered message by that ID!"
+
+def edit_msg(text, schedule_id, websocket):
+
+	if schedule_id <= len(scheduled_list):	# Check if it actually exists
+		scheduled_list[schedule_id] = text
+
+		if os.path.exists('data/scheduled.p'):
+			pickle.dump(scheduled_list, open('data/scheduled.p', 'wb'))
+
+		return "Message #" + str(schedule_id) + " updated!"
+	else:
+		return "There is no registered message by that ID!"
 
 @asyncio.coroutine
 def timeoutsHandler():

@@ -5,6 +5,8 @@ import json
 import os
 from datetime import datetime
 
+prevTime = {}
+
 if os.path.exists('data/commandList.json'):
 	cmdList = json.load(open('data/commandList.json', 'r'))['usage']
 else:

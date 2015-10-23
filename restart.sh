@@ -1,2 +1,2 @@
 sleep 10
-python3 beambot.py
+python3 beambot.py -nsm

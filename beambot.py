@@ -1,13 +1,18 @@
 #!/usr/bin/env python3
+"""
+-+=============================================================+-
+	Version: 	3.2.13
+	Author: 	RPiAwesomeness
+	Date:		October 22, 2015
 
-# -+=============================================================+-
-#	Version: 	3.2.12a
-#	Author: 	RPiAwesomeness
-#	Date:		October 22, 2015
-#
-#	Changelog: 	Fixed scheduled message variable name conflict
-#				Fixed bug where scheduled messages weren't being sent
-# -+=============================================================+
+	Changelog: 	Added scheduled message removal & edit capabilities
+				Fixed users not actually being announced when they
+					enter or leave (and related crash)
+				Fixed crash caused by enter/leave announce fix
+				Related to ^: Fixed commands not being recognized
+				Fixed blame command not working properly
+-+=============================================================+
+"""
 
 import sys, os
 import json
@@ -15,7 +20,7 @@ import asyncio, websockets, requests
 import time, random
 import pickle
 import argparse
-import responses, commands, messages, schedule
+import responses, commands, messages, schedule, announce
 
 from datetime import datetime
 from control import goodbye
@@ -125,6 +130,7 @@ def readChat():
 	activeChat = []
 	msgLocalID = 0
 	goodbye = False
+	announce_users = {}
 
 	session = requests.Session()
 
@@ -141,31 +147,28 @@ def readChat():
 		result = yield from websocket.recv()
 
 		schedule.registerWebsocket(websocket)
+		announce.registerWebsocket(websocket)
 
 		if result != None:
 			result = json.loads(result)
 
 		if 'event' in result:		# Otherwise it crashes when type = response
 
-			if result['event'] == 'UserJoin':
-				print ('User joined:\t', result['data']['username'],
-						'-', result['data']['id'],
-						end='\n\n')
+			event = result['event']
+			if 'username' in result['data']:
+				result_user = result['data']['username']
+			elif 'user_name' in result['data']:
+				result_user = result['data']['user_name']
 
-				if result['data']['id'] != 25873:		# PyBot ID
-					if config['announce_enter'] and result['data']['username'] != None:
-						response = "Welcome " + result['data']['username'] + " to the stream!"
+			cur_time = int(datetime.now().strftime("%M"))
 
-			elif result['event'] == 'UserLeave':
-				print ('User left:\t', result['data']['username'],
-						'-', result['data']['id'],
-						end='\n\n')
+			if event == "UserJoin":
+				yield from announce.userJoin(result, result_user)
 
-				if result['data']['id'] != 25873:		# PyBot ID
-					if config['announce_leave'] and result['data']['username'] != None:
-						response = "See you later " + result['data']['username'] + "!"
+			if event == "UserLeave":
+				yield from announce.userLeave(result, result_user)
 
-			elif result['event'] == "ChatMessage":
+			elif event == "ChatMessage":
 
 				msg = result['data']
 				msg_id = msg['id']
@@ -231,11 +234,6 @@ def readChat():
 						if ret_msg['error'] != None:
 							print ('Error:\t',ret_msg['error'])
 							print ('Code:\t',ret_msg['id'])
-
-# def returnWebsocket():
-# 	global websocket
-#
-# 	return websocket
 
 # ----------------------------------------------------------------------
 # Main Code

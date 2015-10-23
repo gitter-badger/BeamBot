@@ -69,16 +69,17 @@ def blame(user_name, cur_item, is_mod, is_owner):
 	cmd = "blame"
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
-			return None
+		return None
 	else:
+		print ('cur_item:\t',cur_item[1:])
 		if len(cur_item[1:]) > 5:
 			if cur_item[1:][5] == " ":		# Is it a space?
 
 				if cur_item[1:][6] == "@":	# Is it an @USERNAME?
-					return cur_item[8:] + " has been duly blamed! " + cur_item[7:] + \
+					return cur_item[7:] + " has been duly blamed! " + cur_item[7:] + \
 							" you have been blamed!"
 				else:			# Nope, add the @ symbol
-					return cur_item[7:] + " has been duly blamed! @" + cur_item[7:] + \
+					return cur_item[6:] + " has been duly blamed! @" + cur_item[7:] + \
 							" you have been blamed!"
 			else:				# Nope, take the 6th character onward
 				return cur_item[6:] + " has been duly blamed! @" + cur_item[6:] + \
@@ -148,8 +149,6 @@ def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, migh
 				for i in toDel:
 					del eArgs[i]
 
-				print ('eArgs:\t', eArgs)
-
 				for i in range(0, len(eArgs)):
 
 					string_cur = eArgs[i]  # 2 - String we're going to be editing, make it separate
@@ -186,13 +185,12 @@ def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, migh
 						response += eArgs[i]
 
 		if response != "":
-			print ('customRespW:\t',response)
 			return response
 
 		else:
 			return None
 
-def command(user_name, cur_item, is_mod, is_owner):			# Command available to anyone
+def editCommand(user_name, cur_item, is_mod, is_owner):
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
@@ -216,6 +214,24 @@ def command(user_name, cur_item, is_mod, is_owner):			# Command available to any
 
 					# Command exists, so it has been updated
 					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
+		else:
+			return None	 	# Return None because the command lacks a response
+
+	else:
+		return None			# Return None because the user isn't mod or owner
+
+def command(user_name, cur_item, is_mod, is_owner):			# Command available to anyone
+	global cust_commands
+
+	if is_mod or is_owner:	# Make sure the user is a mod or streamer
+		split = cur_item[1:].split()
+		print ('split:\t',split)
+
+		if len(split) >= 2:
+			command = split[2]
+			response = " ".join(split[3:])
+
+			print ('response:\t',response)
 
 			# If we make it past the for loop, then the command doesn't exist, so make a new one
 			newCMD = {
@@ -236,7 +252,7 @@ def command(user_name, cur_item, is_mod, is_owner):			# Command available to any
 		return None	 	# Return None because the command lacks a response
 
 	else:
-		return None		# Not whitelisted
+		return None		# Not mod or owner
 
 def commandMod(user_name, cur_item, is_mod, is_owner):		# Command available to mods only
 
@@ -282,7 +298,7 @@ def commandMod(user_name, cur_item, is_mod, is_owner):		# Command available to m
 		return response
 
 	else:
-		return None		# Not whitelisted
+		return None		# Not mod or owner
 
 def commandRM(user_name, cur_item, is_mod, is_owner):			# Remove a command
 	global cust_commands
@@ -361,39 +377,36 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 
 			config['cmd_timeout'] == cur_item[2]
 
-			return "Command timeout is now " + config['cmd_timeout']
+			response = "Command timeout is now " + str(config['cmd_timeout'])
 
 		elif cur_item[1] == "announceEnter":	# Announce user entering
 			if cur_item[2].lower() == "true":
 				config['announce_enter'] = True
-				return "Users joining the stream will now be announced"
+				response = "Users joining the stream will now be announced"
 			elif cur_item[2].lower() == "false":
 				config['announce_enter'] = False
-				return "Users joining the stream will not be announced"
+				response = "Users joining the stream will not be announced"
 			else:
-				return "Usage: !set announceEnter [true/false]"
-
+				response = "Usage: !set announceEnter [true/false]"
 
 		elif cur_item[1] == "announceLeave":	# Announce user leaving
 			if cur_item[2].lower() == "true":
 				config['announce_leave'] = True
-				return "Users leaving the stream will now be announced"
+				response = "Users leaving the stream will now be announced"
 			elif cur_item[2].lower() == "false":
 				config['announce_leave'] = False
-				return "Users leaving the stream will not be announced"
+				response = "Users leaving the stream will not be announced"
 			else:
-				return "Usage: !set announceLeave [true/false]"
-
-		elif cur_item[2] == "updateResponse":	# Allow the user to update a command response
-			# Eventually we will have code here that will allow the user to
-			# customize the response that every default command has
-			return None
+				response = "Usage: !set announceLeave [true/false]"
 
 		else:
 			return usage.prepCmd(user_name, "set", is_mod, is_owner)
 
-		with open('data/config.json', 'w') as f:
-			json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
+		if os.path.exists('data/config.json'):
+			with open('data/config.json', 'w') as f:
+				json.dump(config, f, sort_keys=True, indent=4, separators=(',', ': '))
+
+		return response
 
 	else:
 		return usage.prepCmd(user_name, "set", is_mod, is_owner)
@@ -404,9 +417,36 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 	if not is_mod or not is_owner:
 		return None 	# Mod/owner only
 
-	text = cur_item[1:]
+	cmd_cmd = cur_item[1]
 
-	response = schedule_mod.register(text, websocket)
+	if cmd_cmd.lower() == "add":
+		if len(cur_item) >= 3:
+			text = cur_item[2:]
+			response = schedule_mod.register(text, websocket)
+		else:
+			 return "Usage: !schedule add MESSAGEHERE"
+
+	elif cmd_cmd.lower() == "remove":
+		try:
+			schedule_id = int(cur_item[2])
+		except:
+			return "Usage: !schedule remove MESSAGEIDHERE"
+
+		response = schedule_mod.msg_rm(schedule_id, websocket)
+
+	elif cmd_cmd.lower() == "update":
+		try:
+			schedule_id = int(cur_item[2])
+		except:
+			return "Usage: !schedule update MESSAGEIDHERE MESSAGETEXTHERE"
+
+		if len(cur_item) >= 3:
+			text = cur_item[3:]
+			response = schedule_mod.edit_msg(text, schedule_id, websocket)
+		else:
+			return "Usage: !schedule update MESSAGEIDHERE MESSAGETEXTHERE"
+	else:
+		return usage.prepCmd(user_name, "schedule", is_mod, is_owner)
 
 	return response
 
@@ -448,9 +488,9 @@ def quote(user_name, cur_item, is_mod, is_owner):
 			user = user[1:]
 
 	elif len(split) >= 3:		# It's add quote
-		cmd = split[1]
+		cmd_cmd = split[1]
 
-		if cmd == "add":
+		if cmd_cmd == "add":
 
 			# Joins together with spaces all the items in the split list, then split it on the " marks
 			split = split[2:]
@@ -676,7 +716,7 @@ def hey(user_name, is_mod, is_owner):
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 			return None
 
-	return "Saluton Mondo {}!".format(user_name)
+	return "Hey! {}! Listen!".format(user_name)
 
 def raid(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raid'
