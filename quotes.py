@@ -1,5 +1,6 @@
 import usage
 import sqlite3
+import os
 
 def addQuote(user, split, is_mod, is_owner):
 
