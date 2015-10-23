@@ -17,7 +17,7 @@ def register(text, websocket):
 	if os.path.exists('data/scheduled.p'):
 		pickle.dump(scheduled_list, open('data/scheduled.p', 'wb'))
 
-	return "Message #" + str(len(scheduled_list)) + " registered! It will be randomly selected to appear every 5 minutes"
+	return "Message #" + str(len(scheduled_list) - 1) + " registered! It will be randomly selected to appear every 5 minutes"
 
 def msg_rm(schedule_id, websocket):
 
