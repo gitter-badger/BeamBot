@@ -49,6 +49,8 @@ def removeQuote(user, split, is_mod, is_owner):
                 cur = con.cursor()
                 cur.execute(command)
 
+                print ('rowcount:\t',cur.rowcount)
+
                 if cur.rowcount >= 1:
                     return "Quote #" + str(quote_id) + "removed " + quote + " - " + user
         else:

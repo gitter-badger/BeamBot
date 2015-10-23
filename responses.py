@@ -472,9 +472,6 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 	split = cur_item[1:].split()
 
-	print (split)
-	print (len(split))
-
 	if len(split) == 1:		# It's just 1 string, get random quote
 		command = '''SELECT name
 					FROM quotes'''
@@ -506,8 +503,6 @@ def quote(user_name, cur_item, is_mod, is_owner):
 	elif len(split) >= 3:		# It's add/remove quote
 		cmd_cmd = split[1]
 
-		print (cmd_cmd)
-
 		if cmd_cmd == "add" or cmd_cmd == "remove":
 
 			# split is set to equal everything after the !quote add/remove
@@ -519,10 +514,12 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 			if cmd_cmd == "add":
 				response = quotes.addQuote(user, split, is_mod, is_owner)
+				print (response)
 				return response
 
 			elif cmd_cmd == "remove":
 				response = quotes.removeQuote(user, split, is_mod, is_owner)
+				print (response)
 				return response
 
 	else:
