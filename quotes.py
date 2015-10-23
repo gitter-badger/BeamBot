@@ -22,7 +22,7 @@ def addQuote(user_name, quote_user, split, is_mod, is_owner):
             with sqlite3.connect('data/beambot.sqlite') as con:
                 cur = con.cursor()
                 cur.execute(command)
-                return "Quote #" + str(cursor.lastrowid) + " added! " + quote + " - " + quote_user
+                return "Quote #" + str(cur.lastrowid) + " added! " + quote + " - " + quote_user
         else:
             return None
 
