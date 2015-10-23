@@ -538,8 +538,9 @@ def quote(user_name, cur_item, is_mod, is_owner):
 		rand = random.randrange(len(results))
 
 		quote = results[rand][0]
+		quote_id = result[rand][1]
 
-		response = quote + " - " + user
+		response = "Quote #" + quote_id + " " + quote + " - " + user
 
 		return response
 
