@@ -10,6 +10,7 @@ import json
 # PyBot Modules
 import usage
 import schedule as schedule_mod
+import quotes
 
 global prevTime, cust_commands, commandList, count_vars
 
