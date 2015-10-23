@@ -505,18 +505,18 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 		if cmd_cmd == "add" or cmd_cmd == "remove":
 
-			user = split[0]
+			quote_user = split[0]
 
 			if user[0] == '@':
 				user = user[1:]	# Remove the @ sign, we work without them
 
 			if cmd_cmd == "add":
-				response = quotes.addQuote(user, split, is_mod, is_owner)
+				response = quotes.addQuote(user_name, quote_user, split, is_mod, is_owner)
 				print (response)
 				return response
 
 			elif cmd_cmd == "remove":
-				response = quotes.removeQuote(user, split, is_mod, is_owner)
+				response = quotes.removeQuote(user_name, split, is_mod, is_owner)
 				print (response)
 				return response
 

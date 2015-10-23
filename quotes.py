@@ -2,13 +2,13 @@ import usage
 import sqlite3
 import os
 
-def addQuote(user, split, is_mod, is_owner):
+def addQuote(user_name, quote_user, split, is_mod, is_owner):
 
     split = split[2:] # split is set to equal everything after the !quote add/remove
 
     # The user is the first item after !quote add
     if len(split) == 1:	# It's just a username, anything more indicates an incorrect command
-        return usage.prepCmd(user, "quote", is_mod, is_owner)
+        return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
     elif len(split) >= 2:
         # The quote is the second item(s) in the list
@@ -16,13 +16,13 @@ def addQuote(user, split, is_mod, is_owner):
 
         command = '''INSERT INTO quotes
                     (name, quote)
-                    VALUES ("{}", "{}")'''.format(user, quote)
+                    VALUES ("{}", "{}")'''.format(quote_user, quote)
 
         if os.path.exists('data/beambot.sqlite'):
             with sqlite3.connect('data/beambot.sqlite') as con:
                 cur = con.cursor()
                 cur.execute(command)
-                return "Quote #" + str(cursor.lastrowid) + " added! " + quote + " - " + user
+                return "Quote #" + str(cursor.lastrowid) + " added! " + quote + " - " + quote_user
         else:
             return None
 
@@ -31,17 +31,11 @@ def addQuote(user, split, is_mod, is_owner):
 
 def removeQuote(user, split, is_mod, is_owner):
 
-    # split is set to equal everything after the !quote add/remove
-    user = split[0]
-
-    if user[0] == '@':
-        user = user[1:]	# Remove the @ sign, we work without them
-
     if len(split) == 1:	# It's just a username, anything more indicates an incorrect command
         return usage.prepCmd(user, "quote", is_mod, is_owner)
 
     elif len(split) >= 2:
-        quote_id = split[1]
+        quote_id = split[3]
 
         command = """DELETE FROM quotes
                         WHERE id LIKE {}""".format(quote_id)
