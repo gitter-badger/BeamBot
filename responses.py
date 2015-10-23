@@ -505,8 +505,6 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 		if cmd_cmd == "add" or cmd_cmd == "remove":
 
-			# split is set to equal everything after the !quote add/remove
-			split = split[2:]
 			user = split[0]
 
 			if user[0] == '@':
