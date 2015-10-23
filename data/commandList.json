@@ -35,7 +35,7 @@
             "goodbye":"!goodbye",
             "hey":"!hey",
             "hug":"!hug <user>",
-            "quote":"!quote (for random), !quote <user> for specific user's quote, !quote add <user> \"<quote>\" <game>",
+            "quote":"!quote (for random), !quote <user> for specific user's quote, !quote [add/remove] <user> <quote>",
             "ping":"!ping",
             "raid":"!raid <user>",
             "raided":"!raided <user>",

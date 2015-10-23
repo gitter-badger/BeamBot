@@ -502,41 +502,20 @@ def quote(user_name, cur_item, is_mod, is_owner):
 	elif len(split) >= 3:		# It's add quote
 		cmd_cmd = split[1]
 
-		if cmd_cmd == "add":
+		if cmd_cmd == "add" or cmd_cmd == "remove":
 
-			# Joins together with spaces all the items in the split list, then split it on the " marks
+			# split is set to equal everything after the !quote add/remove
 			split = split[2:]
-
 			user = split[0]
 
 			if user[0] == '@':
 				user = user[1:]	# Remove the @ sign, we work without them
 
-			# The user is the first item after !quote add
-			if len(split) == 1:	# It's just a username, anything more indicates an incorrect command
-				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
+			if cmd_cmd == "add":
+				response = quotes.addQuote(user, split, is_mod, is_owner)
 
-			elif len(split) >= 2:
-				# The quote is the second item(s) in the list
-				quote = " ".join(split[1:]).replace('"', "''")
-
-				print (quote)
-
-				# The game is the third item in the list, but may have spaces on either side
-
-				command = '''INSERT INTO quotes
-							(name, quote)
-							VALUES ("{}", "{}")'''.format(user, quote)
-
-				with sqlite3.connect('data/beambot.sqlite') as con:
-					cur = con.cursor()
-
-					cur.execute(command)
-
-				con = None
-
-			else:
-				return usage.prepCmd(user_name, "quote", is_mod, is_owner)
+			elif cmd_cmd == "remove":
+				response = quotes.removeQuote(user, split, is_mod, is_owner)
 
 	else:
 		return usage.prepCmd(user_name, "quote", is_mod, is_owner)
