@@ -32,6 +32,7 @@ def removeQuote(user, split, is_mod, is_owner):
     # split is set to equal everything after the !quote add/remove
     user = split[0]
 
+    print (split)
     print (len(split))
 
     if user[0] == '@':
