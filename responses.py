@@ -640,6 +640,43 @@ def dimes(user_name, cur_item, is_mod, is_owner):
 
 	return currency.dimes(user_name, cur_item, is_mod, is_owner)
 
+def raid(user_name, cur_item, is_mod, is_owner):
+	cmd = 'raid'
+
+	if is_mod or is_owner:	# Check if mod or owner
+		split = cur_item[1:].split()
+		if len(split) >= 2:
+			raid = split[1]
+			if raid[0] == "@":
+				raid = raid[1:]	# Remove the @ character
+			return "Stream's over everyone!"\
+					" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
+
+		else:		# Wrong # of args
+			return usage.prepCmd(user_name, "raid", is_mod, is_owner)
+
+	else:
+		return None
+
+def twitch(user_name, cur_item, is_mod, is_owner):
+	cmd = 'twitch'
+
+	if is_mod or is_owner:	# Check if user is owner/mod
+
+		split = cur_item[1:].split()
+		if len(split) >= 2:
+			raid = split[1]
+			if raid[0] == "@":
+				raid = raid[1:]			# Remove the @ character
+			return "Stream's over everyone!"\
+				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
+
+		else:		# Wrong # of args
+			return usage.prepCmd(user_name, "twitch", is_mod, is_owner)
+
+	else:
+		return None
+
 def raided(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raided'
 
