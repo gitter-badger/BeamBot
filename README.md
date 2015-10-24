@@ -67,9 +67,15 @@ Simply run `python3 beambot.py`!
 
 ##### **(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
 
-**(3.2.14)** - Added ability to remove quotes
+##### **(3.2.15)** - Added ability to remove quotes
 
-**(3.2.14)** - Fixed a lot of minor bugs discovered by stress-testing the bot
+##### **(3.2.15)** - Fixed a lot of minor bugs discovered by stress-testing the bot
+
+**(3.2.16)** - Hopefully fixed NoneType not iterable exception that was crashing the bot
+
+**(3.2.16)** - Added store command, customizable store that allows you add and remove items that cost a certain number of currency
+
+**(3.2.16)** - Fixed bugs where users could send currency without being charged & users could give negative values (found by alfw)
 
 ### Info on future 3.3.0 release
 

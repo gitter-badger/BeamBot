@@ -92,7 +92,9 @@ def controlChannel():
 
 	while True:
 		result = yield from websocket.recv()
-
+		if result == None:
+			next
+			
 		result = json.loads(result)
 
 		if result['event'] == 'ChatMessage':
@@ -136,7 +138,7 @@ def keepAlive():
 
 		yield from asyncio.sleep(180)
 		initial = False
-		
+
 def restart(user_name, websocket):
 	print ('Restarting bot in 10 seconds...')
 	subprocess.Popen(['sh','restart.sh'])

@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.2.14
+	Version: 	3.2.16
 	Author: 	RPiAwesomeness
-	Date:		October 23, 2015
+	Date:		October 24, 2015
 
-	Changelog:	Added ability to remove quotes
-				Fixed a lot of minor bugs discovered by
-					stress-testing the bot
+	Changelog:	Hopefully fixed NoneType not iterable exception
+					that was crashing the bot
+				Added store command
+				Fixed bugs where users could send currency
+					without being charged & users could give
+					negative values (found by alfw)
 -+=============================================================+
 """
 
@@ -17,6 +20,7 @@ import asyncio, websockets, requests
 import time, random
 import pickle
 import argparse
+import subprocess
 import responses, commands, messages, schedule, announce
 
 from datetime import datetime
@@ -146,8 +150,10 @@ def readChat():
 		schedule.registerWebsocket(websocket)
 		announce.registerWebsocket(websocket)
 
-		if result != None:
-			result = json.loads(result)
+		if result == None:
+			next
+
+		result = json.loads(result)
 
 		if 'event' in result:		# Otherwise it crashes when type = response
 
@@ -330,12 +336,18 @@ def main():
 		asyncio.async(schedule.timeoutsHandler()),
 		asyncio.async(keepAlive())
 	]
+	try:
+		loop.run_until_complete(connect())		# Announce your presence!
+		loop.run_until_complete(asyncio.wait(tasks))
 
-	loop.run_until_complete(connect())		# Announce your presence!
+	except Exception as e:
+		print ("\033[1;31mSomething happened!\033[0m\n")
+		print (e)
 
-	loop.run_until_complete(asyncio.wait(tasks))
-
-	loop.close()
+		messages.close(websocket)
+		loop.close()
+		p = subprocess.Popen(['sh', './restart.sh'])
+		quit()
 
 if __name__ == "__main__":
 	global args

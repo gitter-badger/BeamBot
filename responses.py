@@ -10,7 +10,9 @@ import json
 # PyBot Modules
 import usage
 import schedule as schedule_mod
+import store as store_mod
 import quotes
+import currency
 
 global prevTime, cust_commands, commandList, count_vars
 
@@ -459,6 +461,29 @@ def schedule(user_name, cur_item, is_mod, is_owner, websocket):
 
 	return response
 
+def store(user_name, cur_item, is_mod, is_owner):
+	cmd = "store"
+
+	if _checkTime(cmd, user_name, is_mod, is_owner):
+		return None
+
+	if is_mod or is_owner:
+		if len(cur_item) >= 2:
+			if cur_item[1] == "add" or cur_item[1] == "remove" or cur_item[1] == "edit":
+				return store_mod.storeEdit(user_name, cur_item, is_mod, is_owner)
+			else:
+				return usage.prepCmd(user_name, "store", is_mod, is_owner)
+
+	return store_mod.storeList(user_name, is_mod, is_owner)
+
+def store_buy(user_name, cur_item, is_mod, is_owner):
+	cmd = "buy"
+
+	if _checkTime(cmd, user_name, is_mod, is_owner):
+		return None
+
+	return store_mod.storeBuy(user_name, cur_item, is_mod, is_owner)
+
 def quote(user_name, cur_item, is_mod, is_owner):
 	cmd = 'quote'
 
@@ -605,148 +630,15 @@ def give(user_name, cur_item, is_mod, is_owner):
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 		return None
 
-	split = cur_item[1:].split()
-
-	if len(split) >= 3:
-		user = split[1]	# User recieving dimes
-		if user[0] == '@':
-			user = user[1:]			# Remove the @ character
-		try:	# Try to convert argument to int type
-			num_send = int(split[2])	# Number of dimes being transferred
-		except:	# Oops! User didn't provide an integer
-			return usage.prepCmd(user_name, "give", is_mod, is_owner)
-
-		with sqlite3.connect('data/beambot.sqlite') as con:
-			cur = con.cursor()
-
-			command = '''SELECT gears
-						FROM gears
-						WHERE name=\"''' + user + '\"'''
-
-			cur.execute(command)
-			results = cur.fetchall()
-
-			if len(results) >= 1:
-				user_currency_orig = results[0][0]
-
-				if user_name == "pybot":	# If it's bot, ignore removal of dimes & # check
-					userDimes = int(user_currency_orig) + int(num_send)
-
-					command = '''UPDATE gears
-								SET gears={}
-								WHERE name="{}"'''.format(userDimes, user)
-
-					cur.execute(command)
-
-					return "@" + user + " now has " + str(userDimes) + " " + config['currency_name'] + "!"
-
-				if num_send <= user_currency_orig:	# Make sure the sending user has enough dimes
-
-					userDimes = int(user_currency_orig) + int(num_send)
-
-					command = '''UPDATE gears
-								SET gears={}
-								WHERE name="{}"'''.format(userDimes, user)
-
-					cur.execute(command)
-
-					return "@" + user + " now has " + str(userDimes) + " " + config['currency_name'] + "!"
-
-				else:
-					return None
-
-			else:		# User not in dimes database
-				command = '''INSERT INTO gears
-							(name, gears)
-							VALUES ("{}", {})'''.format(user, str(num_send))
-
-				cur.execute(command)	# Soooo... add 'em!
-
-				return "@" + user + " now has " + str(num_send) + " " + config['currency_name'] + "!"
-
-	else:
-		return usage.prepCmd(user_name, "give", is_mod, is_owner)
+	return currency.give(user_name, cur_item, is_mod, is_owner)
 
 def dimes(user_name, cur_item, is_mod, is_owner):
 	cmd = 'dimes'
 
 	if _checkTime(cmd, user_name, is_mod, is_owner):
-			return None
+		return None, user_name
 
-	split = cur_item[1:].split()
-
-	print ('split:\t',split)
-
-	if len(split) >= 2:
-		if split[1][0] == "@":
-			user = split[1][1:]		# Remove @ character
-		else:
-			user = split[1]
-	else:
-		user = user_name
-
-	with sqlite3.connect('data/beambot.sqlite') as con:
-		cur = con.cursor()
-
-		command = '''SELECT gears
-					FROM gears
-					WHERE name LIKE \"%''' + user + '%\"'''
-
-		cur.execute(command)
-
-		results = cur.fetchall()
-
-		# Return number of currency
-		if len(results) >= 1:
-			print ('results[0][0]:\t', str(results[0][0]))
-			return str(results[0][0]), user
-		else:
-			return False, user
-
-def hey(user_name, is_mod, is_owner):
-	cmd = 'hey'
-
-	if _checkTime(cmd, user_name, is_mod, is_owner):
-			return None
-
-	return "Hey! {}! Listen!".format(user_name)
-
-def raid(user_name, cur_item, is_mod, is_owner):
-	cmd = 'raid'
-
-	if is_mod or is_owner:	# Check if mod or owner
-		split = cur_item[1:].split()
-		if len(split) >= 2:
-			raid = split[1]
-			if raid[0] == "@":
-				raid = raid[1:]	# Remove the @ character
-			return "Stream's over everyone!"\
-					" Thanks for stopping by, let's go raid @{} at beam.pro/{}!".format(raid, raid)
-
-		else:		# Wrong # of args
-			return usage.prepCmd(user_name, "raid", is_mod, is_owner)
-
-	else:
-		return None
-
-def twitch(user_name, cur_item, is_mod, is_owner):
-	cmd = 'twitch'
-
-	if is_mod or is_owner:	# Check if user is owner/mod
-
-		split = cur_item[1:].split()
-		if len(split) >= 2:
-			raid = split[1]
-			if raid[0] == "@":
-				raid = raid[1:]			# Remove the @ character
-			return "Stream's over everyone!"\
-				" Thanks for stopping by, let's go raid {} at twitch.tv/{}!".format(raid, raid)
-
-		else:		# Wrong # of args
-			return usage.prepCmd(user_name, "twitch", is_mod, is_owner)
-
-	else:
-		return None
+	return currency.dimes(user_name, cur_item, is_mod, is_owner)
 
 def raided(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raided'
@@ -769,9 +661,11 @@ def raided(user_name, cur_item, is_mod, is_owner):
 		return usage.prepCmd(user_name, "raided", is_mod, is_owner)
 
 def commands(user_name, is_mod, is_owner):
-	commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
-
-	return ", ".join(commandList)
+	if os.path.exists('data/commands{}.json'.format(config['CHANNEL'])):
+		commandList = json.loads(open('data/commands{}.json'.format(config['CHANNEL']), 'r'))
+		return ", ".join(commandList)
+	else:
+		return "Command list missing!"
 
 def uptime(user_name, initTime, is_mod, is_owner):
 	cmd = 'uptime'

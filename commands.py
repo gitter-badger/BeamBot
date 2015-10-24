@@ -172,6 +172,12 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	elif cmd[0] == "schedule":	# Run commands at set intervals
 		response = responses.schedule(user_name, cmd, is_mod, is_owner, websocket)
 
+	elif cmd[0] == "store":		# List the items for sale
+		response = responses.store(user_name, cmd, is_mod, is_owner)
+
+	elif cmd[0] == "buy":		# Buy something from store using currency
+		response = responses.store_buy(user_name, cmd, is_mod, is_owner)
+
 	elif cmd[0] == "uptime":# Bot uptime
 		response = responses.uptime(user_name, initTime, is_mod, is_owner)
 

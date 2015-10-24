@@ -100,6 +100,10 @@ with open('data/config.json', 'w') as f:
 messages = []
 pickle.dump(messages, open('data/scheduled.p', 'wb'))
 
+store_items = []
+with open('data/store{}.json'.format()) as f:
+	json.dump(store_items, f, sort_keys=True, indent=4, separators=(',', ': '))
+
 # Create the sqlite database
 with sqlite3.connect('data/beambot.sqlite') as con:
 

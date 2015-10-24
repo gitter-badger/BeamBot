@@ -44,7 +44,7 @@ def prepCmd(user, cmd, is_mod, is_owner):
 				return "Bot configuration options: currencyName, commandTimeout, announceEnter, announceLeave, announceFollow"
 
 			if cmd in cmdList:	# We should never get any that aren't part of the list, but let's be safe
-				return "Usage " + cmdList[cmd]
+				return "Usage: " + cmdList[cmd]
 			else:
 				print ('No usage for command', cmd + "!")
 				return None
