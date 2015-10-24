@@ -640,6 +640,12 @@ def dimes(user_name, cur_item, is_mod, is_owner):
 
 	return currency.dimes(user_name, cur_item, is_mod, is_owner)
 
+def hey(user_name, is_mod, is_owner):
+	cmd = 'hey'
+	if _checkTime(cmd, user_name, is_mod, is_owner):
+		return None		
+	return "Hey! {}! Listen!".format(user_name)
+
 def raid(user_name, cur_item, is_mod, is_owner):
 	cmd = 'raid'
 
