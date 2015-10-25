@@ -6,23 +6,44 @@ new code instead of having to figure out how to create the correct packet.
 """
 
 from datetime import datetime
+import os
+import pickle
+import json
+
+# PyBot modules
 import responses
+import control
+import usage
 
 initTime = datetime.now().strftime('%H.%M.%S')
 
-def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
+if os.path.exists('data/config.json'):
+	config = json.load(open('data/config.json', 'r'))
+else:
+	print ('\033[1;31mConfig file (data/config.json) missing!\033[0m\n')
+	print ('Please run setup before launching the bot.')
+	print ('To do so run:\tpython3 setup.py')
+	quit()
 
-	global is_mod, is_owner
+if os.path.exists('data/bannedUsers{}.p'.format(config['CHANNEL'])):
+	bannedUsers = pickle.load(open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'rb'))
+else:
+	bannedUsers = []
+	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
-	userID = msg['user_id']
-	userName = msg['user_name']
-	msgID = msg['id']
+def prepCMD(msg, msg_local_id, websocket):
+
+	user_id = msg['user_id']
+	user_name = msg['user_name']
+	msg_id = msg['id']
 	user_roles = msg['user_roles']
 
-	is_mod = False		# Have to declare variable as False to avoid UnboundLocalError
-	is_owner = False	# Have to declare variable as False to avoid UnboundLocalError
+	msg = msg['message']
+
 	response = None		# Have to declare variable as None to avoid UnboundLocalError
 	goodbye  = False 	# Have to declare variable as False to avoid UnboundLocalError
+	is_mod = False
+	is_owner = False
 
 	if 'Owner' in user_roles:
 		print ('Streamer/Owner!')
@@ -32,7 +53,7 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 		print ('Stream mod!')
 		is_mod = True
 
-	if userName in bannedUsers:		# Is the user chatbanned?
+	if user_name in bannedUsers:		# Is the user chatbanned?
 		session = requests.session()
 
 		login_r = session.post(
@@ -45,7 +66,7 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 			print ("Not Authenticated!")
 			quit()
 
-		del_r = session.delete(addr + '/api/v1/chats/' + str(channel) + '/message/' + msgID)	# Delete the message
+		del_r = session.delete(addr + '/api/v1/chats/' + str(channel) + '/message/' + msg_id)	# Delete the message
 
 		if del_r.status_code != requests.codes.ok:
 			print ('Response:\t\t',del_r.json())
@@ -53,7 +74,7 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 
 		session.close()
 
-	curItem = ''
+	cur_item = ''
 
 	"""
 	This loop goes through the message. If there is a link in the message, then it will show up every second
@@ -64,113 +85,147 @@ def prepCMD(msg, bannedUsers, msgLocalID, msgs_acted):
 	"""
 
 	for i in range(0, len(msg['message'])):
+		msg_cur = msg['message'][i]
+
 		if i % 2:		# Every 2 messages
-			curItem += msg['message'][i]['text']
+			cur_item += msg_cur['text']
 		else:
-			curItem += msg['message'][i]['data']
+			if 'data' in msg_cur:
+				cur_item += msg_cur['data']
+
+			elif 'me' in msg_cur:
+				cur_item += msg_cur['text']
 
 	for item in msg['message']:	# Iterate through the message
 
-		if len(curItem) >= 1:	# Just make sure it's an actual message
+		if len(cur_item) >= 1:	# Just make sure it's an actual message
 
-			if curItem[0] == '!' and msgID not in msgs_acted:	# It's a command! Pay attention!
+			if cur_item[0] == '!':	# It's a command! Pay attention!
 
-				response, goodbye = getResp(curItem, userName, msgLocalID)
+				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner, websocket)
 
 	return response, goodbye
 
-def getResp(curItem, userName=None, msgLocalID=None):
+def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None):
+
+	goodbye = False
 
 	# ----------------------------------------------------------
 	# Commands
 	# ----------------------------------------------------------
-	cmd = curItem[1:].split()
+	cmd = cur_item[1:].split()
 
-	if cmd[0] == "hey":				# Say hey
-		response = responses.hey(userName)
+	if cmd[0][0:5] == "blame":	# Blame a user
+		response = responses.blame(user_name, cur_item, is_mod, is_owner)
+
+	elif cmd[0] == "commands":		# Get list of commands
+		response = responses.cmdList(user_name, cur_item, is_mod, is_owner)
+
+	elif cmd[0] == "hey":				# Say hey
+		response = responses.hey(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "ping":				# Ping Pong Command
-		response = responses.ping(userName)
+		response = responses.ping(user_name, is_mod, is_owner)
 
-	elif cmd[0] == "dimes" or cmd[0] == "currency":			# Get user balance
-		response = responses.dimes(userName, curItem)
+	elif cmd[0] == config["currency_name"] or cmd[0] == "currency":			# Get user balance
+		currency_ret, user = responses.dimes(user_name, cur_item, is_mod, is_owner)
+
+		if currency_ret != False:
+			response = "@" + user + " has " + currency_ret + " " + config['currency_name'] + "!"
+		else:
+			response = "@" + user + " has no " + config['currency_name'] + "! :o"
 
 	elif cmd[0] == "give":	# Give dimes to a user
-		response = responses.give(userName, curItem)
+		response = responses.give(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "ban":	# Ban a user from chatting
-		response, banUser = responses.ban(userName, curItem)
-		bannedUsers.append(banUser)
+		response, banUser = responses.ban(user_name, cur_item, is_mod, is_owner)
+		if banUser != "":
+			bannedUsers.append(banUser)
 
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
+		print ("bannedUsers",bannedUsers)
+
+		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
 
 	elif cmd[0] == "unban":	# Unban a user
-		response, uBanUser = responses.unban(userName, curItem)
-		bannedUsers.remove(uBanUser)
+		response, uBanUser = responses.unban(user_name, cur_item, is_mod, is_owner)
+		if uBanUser != "":
+			bannedUsers.remove(uBanUser)
 
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', "wb"))
+		print ("bannedUsers",bannedUsers)
 
-	elif cmd[0] == "quote": # Get random quote from DB
-		response = responses.quote(userName, curItem)
+		pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), "wb"))
+
+	elif cmd[0] == "quote":	# Get random quote from DB
+		response = responses.quote(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "tackle":# Tackle a user!
-		response = responses.tackle(userName, curItem)
+		response = responses.tackle(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "slap":	# Slap someone
-		response = responses.slap(userName)
+		response = responses.slap(user_name, is_mod, is_owner)
+
+	elif cmd[0] == "set":	# Bot configuration - Uses cmd instead of cur_item
+		response = responses.set(user_name, user_id, cmd, is_mod, is_owner)
+
+	elif cmd[0] == "schedule":	# Run commands at set intervals
+		response = responses.schedule(user_name, cmd, is_mod, is_owner, websocket)
+
+	elif cmd[0] == "store":		# List the items for sale
+		response = responses.store(user_name, cmd, is_mod, is_owner)
+
+	elif cmd[0] == "buy":		# Buy something from store using currency
+		response = responses.store_buy(user_name, cmd, is_mod, is_owner)
 
 	elif cmd[0] == "uptime":# Bot uptime
-		response = responses.uptime(userName, initTime)
+		response = responses.uptime(user_name, initTime, is_mod, is_owner)
 
 	elif cmd[0] == "hug":	# Give hugs!
-		response = responses.hug(userName, curItem)
+		response = responses.hug(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "raid":	# Go raid peoples
-		response = responses.raid(userName, curItem)
+		response = responses.raid(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "raided":	# You done got raided son!
-		response = responses.raided(userName, curItem)
+		response = responses.raided(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "twitch":	# Go raid peoples on Twitch.tv!
-		response = responses.twitch(userName, curItem)
+		response = responses.twitch(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "whoami":	# Who am I? I'M A GOAT. DUH.
-		response = responses.whoami(userName)
+		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		response = responses.command(userName, curItem)
+		if len(cmd) <= 3:	# It's not long enough to have a response
+			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
+
+		if cmd[1] == "add":
+			response = responses.command(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "remove":
+			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "update":
+			response = responses.editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only=False)
+		else:					# Not add or remove, return usage
+			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
-		response = responses.commandMod(userName, curItem)
+		if len(cmd) <= 3:	# It's not long enough to have a response
+			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
 
-	elif cmd[0] == "command-":	# Remove a command
-		response = responses.commandRM(userName, curItem)
-
-	elif cmd[0] == "whitelist":	# Whitelist a user
-		if len(cmd) >= 3:	# True means it has something like `add` or `remove`
-			if cmd[1] == 'add':
-				response = responses.whitelist(userName, curItem)
-			elif cmd[1] == 'remove':
-				response = responses.whitelistRM(userName, curItem)
-			else: 	# Not add or remove
-				response = None
-		else:		# Just get the whitelist
-			response = responses.whitelistLS(userName, curItem)
+		if cmd[1] == "add":
+			response = responses.commandMod(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "remove":
+			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
+		elif cmd[1] == "update":
+			response = responses.editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only=True)
+		else:					# Not add or remove, return usage
+			response = usage.prepCmd(user_name, "command+", is_mod, is_owner)
 
 	elif cmd[0] == "goodbye":	# Turn off the bot correctly
-		if is_owner or userName == 'ParadigmShift3d':
-			packet = {
-				"type":"method",
-				"method":"msg",
-				"arguments":['See you later my dear sir, wot wot!'],
-				"id":msgLocalID
-			}
+		return control.goodbye(user_name, is_owner, msg_local_id)
 
-			return packet, True	# Return the Goodbye message packet &
-		else:		# Don't want anyone but owner killing the bot
-			return None, False
 	else:					# Unknown or custom command
-		response = responses.custom(userName, curItem)
+		response = responses.custom(user_name, cur_item, is_mod, is_owner)
 
 	print ('command:\t',cmd,'\n',
 		'response:\t',response,'\n')	# Console logging

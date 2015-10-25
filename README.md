@@ -1,6 +1,6 @@
 #BeamBot Repository
 
-This is my repository for my beambot project, a Beam.pro chat bot. I need a better name than beambot or pybot, but those are what I'm working with currently.
+This is my repository for my PyBot project, a Beam.pro chat bot.
 
 ##Setup
 
@@ -23,61 +23,84 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.2.0
+## Features in 3.2.14
 
-**NOTE**: With the 3.1.0 release, I removed the new features listed for all old versions up to version 1.0.0. They are still accessible in the repository history, but the list was getting long
+**NOTE**: With the 3.2.14 release, I removed the new features listed for all old versions up to version 3.2.10. They are still accessible in the repository history.
 
-###### **(1.0.0)** - 1.0 release! \o/
+###### **(3.2.10)** - Fixed bug where bot wasn't connecting to the correct API endpoint & thus wasn't authenticating, crashing the bot
 
-###### **(1.0.0)** - Users in the stream automatically recieve +1 gear/trinket per minute and +3 every 3 minutes if they were involved in chat
+###### **(3.2.10)** - You can now pass the -nsm/--nostartmsg argument when starting the bot to stop it from sending the startup greeting message
 
-###### **(2.0.0)** - Jumping to 2.0.0 release really quickly because I made a major change to the way the code works. I moved the code that takes the raw command and converts it into a usable set of information, and the code that figures out which command exactly was sent into a separate file - `commands.py`.
+###### **(3.2.10)** - Added messages.py to handle message sending and websocket closing
 
-###### **(2.0.0)** - Cleaned up the code a bit, and removed unnecessary code.
+###### **(3.2.10)** - Fixed bug where users sending /me messages would crash part of the bot
 
-###### **(2.1.0)** - Added auto-connect/channel auto-selection via username
+###### **(3.2.10)** - Added [[currency]] custom command variable, returns the running user's currency
 
-###### **(2.2.0)** - Fixed a configuration conflict with the IRC and beam information.
+###### **(3.2.11)** - Added scheduled commands, run at specified intervals (!schedule command)
 
-###### **(2.2.0)** - Changed gears to dimes
+###### **(3.2.11)** - Fixed the quote system to be less confusing & actually work
 
-###### **(3.0.0)** - Changed custom command storage medium from XML to JSON because it's simpler
+###### **(3.2.11)** - Updated code to work with Beam's chat API 10/9/15 changes
 
-###### **(3.0.0)** - Changed custom commands so you can now update an existing command's response
+###### **(3.2.11)** - Fixed schedule command not working because of conflicting module & function names
 
-###### **(3.0.0)** - Added !raid, !raided and !twitch commands
+##### **(3.2.12)** - 	Updated !schedule command to select randomly from the list of all registered messages every 5 minutes
 
-###### **(3.1.0)**	- Added `setup.py` setup script, so user no longer has to manually edit config.py
+##### **(3.2.12)** - Updated !schedule command syntax to only require the message text
 
-###### **(3.1.0)** - Removed `config.py` to replace it with `config.json`, since that is simpler and easier to maintain/easier for the user to set up initially.
+##### **(3.2.12)** - Added code to send a ping over the websocket every 3 minutes to help keep the bot's connection alive
 
-###### **(3.1.0)** - Fixed a couple of random incorrect file names
+##### **(3.2.12a)** - Fixed !schedule command (broken by a rogue `break` statement) & variable name conflict
 
-###### **(3.1.0)** - Updated code to use new `config.json` data.
+##### **(3.2.13)** - Added scheduled message removal capabilities
 
-**(3.2.0)** - Added response variables `[[args]]` and `[[user]]`` for custom commands
+##### **(3.2.13)** - Fixed users not actually being announced when they enter or leave (and related crash)
 
-**(3.2.0)** - ``!give`, ``!quote`, and `!gears` now can be called via ``@USERNAME`
-OR plain `USERNAME` (no @ character)
+##### **(3.2.13)** - Fixed crash caused by enter/leave announce fix
 
-**(3.2.0)** - Working on implementing `!commands` and `!throw`/`!catch`.
+##### **(3.2.13)** - Related to ^: Fixed commands not being recognized
 
-**(3.2.0)** - Working on transferring command responses to `data/responses.json`
+##### **(3.2.13)** - Fixed blame command not working properly
 
-**(3.2.0)** - Added `!currency` command, works exactly as `!dimes`
+##### **(3.2.13)** - Added update capabilities to scheduled messages (via !schedule **update** MESSAGETEXTHERE) and also to custom commands (via !command **update** COMMANDHERE COMMANDTEXTHERE)
 
-**(3.2.0)** - Updated `setup.py` script to set up `data/commandList.json`
+##### **(3.2.13)** - Fixed bug in usage code that crashed bot when returning usage
+
+##### **(3.2.15)** - Added ability to remove quotes
+
+##### **(3.2.15)** - Fixed a lot of minor bugs discovered by stress-testing the bot
+
+**(3.2.16)** - Hopefully fixed NoneType not iterable exception that was crashing the bot
+
+**(3.2.16)** - Added store command, customizable store that allows you add and remove items that cost a certain number of currency
+
+**(3.2.16)** - Fixed bugs where users could send currency without being charged & users could give negative values (found by alfw)
+
+### Info on future 3.3.0 release
+
+The code has, as I've been adding to it, slowly been getting less tidy and well-written.
+
+Plus, although I've tested the bot myself, I've yet to see it in action or have it truly tested by any other user than myself. (Thank you to @xcentrik4 on Twitter for letting me deploy my bot on his streams)
+
+Thus, although I plan on adding a few new features and commands for 3.3.0, it's going to mainly be a boring (but very important) stability and quality improvement release.
+
+**Plans for 3.3.0:**
+
+* Clean up the codebase and stress-test/bug test the code with outside users, preferably in a production (live stream with active chat) environment.
+
+* This release will fix bugs ~~#2~~ (Not going to change the bot name, at least not for 3.3.0), #3, ~~#5~~ (Fixed as of 3.2.3), ~~#6~~ (Fixed as of 3.2.3) and #7
+
+### Recognitions
+BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
+xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
 
 ###Current issues:
 
-* Need to add more commands and features
-
-* Need a better name than pybot/beambot (Bug #2)
-
-* Make bot watch beam.pro/pybot for commands
+* Need to add more commands and features - The never-ending bug!
 
 * Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
-* `!uptime` sometimes returns a negative value for the seconds
+* Add ability to change default command responses (^)
 
 * Anything else I can't think of at this time but is still applicable

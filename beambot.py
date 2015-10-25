@@ -1,25 +1,34 @@
 #!/usr/bin/env python3
+"""
+-+=============================================================+-
+	Version: 	3.2.16
+	Author: 	RPiAwesomeness
+	Date:		October 24, 2015
 
-# -+=============================================================+-
-#	Version: 	3.2.0
-#	Author: 	RPiAwesomeness
-#	Date:		July 10, 2015
-#
-#	Changelog:	Added response variables to custom commands
-#				Added !currency command
-#				Updated !give, !gears, and !quote to support @USERNAME as well
-#					as the current USERNAME (sans-@)
-#				Various bug fixes
-# -+=============================================================+
+	Changelog:	Hopefully fixed NoneType not iterable exception
+					that was crashing the bot
+				Added store command
+				Fixed bugs where users could send currency
+					without being charged & users could give
+					negative values (found by alfw)
+-+=============================================================+
+"""
 
-import os, sys
+import sys, os
 import json
 import asyncio, websockets, requests
 import time, random
 import pickle
-import responses, commands
+import argparse
+import subprocess
+import responses, commands, messages, schedule, announce
+
 from datetime import datetime
 from time import sleep
+
+from control import goodbye
+from control import controlChannel
+from control import keepAlive
 
 @asyncio.coroutine
 def autoCurrency():
@@ -32,25 +41,25 @@ def autoCurrency():
 
 		with requests.Session() as session:		# Get the list of currently active users
 			usersRet = session.get(
-				addr + '/api/v1/chats/' + str(channel) + '/users')
+				addr + '/chats/' + str(channel) + '/users')
 
 		usersRet = usersRet.json()
 
 		for user in usersRet:					# Give all users +1 gear per minute
-			userName = user['userName']
+			user_name = user['userName']
 
-			curItem = '!give ' + userName + " 1"
-			autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +1 gear
+			curItem = '!give ' + user_name + " 1"
+			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
 			for user in usersRet:					# Check all the currently active users
-				userName = user['userName']
+				user_name = user['userName']
 
-				if userName in activeChat:				# Has the user chatted in the last 3 minutes?
+				if user_name in activeChat:				# Has the user chatted in the last 3 minutes?
 
-					curItem = '!give ' + userName + " 3"
-					autoCurrencyResponse = responses.give('pybot', curItem)	# Give the users +3 gear for being involved
+					curItem = '!give ' + user_name + " 3"
+					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +3 gear for being involved
 
 
 			timeIncr = 0	# Reset the time incrementer
@@ -63,144 +72,173 @@ def autoCurrency():
 @asyncio.coroutine
 def connect():
 
-	global initTime
+	global initTime, authkey_control, endpoint_control, user_id
 
-	websocket = yield from websockets.connect(endpoint)
+	websocket = yield from websockets.connect(endpoint_control)
+	content = [22085, user_id, authkey_control]
 
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[channel, user_id, authkey],
-		"id":0
-	}
+	ret = yield from messages.sendMsg(websocket, content, is_auth=True)
+	ret = ret.split('"id"')[0][:-1] + "}"
 
-	yield from websocket.send(json.dumps(packet))
-	ret = yield from websocket.recv()
 	ret = json.loads(ret)
 
 	if ret["error"] != None:
+		print ('CONTROL CHANNEL')
+		print ('Error:\t',ret["error"])
+		print ("Error - Non-None error returned!")
+		quit()
+
+	curTime = str(datetime.now().strftime('%H.%M.%S')) + ' - ' + str(datetime.now().strftime('%D'))
+
+	msg_to_send = 'Bot online - Current Date/Time: {}'.format(str(curTime))
+	ret_msg = yield from messages.sendMsg(websocket, msg_to_send)
+	ret_msg = json.loads(ret_msg)
+
+	yield from messages.close(websocket)
+
+	websocket = yield from websockets.connect(endpoint)
+	content = [channel, user_id, authkey]
+
+	ret = yield from messages.sendMsg(websocket, content, is_auth=True)
+	ret = ret.split('"id"')[0][:-1] + "}"
+	ret = json.loads(ret)
+
+	if ret["error"] != None:
+		print ("MAIN CHANNEL")
 		print (ret["error"])
 		print ("Error - Non-None error returned!")
 		quit()
 
-	if int(datetime.now().strftime('%H')) < 12:		# It's before 12 PM - morning
-		timeStr = "mornin'"
-	elif int(datetime.now().strftime('%H')) >= 12 and int(datetime.now().strftime('%H')) < 17:		# It's afternoon
-		timeStr = "afternoon"
-	elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
-		timeStr = "evenin'"
+	if not args.nostartmsg:
+		if int(datetime.now().strftime('%H')) < 12:		# It's before 12 PM - morning
+			timeStr = "mornin'"
+		elif int(datetime.now().strftime('%H')) >= 12 and int(datetime.now().strftime('%H')) < 17:		# It's afternoon
+			timeStr = "afternoon"
+		elif int(datetime.now().strftime('%H')) >= 17:	# It's after 5 - evening
+			timeStr = "evenin'"
 
-	# If the message doesn't send initially, send it again. The bot just needs to wake up chat
-	packet = {
-		"type":"method",
-		"method":"msg",
-		"arguments":['Top o\' the {} to you!'.format(timeStr)],
-		"id":1
-	}
+		msg_to_send = 'Top o\' the {} to you!'.format(timeStr)
+		ret_msg = yield from messages.sendMsg(websocket, msg_to_send)
 
-	yield from websocket.send(json.dumps(packet))
-	ret_msg = yield from websocket.recv()
-	ret_msg = json.loads(ret_msg)
+		yield from messages.close(websocket)
 
-	yield from websocket.close()
+	else:
+		yield from messages.close(websocket)
 
 @asyncio.coroutine
 def readChat():
 
-	global initTime, activeChat
+	global initTime, activeChat, user_id, websocket, chat_socket
 
 	activeChat = []
 	msgLocalID = 0
+	goodbye = False
+	announce_users = {}
 
 	session = requests.Session()
 
-	if os.path.exists('data/blacklist.p'):
-		msgs_acted = pickle.load(open('data/blacklist.p', "rb"))
-	else:
-		msgs_acted = []
-		pickle.dump(msgs_acted, open('data/blacklist.p', 'wb'))
-
 	activeChat = []
-
-	if os.path.exists('data/bannedUsers.p'):
-		bannedUsers = pickle.load(open('data/bannedUsers.p', 'rb'))
-	else:
-		bannedUsers = []
-		pickle.dump(bannedUsers, open('data/bannedUsers.p', 'wb'))
-
 	websocket = yield from websockets.connect(endpoint)
 
-	packet = {
-		"type":"method",
-		"method":"auth",
-		"arguments":[channel, user_id, authkey],
-		"id":0
-	}
-
-	response = yield from websocket.send(json.dumps(packet))
+	content = [channel, user_id, authkey]
+	yield from messages.sendMsg(websocket, content, is_auth=True)
 
 	while True:
 
-		timeCur = datetime.now().strftime("%S")
+		time_pre_recv = (datetime.now().strftime("%M"))
 
 		result = yield from websocket.recv()
 
-		if result != None:
-			result = json.loads(result)
+		schedule.registerWebsocket(websocket)
+		announce.registerWebsocket(websocket)
+
+		if result == None:
 			next
 
-		print ('result:\t',result,'\n')
+		result = json.loads(result)
 
-		if 'event' in result:
-			if result['event'] == "ChatMessage":
+		if 'event' in result:		# Otherwise it crashes when type = response
+
+			event = result['event']
+			if 'username' in result['data']:
+				result_user = result['data']['username']
+			elif 'user_name' in result['data']:
+				result_user = result['data']['user_name']
+
+			cur_time = int(datetime.now().strftime("%M"))
+
+			if event == "UserJoin":
+				yield from announce.userJoin(result, result_user)
+
+			if event == "UserLeave":
+				yield from announce.userLeave(result, result_user)
+
+			elif event == "ChatMessage":
 
 				msg = result['data']
-				msgID = msg['id']
-				userName = msg['user_name']
+				msg_id = msg['id']
 
-				if userName not in activeChat:
-					activeChat.append(userName)
+				user_roles = msg['user_roles']
+				user_name = msg['user_name']
+				user_id = msg['user_id']
+				user_msg = msg['message']['message']
+				meta = msg['message']['meta']
 
-				response, goodbye = commands.prepCMD(msg, bannedUsers, msgLocalID, msgs_acted)
+				print ('User:\t\t', user_name,
+						'-', user_id)
+
+				msg_text = ''
+
+				if len(user_msg) > 1:	# There's an emoticon in there
+					for section in user_msg:
+						if section['type'] == 'text' and section['data'] != '':
+							msg_text += section['data']
+
+						elif section['type'] == 'emoticon':		# Emoticon
+							msg_text += section['text']
+
+						elif section['type'] == 'link':			# Link/URL
+							msg_text += section['text']
+
+				else:
+					# Updated form /me handling - to be released Oct 18-19 by Beam
+					if 'meta' in user_msg[0]:			# /me message
+						if 'me' in user_msg[0]['meta']:
+							msg_text += user_msg[0]['message']
+
+					elif user_msg[0]['type'] == 'text' and user_msg[0]['data'] != '':
+						msg_text += user_msg[0]['data']
+
+				print ('Message:\t', msg_text, end='\n\n')
+
+				if user_name not in activeChat:
+					activeChat.append(user_name)
+
+				response, goodbye = commands.prepCMD(msg, msgLocalID, websocket)
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
-					yield from websocket.send(json.dumps(response))	# Send the message
-					yield from websocket.close()
+
+					yield from messages.sendMsg(websocket, response)	# Send the message
+					yield from messages.close(websocket)
 					quit()
 
-				if response != None:			# Make sure response isn't nothing
+				if response == None or response == "":	# Make sure response isn't nothing
+					next
+				else:
 					#----------------------------------------------------------
 					# Send the message
 					#----------------------------------------------------------
-					# Create the packet
-					packet = {
-						"type":"method",
-						"method":"msg",
-						"arguments":[response],
-						"id":msgLocalID
-					}
 
-					msgLocalID += 1		# Increment the msg number variable
-
-					yield from websocket.send(json.dumps(packet))	# Send the message
-					ret_msg = yield from websocket.recv()			# Get the response
+					ret_msg = yield from messages.sendMsg(websocket, response)
 					ret_msg = json.loads(ret_msg)			# Convert response to JSON
 
-					print ('ret_msg:\t',ret_msg)
+					print ('ret_msg:\t', ret_msg)
+					print ('Response:\t', ret_msg['data'])
 
-				if msgID not in msgs_acted:		# Don't add duplicates
-					msgs_acted.append(msgID)		# Make sure we don't act on messages again
-
-					# Dump the list of msgs_acted into the blacklist.p pickle file so we don't act on those
-					# messages again.
-					f = open('data/.blist_temp.p', 'wb')
-					pickle.dump(msgs_acted, f)
-
-					f.flush()
-					os.fsync(f.fileno())
-					f.close()
-
-					os.rename('data/.blist_temp.p', 'data/blacklist.p')
+					if 'error' in ret_msg:
+						if ret_msg['error'] != None:
+							print ('Error:\t',ret_msg['error'])
+							print ('Code:\t',ret_msg['id'])
 
 # ----------------------------------------------------------------------
 # Main Code
@@ -217,21 +255,28 @@ def main():
 
 	global authkey, endpoint, channel, user_id, addr, loop, config
 
-	config = json.load(open('data/config.json', 'r'))
+	global authkey_control, endpoint_control
+
+	if os.path.exists('data/config.json'):
+		config = json.load(open('data/config.json', 'r'))
+	else:
+		print ('\033[1;31mConfig file missing!\033[0m\n')
+		print ('Please run setup before launching the bot.')
+		print ('To do so run:\tpython3 setup.py')
+		quit()
 
 	addr = config['BEAM_ADDR']
 
 	session = requests.Session()
 
 	loginRet = session.post(
-		addr + '/api/v1/users/login',
+		addr + '/users/login',
 		data=_get_auth_body()
 	)
 
 	if loginRet.status_code != requests.codes.ok:
 		print (loginRet.text)
 		print ("Not Authenticated!")
-		quit()
 
 	user_id = loginRet.json()['id']
 
@@ -239,7 +284,7 @@ def main():
 
 		chanOwner = input("Channel [Channel owner's username]: ").lower()
 		chatChannel = session.get(
-			addr + '/api/v1/channels/' + chanOwner
+			addr + '/channels/' + chanOwner
 		)
 
 		if chatChannel.status_code != requests.codes.ok:
@@ -252,49 +297,66 @@ def main():
 	else:
 		channel = config['CHANNEL']
 
-	chatRet = session.get(
-		addr + '/api/v1/chats/{}'.format(channel)
+	chat_ret = session.get(
+		addr + '/chats/{}'.format(channel)
 	)
 
-	if chatRet.status_code != requests.codes.ok:
+	control_ret = session.get(
+		addr + '/chats/22085'
+	)
+
+	if control_ret.status_code != requests.codes.ok:
 		print ('ERROR!')
-		print ('Message:\t',chatRet.json())
+		print ('Message:\t',control_ret.json())
+		print(control_ret.json())
 		quit()
 
-	chat_details = chatRet.json()
+	if chat_ret.status_code != requests.codes.ok:
+		print ('ERROR!')
+		print ('Message:\t',chat_ret.json())
+		print(chat_ret.json())
+		quit()
 
+	chat_details = chat_ret.json()
+	chat_details_control = control_ret.json()
+
+	endpoint_control = chat_details_control['endpoints'][0]
 	endpoint = chat_details['endpoints'][0]
 
 	authkey = chat_details['authkey']
+	authkey_control = chat_details_control['authkey']
 
 	print ('authkey:\t',authkey)
-	print ('endpoint:\t',endpoint)
+	print ('endpoint:\t',endpoint, end='\n\n')
 
 	loop = asyncio.get_event_loop()
+
 	tasks = [
 		asyncio.async(readChat()),
-		asyncio.async(autoCurrency())
+		asyncio.async(autoCurrency()),
+		asyncio.async(controlChannel()),
+		asyncio.async(schedule.timeoutsHandler()),
+		asyncio.async(keepAlive())
 	]
-	loop.run_until_complete(connect())
+	try:
+		loop.run_until_complete(connect())		# Announce your presence!
+		loop.run_until_complete(asyncio.wait(tasks))
 
-	loop.run_until_complete(asyncio.wait(tasks))
+	except Exception as e:
+		print ("\033[1;31mSomething happened!\033[0m\n")
+		print (e)
 
-	loop.close()
+		messages.close(websocket)
+		loop.close()
+		p = subprocess.Popen(['sh', './restart.sh'])
+		quit()
 
 if __name__ == "__main__":
-	try:
-		main()
-	except KeyboardInterrupt:
-		if input("\033[1;34mAre you sure you would like to quit? (Y/n)\033[0m ").lower().startswith('y'):
-			sys.exit("\033[1;31mTerminated.\033[0m")
-		else:
-			main()
-	except Exception as e:
-		exception_type, exception_obj, exception_tb = sys.exc_info()
-		filename = exception_tb.tb_frame.f_code.co_filename
+	global args
 
-		print('\033[1;31mI have crashed.\033[33m\n\nFile "{file}", line {line}\n{line_text}\n{exception}\033[0m'.format(file=filename, line=exception_tb.tb_lineno, line_text=open(filename).readlines()[exception_tb.tb_lineno-1], exception=repr(e)))
-		print('\033[1;32mRestarting in 10 seconds. Ctrl-C to cancel.\033[0m')
-		sleep(10)
-		os.execl(sys.executable, sys.executable, * sys.argv)
+	parser = argparse.ArgumentParser()
+	parser.add_argument('-nsm', '--nostartmsg', help="Start the bot without the startup greeting", action="store_true")
 
+	args = parser.parse_args()
+
+	main()
