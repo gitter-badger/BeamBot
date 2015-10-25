@@ -1,16 +1,14 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.2.16
+	Version: 	3.3.0
 	Author: 	RPiAwesomeness
-	Date:		October 24, 2015
+	Date:		October 25, 2015
 
-	Changelog:	Hopefully fixed NoneType not iterable exception
-					that was crashing the bot
-				Added store command
-				Fixed bugs where users could send currency
-					without being charged & users could give
-					negative values (found by alfw)
+	Changelog:	Mucho Beuno, Mucho Grande release 3.3.0! \o/
+				Merged release 3.2.16 from 3.3.0 branch into master
+				Minor changes made during merge
+				Added recognitions section to README
 -+=============================================================+
 """
 
