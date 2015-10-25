@@ -101,7 +101,7 @@ messages = []
 pickle.dump(messages, open('data/scheduled.p', 'wb'))
 
 store_items = []
-with open('data/store{}.json'.format(config['CHANNEL'])) as f:
+with open('data/store{}.json'.format(config['CHANNEL']), 'w') as f:
 	json.dump(store_items, f, sort_keys=True, indent=4, separators=(',', ': '))
 
 # Create the sqlite database

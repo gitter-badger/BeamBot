@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.3.0
+	Version: 	3.3.1
 	Author: 	RPiAwesomeness
 	Date:		October 25, 2015
 
-	Changelog:	Mucho Beuno, Mucho Grande release 3.3.0! \o/
-				Merged release 3.2.16 from 3.3.0 branch into master
-				Minor changes made during merge
-				Added recognitions section to README
+	Changelog:	Quick patch for the bug in the setup
+				script in 3.3.0
 -+=============================================================+
 """
 
