@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.3.1
+	Version: 	3.3.0
 	Author: 	RPiAwesomeness
 	Date:		October 25, 2015
 
-	Changelog:	Quick patch for the bug in the setup
-				script in 3.3.0
+	Changelog:	Fixes for original 3.3.0 release
 -+=============================================================+
 """
 
