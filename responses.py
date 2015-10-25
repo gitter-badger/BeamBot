@@ -190,9 +190,6 @@ def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, migh
 		else:
 			return None
 
-		else:
-			return None
-
 def editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only):
 	global cust_commands
 
