@@ -15,9 +15,9 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
 
-* If you want to autoconnect, the channel prompt should be answered via the id number gathered by going to `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` and taking that id number.
+* If you want to autoconnect, the channel ID question can either be answered via getting the ID from  `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE`, or by entering the channel's name.
 
-**Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the `20902` (it will be different for another channel) number.
+ **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the **20902** (it will be different for another channel) number.
 
 ###Running:
 
@@ -31,13 +31,13 @@ Simply run `python3 beambot.py`!
 
 **(3.3.0)** - Minor changes made during merge
 
-**(3.3.0)** - Quick patches for the setup script and responses module 
+**(3.3.0)** - Quick patches for the setup script and responses module
 bugs in original 3.3.0 release
 
 ### Recognitions
-BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
-xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
-alfw: Finding the fairly major bug in the !give command
+* BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
+* xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
+* alfw: Finding the fairly major bug in the !give command
 
 ###Current issues:
 
