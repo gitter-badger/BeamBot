@@ -18,8 +18,7 @@ Once the proper modules are installed, run the `setup.py` script with `python3 s
 - To use autoconnect, input either the ID retrieved from `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` or the desired channel's name to the channel ID prompt.
 
  **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,...}`. Use the `"id"` specified (in this case, **20902**).
->>>>>>> 2Cubed-patch-3
-
+ 
 ### Running:
 
 Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
