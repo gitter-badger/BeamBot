@@ -15,9 +15,9 @@ Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, o
 
 Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
 
-* If you want to autoconnect, the channel ID question can either be answered via getting the ID from  `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE`, or by entering the channel's name.
+* If you want to autoconnect, the channel ID question can either be answered via getting the ID from  [`https://beam.pro/api/v1/channels/`](https://beam.pro/api/v1/channels/)`INSERT_BEAM_STREAM_OWNER_NAME_HERE`, or by entering the channel's name.
 
- **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the **20902** (it will be different for another channel) number.
+ **Example**: Going to [`https://beam.pro/api/v1/channels/ParadigmShift3d`](https://beam.pro/api/v1/channels/ParadigmShift3d) returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the **20902** (it will be different for another channel) number.
 
 ###Running:
 
