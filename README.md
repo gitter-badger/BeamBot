@@ -1,17 +1,17 @@
-#BeamBot Repository
+# BeamBot Repository
 
 This is my repository for my PyBot project, a Beam.pro chat bot.
 
-##Setup
+## Setup
 
 Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, other distros and OSes have not been tested.
 
-###Required libraries:
+### Required libraries:
 
 * `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
 * If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
 
-###Setting up the bot
+### Setting up the bot
 
 Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
 
@@ -19,7 +19,7 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
  **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the **20902** (it will be different for another channel) number.
 
-###Running:
+### Running:
 
 Simply run `python3 beambot.py`!
 
@@ -39,7 +39,7 @@ bugs in original 3.3.0 release
 * xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
 * alfw: Finding the fairly major bug in the !give command
 
-###Current issues:
+### Current issues:
 
 * Need to add more commands and features - The never-ending bug!
 
