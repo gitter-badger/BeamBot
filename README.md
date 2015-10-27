@@ -1,27 +1,28 @@
-#BeamBot Repository
+# BeamBot Repository
 
 This is my repository for my PyBot project, a Beam.pro chat bot.
 
-##Setup
+## Setup
 
 Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, other distros and OSes have not been tested.
 
-###Required libraries:
+### Required Modules:
 
-* `websockets`: You can install this via `sudo pip3 install websockets` on Ubuntu.
-* If you are developing on anything less than Python 3.4, you will need to install the `asyncio` library. This can be done via `sudo pip3 install asyncio`.
+- `websockets`: Easily installable from `pip` with `pip3 install websockets`.
+- `asyncio`: Only required if Python 3 version is older than 3.4. Easily installable from `pip` with `pip3 install asyncio`.
 
-###Setting up the bot
+### Bot Setup
 
-Once the proper libaries are installed, you need to run the `setup.py` script via `python3 setup.py`.
+Once the proper modules are installed, run the `setup.py` script with `python3 setup.py`.
 
-* If you want to autoconnect, the channel ID question can either be answered via getting the ID from  [`https://beam.pro/api/v1/channels/`](https://beam.pro/api/v1/channels/)`INSERT_BEAM_STREAM_OWNER_NAME_HERE`, or by entering the channel's name.
+- To use autoconnect, input either the ID retrieved from `https://beam.pro/api/v1/channels/INSERT_BEAM_STREAM_OWNER_NAME_HERE` or the desired channel's name to the channel ID prompt.
 
- **Example**: Going to [`https://beam.pro/api/v1/channels/ParadigmShift3d`](https://beam.pro/api/v1/channels/ParadigmShift3d) returns `{"id":20902,"token":"ParadigmShift3d","online":false,`. You would want to take the **20902** (it will be different for another channel) number.
+ **Example**: Going to `https://beam.pro/api/v1/channels/ParadigmShift3d` returns `{"id":20902,"token":"ParadigmShift3d","online":false,...}`. Use the `"id"` specified (in this case, **20902**).
+>>>>>>> 2Cubed-patch-3
 
-###Running:
+### Running:
 
-Simply run `python3 beambot.py`!
+Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ## Features in 3.3.0
 
@@ -35,16 +36,16 @@ Simply run `python3 beambot.py`!
 bugs in original 3.3.0 release
 
 ### Recognitions
-* BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
-* xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
-* alfw: Finding the fairly major bug in the !give command
+- BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
+- xcentrik4: Allowing me to deploy PyBot on his streams & for putting up with my programming mutterings & random bot crashes
+- alfw: Finding the fairly major bug in the !give command
 
-###Current issues:
+### Current Issues:
 
-* Need to add more commands and features - The never-ending bug!
+- Need more commands and features. The never-ending task!
 
-* Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
+- Make `responses.py` use JSON/XML file to provide commands and responses (preferably JSON)
 
-* Add ability to change default command responses (^)
+- Add ability to change default command responses (^)
 
-* Anything else I can't think of at this time but is still applicable
+- Anything else I can't think of at this time but is still applicable
