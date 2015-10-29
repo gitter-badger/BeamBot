@@ -149,7 +149,7 @@ def readChat():
 		schedule.registerWebsocket(websocket)
 		announce.registerWebsocket(websocket)
 
-		if result == None:
+		if type(result) == None:
 			next
 
 		result = json.loads(result)

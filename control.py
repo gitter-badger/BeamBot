@@ -92,9 +92,10 @@ def controlChannel():
 
 	while True:
 		result = yield from websocket.recv()
-		if result == None:
+
+		if type(result) == None:
 			next
-			
+
 		result = json.loads(result)
 
 		if result['event'] == 'ChatMessage':
