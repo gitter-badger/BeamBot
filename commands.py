@@ -31,6 +31,11 @@ else:
 	bannedUsers = []
 	pickle.dump(bannedUsers, open('data/bannedUsers{}.p'.format(config['CHANNEL']), 'wb'))
 
+def _updateConfig():
+	if os.path.exists('data/config.json'):
+		config = json.load(open('data/config.json', 'r'))
+		return config
+
 def prepCMD(msg, msg_local_id, websocket):
 
 	user_id = msg['user_id']
@@ -109,6 +114,8 @@ def prepCMD(msg, msg_local_id, websocket):
 def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None):
 
 	goodbye = False
+
+	config = _updateConfig()
 
 	# ----------------------------------------------------------
 	# Commands

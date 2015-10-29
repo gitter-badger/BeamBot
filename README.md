@@ -23,16 +23,13 @@ Once the proper libaries are installed, you need to run the `setup.py` script vi
 
 Simply run `python3 beambot.py`!
 
-## Features in 3.3.0
+## Features in 3.3.1
 
-**(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
+##### **(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
 
-**(3.3.0)** - Merged release 3.2.16 from 3.3.0 branch into master
+**(3.3.1)** - Fixed bug in currency code where automatic currency wasn't given out unless you were already in the DB
 
-**(3.3.0)** - Minor changes made during merge
-
-**(3.3.0)** - Quick patches for the setup script and responses module 
-bugs in original 3.3.0 release
+**(3.3.1)** - Cleaned up/improved the currency code
 
 ### Recognitions
 BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive

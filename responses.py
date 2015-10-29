@@ -373,7 +373,7 @@ def set(user_name, user_id, cur_item, is_mod, is_owner):
 
 		if cur_item[1] == "currencyName":	# Set the currency name
 			config['currency_name'] = cur_item[2]
-			return "Currency name is now " + config['currency_name']
+			response = "Currency name is now " + config['currency_name']
 
 		elif cur_item[1] == "commandTimeout":	# Set the command time-out
 			try:
@@ -628,7 +628,10 @@ def give(user_name, cur_item, is_mod, is_owner):
 	if _checkTime(cmd, user_name, is_mod, is_owner):
 		return None
 
-	return currency.give(user_name, cur_item, is_mod, is_owner)
+	if cur_item[0] == "auto":
+		return currency.autoCurrency(cur_item[1], cur_item[2])
+	else:
+		return currency.give(user_name, cur_item, is_mod, is_owner)
 
 def dimes(user_name, cur_item, is_mod, is_owner):
 	cmd = 'dimes'
@@ -641,7 +644,7 @@ def dimes(user_name, cur_item, is_mod, is_owner):
 def hey(user_name, is_mod, is_owner):
 	cmd = 'hey'
 	if _checkTime(cmd, user_name, is_mod, is_owner):
-		return None		
+		return None
 	return "Hey! {}! Listen!".format(user_name)
 
 def raid(user_name, cur_item, is_mod, is_owner):

@@ -5,7 +5,10 @@
 	Author: 	RPiAwesomeness
 	Date:		October 25, 2015
 
-	Changelog:	Fixes for original 3.3.0 release
+	Changelog:	Fixed bug in currency code where automatic currency
+					wasn't given out unless you were already in
+					the DB.
+				Cleaned up/improved the currency code
 -+=============================================================+
 """
 
@@ -43,8 +46,9 @@ def autoCurrency():
 		for user in usersRet:					# Give all users +1 gear per minute
 			user_name = user['userName']
 
-			curItem = '!give ' + user_name + " 1"
-			autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +1 gear
+			cur_item = ["auto", user_name, 1]
+
+			autoCurrencyResponse = responses.give('PyBot', cur_item, is_mod=True, is_owner=False)	# Give the users +1 gear
 
 		if timeIncr == 3:
 
@@ -52,10 +56,8 @@ def autoCurrency():
 				user_name = user['userName']
 
 				if user_name in activeChat:				# Has the user chatted in the last 3 minutes?
-
-					curItem = '!give ' + user_name + " 3"
-					autoCurrencyResponse = responses.give('pybot', curItem, is_mod=True, is_owner=False)	# Give the users +3 gear for being involved
-
+					cur_item = ["auto", user_name, 3]
+					autoCurrencyResponse = responses.give('PyBot', cur_item, is_mod=True, is_owner=False)	# Give the users +3 gear for being involved
 
 			timeIncr = 0	# Reset the time incrementer
 			activeChat = []	# Reset the active chat watcher thingy

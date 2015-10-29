@@ -11,6 +11,78 @@ def _updateConfig():
     if os.path.exists('data/config.json'):
         return json.load(open('data/config.json', 'r'))
 
+def _returnCon():
+    if os.path.exists('data/beambot.sqlite'):
+        con = sqlite3.connect('data/beambot.sqlite')
+        return con
+    else:
+        return False
+
+def _returnCurrency(user_name):
+    con = _returnCon()
+    if con != False:
+        cur = con.cursor()
+
+        command = '''SELECT gears
+                    FROM gears
+                    WHERE name="{}"'''.format(user_name)
+
+        cur.execute(command)
+        con.commit()
+
+        results = cur.fetchall()
+        con.close()
+
+        return results
+
+def _updateCurrency(user_name, new_total):
+    con = _returnCon()
+    if con != False:
+        cur = con.cursor()
+
+        command = '''UPDATE gears
+                    SET gears={}
+                    WHERE name="{}"'''.format(new_total, user_name)
+
+        cur.execute(command)
+        con.commit()
+
+        results = cur.fetchall()
+        con.close()
+        return results
+
+def _addName(user_name):    # Adds user to database
+    con = _returnCon()
+
+    if con != False:
+        cur = con.cursor()
+
+        command = '''INSERT INTO gears
+                    (name, gears)
+                    VALUES ("{}", 1)'''.format(user_name)
+
+        cur.execute(command)
+
+        con.commit()
+
+        result = cur.fetchall()
+
+        con.close()
+        return result
+
+def autoCurrency(user_recv, num_send):
+
+    results = _returnCurrency(user_recv)
+
+    if len(results) >= 1:   # At least one result for that user, user exists
+        current_currency = results[0][0]
+        current_currency += 1
+
+        return _updateCurrency(user_recv, current_currency)
+
+    else:               # Non-existent user, create them
+        return _addName(user_recv)
+
 def give(user_name, cur_item, is_mod, is_owner):
 
     split = cur_item[1:].split()
@@ -24,84 +96,35 @@ def give(user_name, cur_item, is_mod, is_owner):
             except: # Oops! User didn't provide an integer
                 return usage.prepCmd(user_name, "give", is_mod, is_owner)
 
-        if os.path.exists('data/beambot.sqlite'):
-            with sqlite3.connect('data/beambot.sqlite') as con:
-                cur = con.cursor()
+        con = _returnCon()
+        if con != False:
+            results = _returnCurrency(user_recv)
 
-                command = '''SELECT gears
-                            FROM gears
-                            WHERE name="{}"'''.format(user_recv)
+            if len(results) >= 1:   # Check if the user recieving exists in the database
+                recv_currency_original = results[0][0]  # The recieving user's current # of currency
 
-                cur.execute(command)
-                results = cur.fetchall()
+                results = _returnCurrency(user_name)
 
-                if len(results) >= 1:
-                    recv_currency_original = results[0][0]
+                if len(results) >= 1:   # Check if the user sending exists in database
+                    send_currency_original = results[0][0]  # The sending user's current # of currency
 
-                    command = '''SELECT gears
-                                FROM gears
-                                WHERE name="{}"'''.format(user_name)
+                    if num_send <= send_currency_original and num_send > 0: # Make sure the sending user has enough dimes & it's not 0 or negative
 
-                    cur.execute(command)
-                    results = cur.fetchall()
+                        user_recv_dimes = int(recv_currency_original) + int(num_send)
+                        user_send_dimes = int(send_currency_original) - int(num_send)
 
-                    if len(results) >= 1:
-                        send_currency_original = results[0][0]
+                        _updateCurrency(user_recv, user_recv_dimes)
+                        _updateCurrency(user_name, user_send_dimes)
 
-                        if user_name == "PyBot":    # If it's bot, ignore removal of dimes & # check
-                            user_recv_dimes = int(recv_currency_original) + int(num_send)
-                            user_send_dimes = int(send_currency_original) - int(num_send)
+                        return "@ {} now has {} {} !".format(user_recv, str(user_recv_dimes), config['currency_name'])
 
-                            command = '''UPDATE gears
-                                        SET gears = CASE name
-                                            WHEN "{}" THEN "{}"
-                                            WHEN "{}" THEN "{}"
-                                        END
-                                        WHERE name IN ("{}","{}")'''.format(user_recv, user_recv_dimes,
-                                                                        user_name, user_send_dimes,
-                                                                        user_recv, user_name)
+                    else:
+                        return None         # Sending user lacks enough currency to send
 
-                            cur.execute(command)
+                else:       # User not in dimes database
+                    _addName(user_recv)
 
-                            return "@" + user_recv + " now has " + str(user_dimes) + " " + config['currency_name'] + "!"
-
-                        if num_send <= recv_currency_original and num_send > 0: # Make sure the sending user has enough dimes & it's not 0 or negative
-
-                            user_recv_dimes = int(recv_currency_original) + int(num_send)
-                            user_send_dimes = int(send_currency_original) - int(num_send)
-
-                            print ('user_recv:\t',user_recv)
-                            print ('user_name:\t',user_name)
-                            print ('user_send_dimes:',user_send_dimes)
-                            print ('user_recv_dimes:',user_recv_dimes)
-                            print ('num_send:\t',num_send)
-
-                            # If name is user_recv, set the gears for that name to user_recv_dimes
-                            # If name is user_name, set the gears for that name to send_new_dimes
-                            command = '''UPDATE gears
-                                        SET gears = CASE name
-                                            WHEN "{}" THEN "{}"
-                                            WHEN "{}" THEN "{}"
-                                        END
-                                        WHERE name IN ("{}","{}")'''.format(user_recv, user_recv_dimes,
-                                                                        user_name, user_send_dimes,
-                                                                        user_recv, user_name)
-
-                            cur.execute(command)
-
-                            return "@ {} now has {} {} !".format(user_recv, str(user_recv_dimes), config['currency_name'])
-
-                        else:
-                            return None
-
-                    else:       # User not in dimes database
-                        command = '''INSERT INTO gears
-                                    (name, gears)
-                                    VALUES ("{}", {})'''.format(user_recv, str(num_send))
-
-                        cur.execute(command)    # Soooo... add 'em!
-
-                        return "@ {} now has {} {} !".format(user_recv, str(num_send), config['currency_name'])
+                    return "@ {} now has {} {} !".format(user_recv, str(num_send), config['currency_name'])
         else:
             return None
     else:
@@ -119,24 +142,16 @@ def dimes(user_name, cur_item, is_mod, is_owner):
     else:
         user = user_name
 
-    if os.path.exists('data/beambot.sqlite'):
-        with sqlite3.connect('data/beambot.sqlite') as con:
-            cur = con.cursor()
+    con = _returnCon()
 
-            command = '''SELECT gears
-                        FROM gears
-                        WHERE name LIKE \"%''' + user + '%\"'''
+    if con != False:
 
-            cur.execute(command)
+        results = _returnCurrency(user)
 
-            results = cur.fetchall()
-
-            # Return number of currency
-            if len(results) >= 1:
-                print ('results[0][0]:\t', str(results[0][0]))
-                return str(results[0][0]), user
-            else:
-                return False, user
-
+        # Return number of currency
+        if len(results) >= 1:
+            return str(results[0][0]), user
+        else:
+            return False, user
     else:
         return None
