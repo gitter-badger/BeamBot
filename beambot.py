@@ -149,8 +149,21 @@ def readChat():
 		schedule.registerWebsocket(websocket)
 		announce.registerWebsocket(websocket)
 
-		if type(result) == None:
-			next
+		if result == None:
+			print ("result == None")
+			quit()
+
+		elif type(result) == "NoneType":
+			print ("NoneType")
+			quit()
+
+		elif type(result) == "None":
+			print ("None")
+			quit()
+
+		elif type(result) == None:
+			print ("type == None")
+			quit()
 
 		result = json.loads(result)
 
