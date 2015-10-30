@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.3.2
+	Version: 	3.3.2a
 	Author: 	RPiAwesomeness
 	Date:		October 29, 2015
 
-	Changelog:	Removed any mentions of announcing follows
-				Added option to set custom currency command
+	Changelog:	Fixed formatting issue in setup script
 -+=============================================================+
 """
 

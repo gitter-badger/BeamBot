@@ -50,10 +50,12 @@ else:
 	config['CHANNEL'] = None
 	config['CONTROL'] = 22085
 
-currency_name = input ("What would you like your currency to be called? ")
-config['currency_name'] = currency_name
+currency_name = ""
+while currency_name == "":
+	currency_name = input ("What would you like your currency to be called? ")
+	config['currency_name'] = currency_name
 
-sep_cmd = input ("Do you want to set a separate command for your currency {} [Y/n]")
+sep_cmd = input ("Do you want to set a separate command for your currency {} [Y/n]: ".format(currency_name))
 if sep_cmd.lower() == "y" or sep_cmd == "":
 	config['currency_cmd'] = input ("What command do you want? ")
 else:
