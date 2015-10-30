@@ -1,14 +1,12 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.3.0
+	Version: 	3.3.2
 	Author: 	RPiAwesomeness
-	Date:		October 25, 2015
+	Date:		October 29, 2015
 
-	Changelog:	Fixed bug in currency code where automatic currency
-					wasn't given out unless you were already in
-					the DB.
-				Cleaned up/improved the currency code
+	Changelog:	Removed any mentions of announcing follows
+				Added option to set custom currency command
 -+=============================================================+
 """
 

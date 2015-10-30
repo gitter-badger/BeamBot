@@ -27,9 +27,13 @@ Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ##### **(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
 
-**(3.3.1)** - Fixed bug in currency code where automatic currency wasn't given out unless you were already in the DB
+##### **(3.3.1)** - Fixed bug in currency code where automatic currency wasn't given out unless you were already in the DB
 
-**(3.3.1)** - Cleaned up/improved the currency code
+##### **(3.3.1)** - Cleaned up/improved the currency code
+
+**(3.3.2)** - Removed any mentions of announcing follows
+
+**(3.3.2)** - Added option to set custom currency command
 
 ### Recognitions
 - BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive

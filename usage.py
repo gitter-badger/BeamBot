@@ -41,7 +41,7 @@ def prepCmd(user, cmd, is_mod, is_owner):
 		if cmdList != None:	# It's not None, so there are custom commands
 			if cmd == "set":	# Special usage for !set Command
 				# Update commandList.json to include !set & specific usage
-				return "Bot configuration options: currencyName, commandTimeout, announceEnter, announceLeave, announceFollow"
+				return "Bot configuration options: currencyName, commandTimeout, announceEnter, announceLeave"
 
 			if cmd in cmdList:	# We should never get any that aren't part of the list, but let's be safe
 				return "Usage: " + cmdList[cmd]

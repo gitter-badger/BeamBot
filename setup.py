@@ -46,11 +46,18 @@ if autoConnect == '' or autoConnect.lower() == 'y':
 				print ('Sorry, that channel doesn\'t exist or Beam\'s servers are derping. Please try again!')
 
 # Nope, don't auto-connect
-elif autoConnect.lower() == 'n':
+else:
 	config['CHANNEL'] = None
 	config['CONTROL'] = 22085
 
 currency_name = input ("What would you like your currency to be called? ")
+config['currency_name'] = currency_name
+
+sep_cmd = input ("Do you want to set a separate command for your currency {} [Y/n]")
+if sep_cmd.lower() == "y" or sep_cmd == "":
+	config['currency_cmd'] = input ("What command do you want? ")
+else:
+	config['currency_cmd'] = currency_name
 
 while True:		# Loop until we have a numeric # for the command timeout
 
@@ -83,15 +90,6 @@ if announce_leave == "" or announce_leave.lower() =="n":
 elif announce_leave.lower() == "y":
 	config['announce_leave'] = True
 
-
-announce_follow = input ("Do you want follows to be announced? [Y/n] ")
-if announce_follow == "" or announce_follow.lower() =="y":
-	config['announce_follow'] = True
-
-elif announce_follow.lower() == "y":
-	config['announce_follow'] = False
-
-config['currency_name'] = currency_name
 
 # Store the config information
 with open('data/config.json', 'w') as f:

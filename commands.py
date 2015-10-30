@@ -134,7 +134,9 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	elif cmd[0] == "ping":				# Ping Pong Command
 		response = responses.ping(user_name, is_mod, is_owner)
 
-	elif cmd[0] == config["currency_name"] or cmd[0] == "currency":			# Get user balance
+	elif cmd[0] == config["currency_name"]
+		or cmd[0] == config["currency_cmd"]
+	 	or cmd[0] == "currency":			# Get user balance
 		currency_ret, user = responses.dimes(user_name, cur_item, is_mod, is_owner)
 
 		if currency_ret != False:
