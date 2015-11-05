@@ -530,7 +530,7 @@ def quote(user_name, cur_item, is_mod, is_owner):
 
 		if cmd_cmd == "add" or cmd_cmd == "remove":
 
-			quote_user = split[1]
+			quote_user = split[2]
 
 			if quote_user[0] == '@':
 				quote_user = quote_user[1:]	# Remove the @ sign, we work without them
