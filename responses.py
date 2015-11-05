@@ -524,24 +524,27 @@ def quote(user_name, cur_item, is_mod, is_owner):
 			return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
 	elif len(split) >= 3:		# It's add/remove quote
-		if not is_mod or not is_owner:
+		if is_mod or is_owner:
+
+			cmd_cmd = split[1]
+
+			if cmd_cmd == "add" or cmd_cmd == "remove":
+
+				quote_user = split[2]
+
+				if quote_user[0] == '@':
+					quote_user = quote_user[1:]	# Remove the @ sign, we work without them
+
+				if cmd_cmd == "add":
+					response = quotes.addQuote(user_name, quote_user, split, is_mod, is_owner)
+					return response
+
+				elif cmd_cmd == "remove":
+					response = quotes.removeQuote(user_name, split, is_mod, is_owner)
+					return response
+
+		else:
 			return None
-		cmd_cmd = split[1]
-
-		if cmd_cmd == "add" or cmd_cmd == "remove":
-
-			quote_user = split[2]
-
-			if quote_user[0] == '@':
-				quote_user = quote_user[1:]	# Remove the @ sign, we work without them
-
-			if cmd_cmd == "add":
-				response = quotes.addQuote(user_name, quote_user, split, is_mod, is_owner)
-				return response
-
-			elif cmd_cmd == "remove":
-				response = quotes.removeQuote(user_name, split, is_mod, is_owner)
-				return response
 
 	else:
 		return usage.prepCmd(user_name, "quote", is_mod, is_owner)
