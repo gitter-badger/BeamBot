@@ -1,4 +1,22 @@
 """
+	This file is part of PyBot,
+	PyBot(c) RPiAwesomeness 2015-2016
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
+"""
+
+"""
 This module has two functions.
 prepCMD prepares the raw websockets data for getResp to return the appropriate response.
 This makes it even easier for modding, since you can simply pass the command from the
@@ -123,10 +141,10 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	cmd = cur_item[1:].split()
 
 	if len(cmd) < 1:
-		return None, False	# It's a single "!" character, so return None (not a command)	
+		return None, False	# It's a single "!" character, so return None (not a command)
 
 	if cmd[0][0:5] == "blame":	# Blame a user
-		response = responses.blame(user_name, cur_item, is_mod, is_owner)	
+		response = responses.blame(user_name, cur_item, is_mod, is_owner)
 
 	elif cmd[0] == "commands":		# Get list of commands
 		response = responses.cmdList(user_name, cur_item, is_mod, is_owner)

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 """
 	This file is part of PyBot,
 	PyBot(c) RPiAwesomeness 2015-2016
@@ -14,9 +16,7 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
-"""
-#!/usr/bin/env python3
-"""
+	
 -+=============================================================+-
 	Version: 	3.3.2b
 	Author: 	RPiAwesomeness
