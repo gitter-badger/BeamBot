@@ -1,11 +1,15 @@
 #!/usr/bin/env python3
 """
 -+=============================================================+-
-	Version: 	3.3.2a
+	Version: 	3.3.2b
 	Author: 	RPiAwesomeness
-	Date:		October 29, 2015
+	Date:		November 4th, 2015
 
-	Changelog:	Fixed formatting issue in setup script
+	Changelog:	Fixed a bug where a message of just !
+				would crash the bot
+			Fixed a bug where running currency cmds
+				within the cmd timeout would 
+				crash the bot	
 -+=============================================================+
 """
 
@@ -226,6 +230,7 @@ def readChat():
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
 
 					yield from messages.sendMsg(websocket, response)	# Send the message
+					yield from messages.sendMsg(websocket, "See ya later!")	# Send goodbye msg
 					yield from messages.close(websocket)
 					quit()
 

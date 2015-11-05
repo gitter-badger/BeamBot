@@ -23,7 +23,7 @@ Once the proper modules are installed, run the `setup.py` script with `python3 s
 
 Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
-## Features in 3.3.1
+## Features in 3.3.2b
 
 ##### **(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
 
@@ -31,9 +31,13 @@ Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ##### **(3.3.1)** - Cleaned up/improved the currency code
 
-**(3.3.2)** - Removed any mentions of announcing follows
+##### **(3.3.2)** - Removed any mentions of announcing follows
 
-**(3.3.2)** - Added option to set custom currency command
+##### **(3.3.2)** - Added option to set custom currency command
+
+**(3.3.2b)** - Fixed a bug where just ! as a message would crash the bot
+
+**(3.3.2b)** - Fixed a bug where bot would crash when running currency commands within the command timeout
 
 ### Recognitions
 - BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
