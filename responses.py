@@ -524,6 +524,8 @@ def quote(user_name, cur_item, is_mod, is_owner):
 			return usage.prepCmd(user_name, "quote", is_mod, is_owner)
 
 	elif len(split) >= 3:		# It's add/remove quote
+		if not is_mod or not is_owner:
+			return None
 		cmd_cmd = split[1]
 
 		if cmd_cmd == "add" or cmd_cmd == "remove":
