@@ -16,7 +16,7 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
-	
+
 -+=============================================================+-
 	Version: 	3.3.2b
 	Author: 	RPiAwesomeness
@@ -168,20 +168,7 @@ def readChat():
 		announce.registerWebsocket(websocket)
 
 		if result == None:
-			print ("result == None")
-			quit()
-
-		elif type(result) == "NoneType":
-			print ("NoneType")
-			quit()
-
-		elif type(result) == "None":
-			print ("None")
-			quit()
-
-		elif type(result) == None:
-			print ("type == None")
-			quit()
+			next
 
 		result = json.loads(result)
 
