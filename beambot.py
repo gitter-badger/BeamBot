@@ -169,8 +169,11 @@ def readChat():
 
 		if result == None:
 			next
-
-		result = json.loads(result)
+		try:
+			result = json.loads(result)
+		except TypeError as e:
+			print (e)
+			quit()
 
 		if 'event' in result:		# Otherwise it crashes when type = response
 
