@@ -18,15 +18,12 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 -+=============================================================+-
-	Version: 	3.3.2b
+	Version: 	3.3.3
 	Author: 	RPiAwesomeness
-	Date:		November 4th, 2015
+	Date:		November 22, 2015
 
-	Changelog:	Fixed a bug where a message of just !
-				would crash the bot
-			Fixed a bug where running currency cmds
-				within the cmd timeout would
-				crash the bot
+	Changelog:	Fixed TypeError NoneType bug that would crash
+					the bot
 -+=============================================================+
 """
 
@@ -168,7 +165,7 @@ def readChat():
 		announce.registerWebsocket(websocket)
 
 		if result == None:
-			next
+			continue
 		try:
 			result = json.loads(result)
 		except TypeError as e:
@@ -242,7 +239,7 @@ def readChat():
 					quit()
 
 				if response == None or response == "":	# Make sure response isn't nothing
-					next
+					continue
 				else:
 					#----------------------------------------------------------
 					# Send the message
