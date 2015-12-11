@@ -39,7 +39,9 @@ Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ##### **(3.3.2b)** - Fixed a bug where bot would crash when running currency commands within the command timeout
 
-**(3.3.3)** - Fixed TypeError NoneType bug that would crash the bot
+##### **(3.3.3)** - Fixed TypeError NoneType bug that would crash the bot
+
+**(3.3.3a)** - Maybe fixed TypeError NoneType bug? Nobody knows.
 
 ### Recognitions
 - BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive

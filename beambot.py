@@ -18,12 +18,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 -+=============================================================+-
-	Version: 	3.3.3
+	Version: 	3.3.3a
 	Author: 	RPiAwesomeness
-	Date:		November 22, 2015
+	Date:		December 10, 2015
 
-	Changelog:	Fixed TypeError NoneType bug that would crash
-					the bot
+	Changelog:	Maybe fixed TypeError bug? Who knows
 -+=============================================================+
 """
 
@@ -169,8 +168,7 @@ def readChat():
 		try:
 			result = json.loads(result)
 		except TypeError as e:
-			print (e)
-			quit()
+			continue
 
 		if 'event' in result:		# Otherwise it crashes when type = response
 
