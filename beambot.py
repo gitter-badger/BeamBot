@@ -234,6 +234,7 @@ def readChat():
 					yield from messages.sendMsg(websocket, response)	# Send the message
 					yield from messages.sendMsg(websocket, "See ya later!")	# Send goodbye msg
 					yield from messages.close(websocket)
+					print ("Bot quit", str(datetime.now().strftime('%H.%M.%S')))
 					quit()
 
 				if response == None or response == "":	# Make sure response isn't nothing
