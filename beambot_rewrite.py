@@ -4,23 +4,23 @@
 	This file is part of PyBot,
 	PyBot(c) RPiAwesomeness 2015-2016
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+	This program is free software: you can redistribute it and/or modify
+	it under the terms of the GNU Affero General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+	This program is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
 
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
+	You should have received a copy of the GNU Affero General Public License
+	along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 -+=============================================================+-
-	Version: 	3.3.2b
+	Version: 	4.0.0.A
 	Author: 	RPiAwesomeness
-	Date:		November 4th, 2015
+	Date:		December 12, 2015
 
 	Changelog:	Fixed a bug where a message of just !
 				would crash the bot
@@ -34,39 +34,45 @@ import sys
 import json
 import requests
 import os
+from optparse import OptionParser
 
 from twisted.python import log
+
+from twisted.internet import reactor, ssl
 from twisted.internet import reactor
+
 from autobahn.twisted.websocket import WebSocketClientProtocol, \
-    WebSocketClientFactory
+	WebSocketClientFactory
 
 # PyBot modules
 from tools import _get_auth_body, _update_config
 
 class MyClientProtocol(WebSocketClientProtocol):
 
-    def onConnect(self, response):
-        print("Server connected: {0}".format(response.peer))
+	def onConnect(self, response):
+		logging.info ("test")
+		logging.info("Server connected: {0}".format(response.peer))
 
-    def onOpen(self):
-        print("WebSocket connection open.")
+	def onOpen(self):
+		logging.info("WebSocket connection open.")
 
-        def hello():
-            # self.sendMessage(u"Hello, world!".encode('utf8'))
-            # self.sendMessage(b"\x00\x01\x03\x04", isBinary=True)
-            self.factory.reactor.callLater(1, hello)
+		def hello():
+			print ("TEST")
+			# self.sendMessage(u"Hello, world!".encode('utf8'))
+			# self.sendMessage(b"\x00\x01\x03\x04", isBinary=True)
+			self.factory.reactor.callLater(1, hello)
 
-        # start sending messages every second ..
-        hello()
+		# start sending messages every second ..
+		hello()
 
-    def onMessage(self, payload, isBinary):
-        if isBinary:
-            print("Binary message received: {0} bytes".format(len(payload)))
-        else:
-            print("Text message received: {0}".format(payload.decode('utf8')))
+	def onMessage(self, payload, isBinary):
+		if isBinary:
+			logging.info("Binary message received: {0} bytes".format(len(payload)))
+		else:
+			logging.info("Text message received: {0}".format(payload.decode('utf8')))
 
-    def onClose(self, wasClean, code, reason):
-        print("WebSocket connection closed: {0}".format(reason))
+	def onClose(self, wasClean, code, reason):
+		logging.info("WebSocket connection closed: {0}".format(reason))
 
 
 if __name__ == '__main__':
@@ -106,13 +112,26 @@ if __name__ == '__main__':
 		quit()
 
 	chat_details = chat_ret.json()
-	endpoint = chat_details["endpoints"][0]
+	endpoint = chat_details["endpoints"][0].encode('utf-8')
 	authkey = chat_details["authkey"]
 
 	log.startLogging(sys.stdout)
 
-	factory = WebSocketClientFactory(endpoint, debug=False)
-	factory.protocol = MyClientProtocol
+	parser = OptionParser()
+	parser.add_option("-u", "--url", dest=endpoint, help="Beam WS URL", default="wss://127.0.0.1:9000")
+	(options, args) = parser.parse_args()
 
-	reactor.connectTCP("127.0.0.1", 4001, factory)
+	# create a WS server factory with our protocol
+	##
+	factory = WebSocketClientFactory(options.url, debug=False)
+	factory.protocol = EchoClientProtocol
+
+	# SSL client context: default
+	##
+	if factory.isSecure:
+		contextFactory = ssl.ClientContextFactory()
+	else:
+		contextFactory = None
+
+	connectWS(factory, contextFactory)
 	reactor.run()

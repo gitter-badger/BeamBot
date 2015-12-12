@@ -4,12 +4,13 @@ This is my repository for my PyBot project, a Beam.pro chat bot.
 
 ## Setup
 
-Python 3 is required. I develop using Python 3.4 on Ubuntu 14.04/Ubuntu 15.04, other distros and OSes have not been tested.
+Python 3 is required. I develop using Python 3.5 on Ubuntu 14.04/Ubuntu 15.04, other distros and OSes have not been tested.
 
 ### Required Modules:
 
-- `websockets`: Easily installable from `pip` with `pip3 install websockets`.
-- `asyncio`: Only required if Python 3 version is older than 3.4. Easily installable from `pip` with `pip3 install asyncio`.
+- `autobahn`: Easily installable from `pip` with `pip3 install autobahn`.
+- `pyOpenSSL` & `service_identity`: Installed via `sudo pip3 install service-identity` (this will install pyOpenSSL)
+- `requests`: Installed via `sudo pip3 install requests`
 
 ### Bot Setup
 
@@ -21,23 +22,11 @@ Once the proper modules are installed, run the `setup.py` script with `python3 s
 
 ### Running:
 
-Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
+Simply run `beambot_rewrite.py` with Python 3! (`python3 beambot_rewrite.py`)
 
-## Features in 3.3.2b
+## Features in 4.0.0.A
 
-##### **(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
-
-##### **(3.3.1)** - Fixed bug in currency code where automatic currency wasn't given out unless you were already in the DB
-
-##### **(3.3.1)** - Cleaned up/improved the currency code
-
-##### **(3.3.2)** - Removed any mentions of announcing follows
-
-##### **(3.3.2)** - Added option to set custom currency command
-
-**(3.3.2b)** - Fixed a bug where just ! as a message would crash the bot
-
-**(3.3.2b)** - Fixed a bug where bot would crash when running currency commands within the command timeout
+**(4.0.0.A)** - Changed to using Autobahn/Twisted instead of manual websockets & asyncio
 
 ### Recognitions
 - BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive
