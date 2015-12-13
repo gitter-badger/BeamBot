@@ -1,5 +1,7 @@
 import json
 import os
+from requests import codes
+from exceptions import *
 
 if os.path.exists('data/config.json'):
 	config = json.load(open('data/config.json', 'r'))
@@ -9,16 +11,35 @@ else:
 	print ('To do so run:\tpython3 setup.py')
 	quit()
 
-def _update_config():
+def _updateConfig():
 	if os.path.exists('data/config.json'):
 		config = json.load(open('data/config.json', 'r'))
 		return config
 	else:
 		return False
 
-def _get_auth_body():
+def _getAuthBody():
 
 	return {
 		'username': config['username'],
 		'password': config['password']
 	}
+
+def _checkStatus(response):
+	if response.status_code != codes.ok:
+		return False
+	else:
+		return True
+
+def _checkMessage(response):
+
+	if "type" in response:
+		logging.info(response["type"])
+
+	if response["error"] != None:
+		raise NonNoneError("error")
+
+	if response["data"]["authenticated"] != True:
+		raise NotAuthenticated
+
+	

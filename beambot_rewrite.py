@@ -34,7 +34,7 @@ import sys
 import json
 import requests
 import os
-from optparse import OptionParser
+import logging
 
 from twisted.python import log
 
@@ -42,89 +42,127 @@ from twisted.internet import reactor, ssl
 from twisted.internet import reactor
 
 from autobahn.twisted.websocket import WebSocketClientProtocol, \
-	WebSocketClientFactory
+	WebSocketClientFactory, connectWS
 
 # PyBot modules
-from tools import _get_auth_body, _update_config
+from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage
+
+class Connection:
+	def __init__(self, *args, **kwargs):
+		self.addr = kwargs["addr"]			# Beam API base URL
+		self.channel = kwargs["channel"]	# Channel to connect to
+
+		self.session = kwargs["session"]	# Session for accessing REST API
+
+		# Get user_id
+		login_ret = self.session.post(
+			addr + '/users/login',
+			data=_getAuthBody()
+		)
+		if _checkStatus(login_ret):
+			self.user_id = login_ret.json()["id"]	# Bot's user ID
+		else:
+			logging.error("ERROR:")
+			logging.error(login_ret.text)
+			logging.error(login_ret.status_code)
+			quit()
+
+		# Get authkey and endpoint
+		chat_ret = self.session.get(
+			addr + "/chats/{}".format(self.channel)
+		)
+		if _checkStatus(chat_ret):
+			self.authkey = chat_ret.json()["authkey"]
+			self.endpoint = chat_ret.json()["endpoints"][0]
+		else:
+			logging.error("ERROR:")
+			logging.error(chat_ret.text)
+			logging.error(chat_ret.status_code)
+			quit()
+
+	def register_conn(self, conn):
+		"""Register the WS connection with the Connection object"""
+		if conn != None or conn != "":
+			self.conn = conn
+			logging.info("WS connection registered: " + conn)
+			return True
+		else:
+			return False
 
 class MyClientProtocol(WebSocketClientProtocol):
 
 	def onConnect(self, response):
-		logging.info ("test")
 		logging.info("Server connected: {0}".format(response.peer))
 
 	def onOpen(self):
-		logging.info("WebSocket connection open.")
+		logging.info("WebSocket connection opened.")
 
-		def hello():
-			print ("TEST")
-			# self.sendMessage(u"Hello, world!".encode('utf8'))
-			# self.sendMessage(b"\x00\x01\x03\x04", isBinary=True)
-			self.factory.reactor.callLater(1, hello)
+		# Register user in chat
+		packet = {
+			"type":"method",
+			"method":"auth",
+			"arguments":[main_chat.channel, main_chat.user_id, main_chat.authkey]
+		}
 
-		# start sending messages every second ..
-		hello()
+		self.sendMessage(json.dumps(packet).encode("utf-8"))
 
 	def onMessage(self, payload, isBinary):
 		if isBinary:
 			logging.info("Binary message received: {0} bytes".format(len(payload)))
 		else:
-			logging.info("Text message received: {0}".format(payload.decode('utf8')))
-
+			logging.info("Message received: {0}".format(payload.decode('utf8')))
+		try:
+			_checkMessage(json.loads(payload.decode('utf-8')))
+		except NonNoneError as e:
+			logging.error("ERROR - NonNoneError")
+			logging.error(e)
+		else:
+			pass
+			
 	def onClose(self, wasClean, code, reason):
 		logging.info("WebSocket connection closed: {0}".format(reason))
 
-
 if __name__ == '__main__':
 
-	config = _update_config()
-
-	if not config:
-		print ('\033[1;31mConfig file missing!\033[0m\n')
-		print ('Please run setup before launching the bot.')
-		print ('To do so run:\tpython3 setup.py')
-		quit()
-	else:
-		addr = config["beam_addr"]
+	global main_chat
+	config = _updateConfig()
 
 	session = requests.Session()
 
-	loginRet = session.post(
-		addr + '/users/login',
-		data=_get_auth_body()
-	)
-
-	if loginRet.status_code != requests.codes.ok:
-		print (loginRet.text)
-
-		user_id = loginRet.json()["id"]
-
-	channel = config["channel"]
-
-	chat_ret = session.get(
-		addr + "/chats/{}".format(channel)
-	)
-
-	if chat_ret.status_code != requests.codes.ok:
-		print ('ERROR!')
-		print ('Message:\t',control_ret.json())
-		print(control_ret.json())
+	if not config:
+		logging.error('\033[1;31mConfig file missing!\033[0m\n')
+		logging.error('Please run setup before launching the bot.')
+		logging.error('To do so run:\tpython3 setup.py')
 		quit()
+	else:
+		addr = "https://beam.pro/api/v1"
+		if config["channel"] != None or config["channel"].strip() != "":
+			channel = config["channel"]
+		else:
+			chanOwner = input("Channel [Channel owner's username]: ").lower()
+			chatChannel = session.get(
+				addr + '/channels/' + chanOwner
+			)
 
-	chat_details = chat_ret.json()
-	endpoint = chat_details["endpoints"][0].encode('utf-8')
-	authkey = chat_details["authkey"]
+			if _checkStatus(chatChannel):
+				channel = chatChannel.json()['id']
+			else:
+				logging.error('ERROR!')
+				logging.error('Message:\t',chatChannel.json()['message'])
+				quit()
 
-	log.startLogging(sys.stdout)
+	observer = log.PythonLoggingObserver(loggerName='logname')
+	observer.start()
+	logging.basicConfig(stream=sys.stdout,
+						level=logging.INFO,
+						format='%(asctime)s [-] %(levelname)s:%(message)s')
 
-	parser = OptionParser()
-	parser.add_option("-u", "--url", dest=endpoint, help="Beam WS URL", default="wss://127.0.0.1:9000")
-	(options, args) = parser.parse_args()
+	main_chat = Connection(addr=addr, channel=channel, session=session)
 
 	# create a WS server factory with our protocol
 	##
-	factory = WebSocketClientFactory(options.url, debug=False)
-	factory.protocol = EchoClientProtocol
+	factory = WebSocketClientFactory(main_chat.endpoint, debug=False)
+	factory.protocol = MyClientProtocol
 
 	# SSL client context: default
 	##
