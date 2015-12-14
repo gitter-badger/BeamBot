@@ -46,6 +46,7 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
 
 # PyBot modules
 from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage
+from exceptions import *
 
 class Connection:
 	def __init__(self, *args, **kwargs):
@@ -80,14 +81,19 @@ class Connection:
 			logging.error(chat_ret.status_code)
 			quit()
 
-	def register_conn(self, conn):
-		"""Register the WS connection with the Connection object"""
-		if conn != None or conn != "":
-			self.conn = conn
-			logging.info("WS connection registered: " + conn)
-			return True
+		# create a WS server factory with our protocol
+		##
+		self.factory = WebSocketClientFactory(self.endpoint, debug=False)
+		self.factory.protocol = MyClientProtocol
+
+		# SSL client context: default
+		##
+		if self.factory.isSecure:
+			self.contextFactory = ssl.ClientContextFactory()
 		else:
-			return False
+			self.contextFactory = None
+
+		connectWS(self.factory, self.contextFactory)
 
 class MyClientProtocol(WebSocketClientProtocol):
 
@@ -101,7 +107,7 @@ class MyClientProtocol(WebSocketClientProtocol):
 		packet = {
 			"type":"method",
 			"method":"auth",
-			"arguments":[main_chat.channel, main_chat.user_id, main_chat.authkey]
+			"arguments":[chat.channel, chat.user_id, chat.authkey]
 		}
 
 		self.sendMessage(json.dumps(packet).encode("utf-8"))
@@ -118,7 +124,7 @@ class MyClientProtocol(WebSocketClientProtocol):
 			logging.error(e)
 		else:
 			pass
-			
+
 	def onClose(self, wasClean, code, reason):
 		logging.info("WebSocket connection closed: {0}".format(reason))
 
@@ -137,18 +143,18 @@ if __name__ == '__main__':
 	else:
 		addr = "https://beam.pro/api/v1"
 		if config["channel"] != None or config["channel"].strip() != "":
-			channel = config["channel"]
+			main_chan = config["channel"]
 		else:
 			chanOwner = input("Channel [Channel owner's username]: ").lower()
-			chatChannel = session.get(
+			chat_channel = session.get(
 				addr + '/channels/' + chanOwner
 			)
 
-			if _checkStatus(chatChannel):
-				channel = chatChannel.json()['id']
+			if _checkStatus(control_channel):
+				control_chan = control_channel.json()['id']
 			else:
 				logging.error('ERROR!')
-				logging.error('Message:\t',chatChannel.json()['message'])
+				logging.error('Message:\t',control_channel.json()['message'])
 				quit()
 
 	observer = log.PythonLoggingObserver(loggerName='logname')
@@ -157,19 +163,7 @@ if __name__ == '__main__':
 						level=logging.INFO,
 						format='%(asctime)s [-] %(levelname)s:%(message)s')
 
-	main_chat = Connection(addr=addr, channel=channel, session=session)
+	main_chat = Connection(addr=addr, channel=main_chan, session=session)
+	control_chat = Connection(addr=addr, channel="22085", session=session)
 
-	# create a WS server factory with our protocol
-	##
-	factory = WebSocketClientFactory(main_chat.endpoint, debug=False)
-	factory.protocol = MyClientProtocol
-
-	# SSL client context: default
-	##
-	if factory.isSecure:
-		contextFactory = ssl.ClientContextFactory()
-	else:
-		contextFactory = None
-
-	connectWS(factory, contextFactory)
 	reactor.run()

@@ -1,5 +1,7 @@
 import json
 import os
+import logging
+
 from requests import codes
 from exceptions import *
 
@@ -41,5 +43,3 @@ def _checkMessage(response):
 
 	if response["data"]["authenticated"] != True:
 		raise NotAuthenticated
-
-	
