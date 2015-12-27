@@ -364,6 +364,7 @@ def main():
 		messages.close(websocket)
 		loop.close()
 		p = subprocess.Popen(['sh', './restart.sh'])
+		print ("Restarting bot")
 		quit()
 
 if __name__ == "__main__":
