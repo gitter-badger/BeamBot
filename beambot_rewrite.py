@@ -48,8 +48,15 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
 from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage
 from exceptions import *
 
+global cur_channel, cur_user_id, cur_authkey
+cur_channel = ""
+cur_user_id = ""
+cur_authkey = ""
+
 class Connection:
 	def __init__(self, *args, **kwargs):
+		global cur_channel, cur_user_id, cur_authkey
+
 		self.addr = kwargs["addr"]			# Beam API base URL
 		self.channel = kwargs["channel"]	# Channel to connect to
 
@@ -81,13 +88,15 @@ class Connection:
 			logging.error(chat_ret.status_code)
 			quit()
 
+		cur_channel = self.channel
+		cur_user_id = self.user_id
+		cur_authkey = self.authkey
+
 		# create a WS server factory with our protocol
-		##
 		self.factory = WebSocketClientFactory(self.endpoint, debug=False)
 		self.factory.protocol = MyClientProtocol
 
 		# SSL client context: default
-		##
 		if self.factory.isSecure:
 			self.contextFactory = ssl.ClientContextFactory()
 		else:
@@ -101,6 +110,7 @@ class MyClientProtocol(WebSocketClientProtocol):
 		logging.info("Server connected: {0}".format(response.peer))
 
 	def onOpen(self):
+
 		logging.info("WebSocket connection opened.")
 
 		# Register user in chat
@@ -117,6 +127,7 @@ class MyClientProtocol(WebSocketClientProtocol):
 			logging.info("Binary message received: {0} bytes".format(len(payload)))
 		else:
 			logging.info("Message received: {0}".format(payload.decode('utf8')))
+			logging.info(chat.channel)
 		try:
 			_checkMessage(json.loads(payload.decode('utf-8')))
 		except NonNoneError as e:
@@ -150,8 +161,8 @@ if __name__ == '__main__':
 				addr + '/channels/' + chanOwner
 			)
 
-			if _checkStatus(control_channel):
-				control_chan = control_channel.json()['id']
+			if _checkStatus(chat_channel):
+				main_chan = chat_channel.json()['id']
 			else:
 				logging.error('ERROR!')
 				logging.error('Message:\t',control_channel.json()['message'])
@@ -163,7 +174,6 @@ if __name__ == '__main__':
 						level=logging.INFO,
 						format='%(asctime)s [-] %(levelname)s:%(message)s')
 
-	main_chat = Connection(addr=addr, channel=main_chan, session=session)
-	control_chat = Connection(addr=addr, channel="22085", session=session)
+	chat = Connection(addr=addr, channel=main_chan, session=session)
 
 	reactor.run()
