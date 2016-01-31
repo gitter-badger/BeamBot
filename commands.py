@@ -140,6 +140,8 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	# ----------------------------------------------------------
 	cmd = cur_item[1:].split()
 
+	print (cur_item)
+
 	if len(cmd) < 1:
 		return None, False	# It's a single "!" character, so return None (not a command)
 
@@ -226,7 +228,7 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 		response = responses.whoami(user_name, is_mod, is_owner)
 
 	elif cmd[0] == "command":	# Add command for any users
-		if len(cmd) <= 3:	# It's not long enough to have a response
+		if len(cmd) <= 2:	# It's not long enough to have a response
 			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
 
 		if cmd[1] == "add":
@@ -239,7 +241,7 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 
 	elif cmd[0] == "command+":	# Add mod-only command
-		if len(cmd) <= 3:	# It's not long enough to have a response
+		if len(cmd) <= 2:	# It's not long enough to have a response
 			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
 
 		if cmd[1] == "add":

@@ -29,7 +29,7 @@
             "ban":"!ban <user>",
             "unban":"!unban <user>",
             "blame":"!blame<user>, !blame <user>",
-            "command":"!command [add/remove/update]<command> <response>",
+            "command":"!command [add/update/remove] <command> <response (not needed for remove)>",
             "command+":"!command+ [add/remove/update] <command> <response>",
             "commands":"!commands, !commands <command>",
             "dimes":"!dimes for your # of Gears, !dimes <user> for specific user's gears",
