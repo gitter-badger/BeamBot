@@ -43,9 +43,9 @@ Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ##### **(3.3.3a)** - Maybe fixed TypeError NoneType bug? Nobody knows.
 
-**(3.3.4)** - Fixed issue with !command add that had a link creating multiple versions
+**(3.3.4)** - Fixed issue with !command add that had a link creating multiple versions (fixes #13 & #14)
 
-**(3.3.4)** - Fixed issue with !command remove returning the usage & not removing cmd
+**(3.3.4)** - Fixed issue with !command remove returning the usage & not removing cmd (fixes #15)
 
 **(3.3.4)** - Updated setup script to accept empty input for custom currency command - now reverts command to       currency name
 
