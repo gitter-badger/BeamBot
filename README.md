@@ -23,7 +23,7 @@ Once the proper modules are installed, run the `setup.py` script with `python3 s
 
 Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
-## Features in 3.3.3
+## Features in 3.3.4
 
 ##### **(3.3.0)** - Mucho Beuno, Mucho Grande release 3.3.0! \o/
 
@@ -41,7 +41,13 @@ Simply run `beambot.py` with Python 3! (`python3 beambot.py`)
 
 ##### **(3.3.3)** - Fixed TypeError NoneType bug that would crash the bot
 
-**(3.3.3a)** - Maybe fixed TypeError NoneType bug? Nobody knows.
+##### **(3.3.3a)** - Maybe fixed TypeError NoneType bug? Nobody knows.
+
+**(3.3.4)** - Fixed issue with !command add that had a link creating multiple versions
+
+**(3.3.4)** - Fixed issue with !command remove returning the usage & not removing cmd
+
+**(3.3.4)** - Updated setup script to accept empty input for custom currency command - now reverts command to       currency name
 
 ### Recognitions
 - BreachX3 & 2Cubed & dminer78: For hanging out with me on the many, many streams that it took to get this bot in working order & always being happy to help & being super supportive

@@ -208,7 +208,7 @@ def custom(user_name, cur_item, is_mod, is_owner):	# Check unknown command, migh
 		else:
 			return None
 
-def editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only):
+def editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only, user_msg=None):
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
@@ -243,7 +243,7 @@ def editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only):
 	else:
 		return None			# Return None because the user isn't mod or owner
 
-def command(user_name, cur_item, is_mod, is_owner):			# Command available to anyone
+def command(user_name, cur_item, is_mod, is_owner, user_msg=None):			# Command available to anyone
 	global cust_commands
 
 	if is_mod or is_owner:	# Make sure the user is a mod or streamer
@@ -262,6 +262,11 @@ def command(user_name, cur_item, is_mod, is_owner):			# Command available to any
 				'op':'False',
 				'response':response
 			}
+
+			# Check for duplicatesl
+			for cmd in cust_commands:
+				if cmd["cmd"] == newCMD["cmd"]:
+					return None
 
 			cust_commands.append(newCMD)
 

@@ -22,7 +22,10 @@
 	Author: 	RPiAwesomeness
 	Date:		December 10, 2015
 
-	Changelog:	Maybe fixed TypeError bug? Who knows
+	Changelog:	Fixed issue with !command remove returning the usage & not removing cmd
+				Fixed issue with !command add that had a link creating multiple versions
+				Updated setup script to accept empty input for custom currency command - now reverts command
+					to currency name
 -+=============================================================+
 """
 
@@ -227,7 +230,7 @@ def readChat():
 				if user_name not in activeChat:
 					activeChat.append(user_name)
 
-				response, goodbye = commands.prepCMD(msg, msgLocalID, websocket)
+				response, goodbye = commands.prepCMD(msg, msgLocalID, websocket, user_name, user_roles, user_id, msg_text)
 
 				if goodbye:							# If goodbye is set to true, bot is supposed to turn off
 
