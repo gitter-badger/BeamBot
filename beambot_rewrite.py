@@ -24,9 +24,9 @@
 
 	Changelog:	Fixed a bug where a message of just !
 				would crash the bot
-			Fixed a bug where running currency cmds
-				within the cmd timeout would
-				crash the bot
+				Fixed a bug where running currency cmds
+					within the cmd timeout would
+					crash the bot
 -+=============================================================+
 """
 
@@ -45,7 +45,7 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
 	WebSocketClientFactory, connectWS
 
 # PyBot modules
-from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage, _parseMessage
+from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage, _parseMessage, _setParent, _getParent
 from exceptions import *
 
 global cur_channel, cur_user_id, cur_authkey
@@ -92,6 +92,8 @@ class Connection:
 		cur_user_id = self.user_id
 		cur_authkey = self.authkey
 
+		self.user_roles = []
+
 		# create a WS server factory with our protocol
 		self.factory = WebSocketClientFactory(self.endpoint, debug=False)
 		self.factory.protocol = MyClientProtocol
@@ -101,6 +103,9 @@ class Connection:
 			self.contextFactory = ssl.ClientContextFactory()
 		else:
 			self.contextFactory = None
+
+		# Register the self object we have so others can make use of it
+		_setParent(self)
 
 		connectWS(self.factory, self.contextFactory)
 
@@ -127,16 +132,23 @@ class MyClientProtocol(WebSocketClientProtocol):
 			logging.info("Binary message received: {0} bytes".format(len(payload)))
 		else:
 			logging.info("Message received: {0}".format(payload.decode('utf8')))
-			logging.info(chat.channel)
+			logging.info("Channel:\t" + chat.channel)
 		try:
 			msg = json.loads(payload.decode('utf-8'))
-			_checkMessage(msg)
-			resp, roles = _parseMessage(msg)
+			# Check the type of the message
+			is_auth = _checkMessage(msg)
 
-			if not resp:
-				raise NotAuthenticated
+			if is_auth:
+				# Get the Parent object
+				Parent = _getParent()
+				# Set the user roles from what we got back
+				Parent.user_roles = msg["data"]["roles"]
+			elif is_auth == None:
+				logging.info("Not Auth")
 			else:
-				
+				raise NotAuthenticated
+
+			logging.info(payload)
 
 		except NonNoneError as e:
 			logging.error("ERROR - NonNoneError")

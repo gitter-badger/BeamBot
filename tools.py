@@ -4,6 +4,9 @@ import logging
 
 from requests import codes
 from exceptions import *
+from messageClasses import *
+
+global Parent
 
 if os.path.exists('data/config.json'):
 	config = json.load(open('data/config.json', 'r'))
@@ -36,16 +39,42 @@ def _checkStatus(response):
 def _checkMessage(response):
 
 	if "type" in response:
-		logging.info(response["type"])
+		logging.info("Response type:\t" + response["type"])
+	else:
+		logging.warning("Totally confused here - no type key")
 
-	if response["error"] != None:
-		raise NonNoneError("error")
+	if "error" in response:
+		if response["error"] != None:
+			raise NonNoneError("error")
 
 	if "authenticated" in response["data"]:
 		if response["data"]["authenticated"] != True:
 			raise NotAuthenticated
+		else:
+			return True
+	else:
+		logging.info("tools51:\t" + str(response))
+
+		return None
 
 def _parseMessage(payload):
-	if "authenticated" in payload["data"]:
-		# We're authenticated, so return True & the user's roles
-		return True, payload["data"]["roles"]
+	if "type" in payload:
+		if payload["type"] == "event:
+			if "event" in payload:
+				if payload["event"] == "ChatMessage":
+					data = payload["data"]
+					# Iterate through the message section
+					for segment in data["message"]:
+						segment
+					msg = Message(data["user_name"], data["user_roles"], data["user_id"], msg_text)
+	pass
+
+def _setParent(parent):
+	global Parent
+
+	Parent = parent
+
+def _getParent():
+	global Parent
+
+	return Parent

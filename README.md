@@ -11,6 +11,7 @@ Python 3 is required. I develop using Python 3.5 on Ubuntu 14.04/Ubuntu 15.04, o
 - `autobahn`: Easily installable from `pip` with `pip3 install autobahn`.
 - `pyOpenSSL` & `service_identity`: Installed via `sudo pip3 install service-identity` (this will install pyOpenSSL)
 - `requests`: Installed via `sudo pip3 install requests`
+- **Note**: You may run into an issue when installing `pyOpenSSL` where it crashes when installing the `cryptography` module. You should look [here](http://stackoverflow.com/questions/22073516/failed-to-install-python-cryptography-package-with-pip-and-setup-py) to see what to do.
 
 ### Bot Setup
 
