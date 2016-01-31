@@ -55,10 +55,7 @@ def _updateConfig():
 		return config
 
 def prepCMD(msg, msg_local_id, websocket, user_name, user_roles, user_id):
-
 	msg_id = msg['id']
-
-	msg = msg['message']
 
 	response = None		# Have to declare variable as None to avoid UnboundLocalError
 	goodbye  = False 	# Have to declare variable as False to avoid UnboundLocalError
@@ -104,26 +101,37 @@ def prepCMD(msg, msg_local_id, websocket, user_name, user_roles, user_id):
 	of the current part of the message.
 	"""
 
-	for i in range(0, len(msg['message'])):
-		msg_cur = msg['message'][i]
+	try:
+		for i in range(0, len(msg)):
 
-		if i % 2:		# Every 2 messages
-			cur_item += msg_cur['text']
-		else:
-			if 'data' in msg_cur:
-				cur_item += msg_cur['data']
+			msg_cur = msg["message"]["message"][i]
 
-			elif 'me' in msg_cur:
+			if i % 2:		# Every 2 messages
 				cur_item += msg_cur['text']
+			else:
+				if 'data' in msg_cur:
+					cur_item += msg_cur['data']
 
-	for item in msg['message']:	# Iterate through the message
+				elif 'me' in msg_cur:
+					cur_item += msg_cur['text']
+	except TypeError:
+		# HACK: This works because it keeps execution going when it's not the right key
+		pass
+
+	except IndexError:
+		# HACK: This works because it keeps execution going when it's not the right key
+		pass
+
+	for item in msg:	# Iterate through the message
 
 		if len(cur_item) >= 1:	# Just make sure it's an actual message
 
 			if cur_item[0] == '!':	# It's a command! Pay attention!
-
 				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner, websocket)
+
 				return response, goodbye
+
+	return None, None
 
 def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None):
 
