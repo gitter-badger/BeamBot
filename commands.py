@@ -54,7 +54,7 @@ def _updateConfig():
 		config = json.load(open('data/config.json', 'r'))
 		return config
 
-def prepCMD(msg, msg_local_id, websocket, user_name, user_roles, user_id, user_msg):
+def prepCMD(msg, msg_local_id, websocket, user_name, user_roles, user_id):
 
 	msg_id = msg['id']
 
@@ -122,10 +122,10 @@ def prepCMD(msg, msg_local_id, websocket, user_name, user_roles, user_id, user_m
 
 			if cur_item[0] == '!':	# It's a command! Pay attention!
 
-				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner, websocket, user_msg=user_msg)
+				response, goodbye = getResp(cur_item, user_name, user_id, msg_local_id, is_mod, is_owner, websocket)
 				return response, goodbye
 
-def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None, user_msg=None):
+def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=False, is_owner=False, websocket=None):
 
 	goodbye = False
 
@@ -135,8 +135,6 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 	# Commands
 	# ----------------------------------------------------------
 	cmd = cur_item[1:].split()
-
-	print (cur_item)
 
 	if len(cmd) < 1:
 		return None, False	# It's a single "!" character, so return None (not a command)
@@ -228,11 +226,11 @@ def getResp(cur_item, user_name=None, user_id=None, msg_local_id=None, is_mod=Fa
 			return usage.prepCmd(user_name, "command", is_mod, is_owner), False
 
 		if cmd[1] == "add":
-			response = responses.command(user_name, cur_item, is_mod, is_owner, user_msg=user_msg)
+			response = responses.command(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "remove":
 			response = responses.commandRM(user_name, cur_item, is_mod, is_owner)
 		elif cmd[1] == "update":
-			response = responses.editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only=False, user_msg=user_msg)
+			response = responses.editCommand(user_name, cur_item, is_mod, is_owner, is_mod_only=False)
 		else:					# Not add or remove, return usage
 			response = usage.prepCmd(user_name, "command", is_mod, is_owner)
 
