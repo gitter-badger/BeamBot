@@ -45,7 +45,7 @@ from autobahn.twisted.websocket import WebSocketClientProtocol, \
 	WebSocketClientFactory, connectWS
 
 # PyBot modules
-from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage
+from tools import _getAuthBody, _updateConfig, _checkStatus, _checkMessage, _parseMessage
 from exceptions import *
 
 global cur_channel, cur_user_id, cur_authkey
@@ -129,7 +129,15 @@ class MyClientProtocol(WebSocketClientProtocol):
 			logging.info("Message received: {0}".format(payload.decode('utf8')))
 			logging.info(chat.channel)
 		try:
-			_checkMessage(json.loads(payload.decode('utf-8')))
+			msg = json.loads(payload.decode('utf-8'))
+			_checkMessage(msg)
+			resp, roles = _parseMessage(msg)
+
+			if not resp:
+				raise NotAuthenticated
+			else:
+				
+
 		except NonNoneError as e:
 			logging.error("ERROR - NonNoneError")
 			logging.error(e)

@@ -41,5 +41,11 @@ def _checkMessage(response):
 	if response["error"] != None:
 		raise NonNoneError("error")
 
-	if response["data"]["authenticated"] != True:
-		raise NotAuthenticated
+	if "authenticated" in response["data"]:
+		if response["data"]["authenticated"] != True:
+			raise NotAuthenticated
+
+def _parseMessage(payload):
+	if "authenticated" in payload["data"]:
+		# We're authenticated, so return True & the user's roles
+		return True, payload["data"]["roles"]
