@@ -263,8 +263,6 @@ def command(user_name, cur_item, is_mod, is_owner):			# Command available to any
 				'response':response
 			}
 
-			print ("responses266:\t", cust_commands)
-
 			# Check for duplicates
 			for cmd in cust_commands:
 				if cmd["cmd"] == newCMD["cmd"]:
@@ -296,24 +294,16 @@ def commandMod(user_name, cur_item, is_mod, is_owner):		# Command available to m
 
 			print ('response:\t',response)
 
-			for cmd in cust_commands:			# Loop through the list of custom commands JSON objects
-				print ('cmd[\'cmd\']:\t',cmd['cmd'])
-				if cmd['cmd'] == command:	# Does the JSON object's command match the command we're making/updating?
-					cmd['response'] = response 	# Update the response
-					cmd['op'] = 'True'			# Update the OP-only value to True
-					with open('data/commands{}.json'.format(config['CHANNEL']), 'w') as f:
-						f.write(json.dumps(cust_commands, sort_keys=cmd))
-
-					# Command exists, so it has been updated
-					return 'Command \'' + cmd['cmd'] + '\' updated! ' + cmd['response']
-
-			# If we make it past the for loop, then the command doesn't exist, so make a new one
-
 			newCMD = {
 				'cmd':command,
 				'op':'True',
 				'response':response
 			}
+
+			# Check for duplicates
+			for cmd in cust_commands:
+				if cmd["cmd"] == newCMD["cmd"]:
+					return None
 
 			cust_commands.append(newCMD)
 
