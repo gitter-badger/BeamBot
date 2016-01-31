@@ -263,7 +263,8 @@ def command(user_name, cur_item, is_mod, is_owner):			# Command available to any
 				'response':response
 			}
 
-			# Check for duplicatesl
+			# Check for duplicates
+			print (cust_commands)
 			for cmd in cust_commands:
 				if cmd["cmd"] == newCMD["cmd"]:
 					return None
