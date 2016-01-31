@@ -18,9 +18,9 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/agpl.html>.
 
 -+=============================================================+-
-	Version: 	3.3.3a
+	Version: 	3.3.4
 	Author: 	RPiAwesomeness
-	Date:		December 10, 2015
+	Date:		January 30, 2016
 
 	Changelog:	Fixed issue with !command remove returning the usage & not removing cmd
 				Fixed issue with !command add that had a link creating multiple versions
