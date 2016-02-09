@@ -1,5 +1,7 @@
 # BeamBot Repository
 
+[![Join the chat at https://gitter.im/RPiAwesomeness/BeamBot](https://badges.gitter.im/RPiAwesomeness/BeamBot.svg)](https://gitter.im/RPiAwesomeness/BeamBot?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 This is my repository for my PyBot project, a Beam.pro chat bot.
 
 ## Setup
